@@ -1,0 +1,26 @@
+.search {
+  margin-bottom: 4rem;
+}
+
+.search > input {
+  padding: 0.25rem .5rem;
+  border-radius: 8px;
+  outline: none;
+  border: none;
+  margin-right: 8px;
+  min-width: 400px;
+  height: 45px;
+  font-size: 1.1rem;
+}
+
+.search > button {
+  height: 45px;
+  width: 45px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.search > button:hover {
+  filter: brightness(0.7);
+}
