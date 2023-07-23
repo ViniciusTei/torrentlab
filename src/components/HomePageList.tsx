@@ -1,26 +1,21 @@
 import MovieItem from './MovieItem'
-import SearchInput from './Search'
-import { fetchMovieData } from '../services/movies'
+import { MovieData } from '../services/movies'
 
-async function HomePageList() {
-  const { data } = await fetchMovieData(30, 1, undefined) 
+interface Props {
+  title: string
+  data: MovieData[]
+}
+
+async function HomePageList({ title, data }: Props) {
 
   return (  
-    <div>
-      <h1 className="mb-8">Buscar filmes para baixar</h1>
-        
-      <SearchInput/>
-
-      {!data ? (
-          <div>Carregando...</div>
-        ) : (
-          <div className="grid col-gap-6 relative">
-            {data && data.movies?.length > 0 && data.movies.map(movie => (
-              <MovieItem key={movie.id} movie={movie} />
-            ))}
-          </div>
-      )}
-        
+    <div className='w-full overflow-x-hidden'>
+      <h2 className="text-3xl capitalize mb-4 mt-6">{title}</h2>
+      <div className="flex items-center gap-2 overflow-x-hidden">
+        {data && data.length > 0 && data.map(movie => (
+          <MovieItem key={movie.id} movie={movie} />
+        ))}
+      </div>
     </div>
   )
 }
