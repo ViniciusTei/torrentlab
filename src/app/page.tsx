@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 
 import HomePageList from '../components/HomePageList'
-import styles from '../styles/Home.module.css'
 
 export const metadata: Metadata = {
   title: 'Torrent Lab',
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   return (
-  <main className={styles.main}>
+  <main className="flex flex-col items-center min-h-screen">
     <HomePageList /> 
   </main>
   )

@@ -2,6 +2,8 @@ import React from 'react'
 import { Metadata } from 'next'
 import '../styles/global.css'
 
+import NavHeader from '../components/NavHeader'
+
 interface RootLayoutProps {
   children: React.ReactNode
 }
@@ -14,7 +16,10 @@ export const metadata: Metadata = {
 function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="bg-black text-white">
+        <NavHeader/>
+        {children}
+      </body>
     </html>
   )
 }

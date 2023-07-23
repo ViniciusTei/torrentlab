@@ -6,8 +6,7 @@ import Image from 'next/image'
 import { FaTimes, FaStar, FaDownload } from 'react-icons/fa'
 import download from 'js-file-download'
 
-import createMagnetLink from '../../utils/magnet'
-import styles from './styles.module.css'
+import createMagnetLink from '../utils/magnet'
 
 function MovieItem({ movie }) {
   const [isModalOpen, toggleIsModalOpen] = useReducer(prev => !prev, false)
@@ -20,32 +19,39 @@ function MovieItem({ movie }) {
 
   return (
     <>
-      <div key={movie.id} className={styles.movie_item} onClick={toggleIsModalOpen}>
+      <div key={movie.id} className="cursor-pointer" onClick={toggleIsModalOpen}>
         <Image alt={movie.title} src={movie.large_cover_image} width="135" height="200" />
       </div>
       {isModalOpen && (
-        <div className={styles.movie_modal}>
-          <div className={styles.movie_modal_header}>
-            <FaTimes onClick={toggleIsModalOpen}/>
+        <div className="fixed">
+          <div className="flex items-end justify-end">
+            <FaTimes className="cursor-pointer" onClick={toggleIsModalOpen}/>
           </div>
           
-          <div className={styles.movie_modal_content}>
+          <div className="flex gap-3">
             <div>
               <Image alt={movie.title} src={movie.large_cover_image} width="262" height="400" />
             </div>
-            <div className={styles.movie_modal_content_details}>
+            <div >
               <h1>{movie.title}</h1>
-              <p>{movie.year}</p>
-              <p>{movie.genres.join(', ')}</p>
-              <p>{movie.rating} <FaStar /> </p>
-              <p>{movie.synopsis}</p>
+              <p className="mt-2">{movie.year}</p>
+              <p className="mt-2">{movie.genres.join(', ')}</p>
+              <p className="mt-2">{movie.rating} <FaStar /> </p>
+              <p className="mt-2">{movie.synopsis}</p>
             </div>
 
           </div>
 
-          <div className={styles.movie_modal_content_download}>
+          <div className="flex items-center justify-center gap-8">
             {movie.torrents.map((torrent: any) => (
-              <button title={torrent.type} type="button" onClick={() => handleDownload(torrent)}><FaDownload/> {torrent.quality}, <p>{torrent.size}</p></button>
+              <button 
+                title={torrent.type} 
+                type="button" 
+                className="bg-transparent rounded cursor-pointer"
+                onClick={() => handleDownload(torrent)}
+              >
+                <FaDownload/> {torrent.quality}, <p className="text-xs">{torrent.size}</p>
+              </button>
             ))}
           </div>
 

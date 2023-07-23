@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { FaSearch } from 'react-icons/fa'
-import styles from './styles.module.css'
 
 function SearchInput() {
   const [search, setSearch] = useState<string>()
@@ -15,9 +14,9 @@ function SearchInput() {
   }
 
   return (
-    <div className={styles.search}>
-      <input type="text" placeholder="Buscar filme" onChange={(ev) => setSearch(ev.target.value)}/>
-      <button onClick={handleSearch}>
+    <div>
+      <input className="rounded-lg mr-2 h-5 pl-1 text-sm" type="text" placeholder="Buscar filme" onChange={(ev) => setSearch(ev.target.value)}/>
+      <button onClick={handleSearch} className="h-12 w-12 bg-transparent cursor-pointer">
         <FaSearch size="1.1rem"/>
       </button>
     </div>
