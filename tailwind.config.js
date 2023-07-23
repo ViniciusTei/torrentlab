@@ -12,9 +12,9 @@ module.exports = {
       'green': '#1EBC99',
       'black': '#0A070B',
       'gray': {
-        100: '#E8ECEF',
+        100: '#807E81',
         500: '#4F4E50',
-        800: '#363536'
+        800: '#E8ECEF'
       }
     },
     extend: {

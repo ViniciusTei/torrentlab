@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 
 import HomePageList from '../components/HomePageList'
+import HomePageCarousel from '../components/HomePageCarousel'
 
 export const metadata: Metadata = {
   title: 'Torrent Lab',
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default async function Home() {
   return (
   <main className="flex flex-col items-center min-h-screen">
+    <HomePageCarousel />
     <HomePageList /> 
   </main>
   )

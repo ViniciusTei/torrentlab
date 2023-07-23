@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body className="bg-black text-white">
+      <body className="bg-black text-white overflow-x-hidden">
         <NavHeader/>
         {children}
       </body>
