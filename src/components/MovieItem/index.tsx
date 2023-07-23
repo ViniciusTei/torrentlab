@@ -1,16 +1,18 @@
-import React, { useReducer } from 'react'
+'use client'
+
+import { useReducer } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 import { FaTimes, FaStar, FaDownload } from 'react-icons/fa'
 import download from 'js-file-download'
 
-import createMagnetLink from '@/utils/magnet'
+import createMagnetLink from '../../utils/magnet'
 import styles from './styles.module.css'
 
 function MovieItem({ movie }) {
   const [isModalOpen, toggleIsModalOpen] = useReducer(prev => !prev, false)
 
-  async function handleDownload(torrent) {
+  async function handleDownload(torrent: any) {
     const magnet = createMagnetLink(torrent.hash, movie.title)
     const response = await axios.post('http://localhost:3000/api/download', { magnet })
     download(response.data, `${movie.tile}.torrent`)
@@ -42,7 +44,7 @@ function MovieItem({ movie }) {
           </div>
 
           <div className={styles.movie_modal_content_download}>
-            {movie.torrents.map(torrent => (
+            {movie.torrents.map((torrent: any) => (
               <button title={torrent.type} type="button" onClick={() => handleDownload(torrent)}><FaDownload/> {torrent.quality}, <p>{torrent.size}</p></button>
             ))}
           </div>

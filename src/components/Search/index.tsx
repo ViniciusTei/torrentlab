@@ -1,13 +1,15 @@
-import React, { useState } from 'react'
+'use client'
+
+import { useState } from 'react'
 import { FaSearch } from 'react-icons/fa'
 import styles from './styles.module.css'
 
-function SearchInput({ onSearchChange }) {
-  const [search, setSearch] = useState()
+function SearchInput() {
+  const [search, setSearch] = useState<string>()
 
   async function handleSearch() {
     if (search) {
-      onSearchChange(search)
+      alert(`Search for ${search}`)
       setSearch(undefined)
     }
   }

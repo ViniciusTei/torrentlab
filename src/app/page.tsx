@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 
-import HomePage from '../components/Pages/HomePage'
-import { getMovies } from '../services/movies'
+import HomePageList from '../components/HomePageList'
 import styles from '../styles/Home.module.css'
 
 export const metadata: Metadata = {
@@ -13,13 +12,10 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  const { data } = await getMovies(0, undefined)
   return (
-    <>
-      <main className={styles.main}>
-        <HomePage data={data} /> 
-      </main>
-    </>
+  <main className={styles.main}>
+    <HomePageList /> 
+  </main>
   )
 }
 
