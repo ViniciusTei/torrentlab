@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import axios from 'axios'
 
-export default async function handler(req, res) {
+export default async function GET(req, res) {
   const { limit, page, query_term } = req.query
 
   //create url to search in yts api

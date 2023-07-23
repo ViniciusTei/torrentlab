@@ -2,8 +2,8 @@
 import magnetToTorrent from 'magnet2torrent-js'
 import fs from 'fs'
 
-export default async function handler(req, res) {
-  const { magnet } = req.body
+export default async function POST(req: Request, res: Response) {
+  const { magnet } = req.body as any
 
   const trackers = [
     'udp%3A%2F%2Fopen.demonii.com%3A1337',
