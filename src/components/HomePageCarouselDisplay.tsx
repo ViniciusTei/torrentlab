@@ -46,6 +46,7 @@ function HomePageCarouselDisplay({ data }: Props) {
             className={`flex-1 flex justify-center items-center relative h-[721px]`}
           >
             <img src={d.images.backdrop_paths.lg} alt={d.title} className="w-[1440px] mx-2 h-[712px]" /> 
+            <div className='w-full h-full top-0 left-0 bg-gradient-to-t from-black absolute' />
             <div className='absolute left-48 bottom-36 max-w-lg pl-4'>
               <h2 className='text-3xl font-semibold capitalize mb-3'>{d.title}</h2>
               <div className='my-1 text-xl font-semibold'>
