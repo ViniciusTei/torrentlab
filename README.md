@@ -12,6 +12,6 @@ Thanks to [WebTorrent](https://github.com/webtorrent/webtorrent) service that al
 
 - [x] Refactor to TypeScript and Tailwind
 - [x] Refactor to use app routes from Next13
-- [ ] Remove TYS API and add Jackett trackers
+- [x] Remove TYS API and add Jackett trackers
 - [ ] Better UI with categories, search and favorites
 - [ ] Auto download new episodes from favorites

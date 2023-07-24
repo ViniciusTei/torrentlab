@@ -1,10 +1,10 @@
-'use client'
-
 import axios from 'axios'
 import download from 'js-file-download'
 
 import createMagnetLink from '../utils/magnet'
-import { MovieDataTorrent, TheMovieDb } from '../services/movies'
+import { TheMovieDb } from '../services/movies'
+import { FaDownload } from 'react-icons/fa'
+import { torrentFactory } from '../services/torrents'
 
 interface Props {
   movie: TheMovieDb
@@ -12,16 +12,23 @@ interface Props {
 
 function MovieItem({ movie }: Props) {
 
-  async function handleDownload(torrent: MovieDataTorrent) {
-    const magnet = createMagnetLink(torrent.hash, movie.title)
-    const response = await axios.post('http://localhost:3000/api/download', { magnet })
-    download(response.data, `${movie.title}.torrent`)
+  async function handleDownload(name: string) {
+    console.log('going to download', name)
+    const data = await torrentFactory(name)
+    console.log('from factory', data)
+    //const magnet = createMagnetLink(torrent.hash, movie.title)
+    //const response = await axios.post('http://localhost:3000/api/download', { magnet })
+    //download(response.data, `${movie.title}.torrent`)
   }
 
   return (
-    <div key={movie.id} className="cursor-pointer w-52 h-72">
-      <img alt={movie.title} src={movie.images.poster_paths.md} width="135" height="200" />
-      <p>{movie.title}</p>
+    <div key={movie.id} className="cursor-pointer min-w-[226px] h-[385px] flex-1 bg-white text-black pt-2 px-0 rounded-sm relative">
+      <img alt={movie.title} src={movie.images.poster_paths.md} className="object-contain m-0 p-0 mx-auto" />
+      <p className="ml-2 font-semibold">{movie.title}</p>
+      <p className="ml-2 font-light text-xs">{movie.genres.join("/")}</p>
+      <button type="button" className="absolute bottom-2 right-2" onClick={() => handleDownload(movie.original_title)}>
+        <FaDownload color="#1884F7" />
+      </button>
     </div>
   )
 }

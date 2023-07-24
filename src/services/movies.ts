@@ -1,13 +1,3 @@
-export type MovieDataTorrent = {
-  url: string
-  hash: string
-  quality: string
-  seeds: number
-  peers: number
-  size: string
-  size_bytes: number
-}
-
 const THEMOVIEDB = 'https://api.themoviedb.org/'
 
 export type TheMovieDbResult = {
@@ -30,51 +20,6 @@ export type TheMovieDbResponse = {
   results: TheMovieDbResult[]
 }
 
-async function fetchTheMovieDb(url: string) {
-  const options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZGNlNTk5NGFkMmE1NWU2YjJhMGYxNmZlYmUxOWIxYyIsInN1YiI6IjYwNWY1YTE5ZDJmNWI1MDA1MzkzY2Y2MSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CoEO3sS5wJAnI_GQmsPpbX924zQeBQzmmhuk9z26d3c'
-    }
-  }
-
-  const response = await fetch(url, options)
-  return await response.json()
-}
-
-export async function fetchTrendingMovies(): Promise<TheMovieDb[]> {
-  const trendingUrl = `${THEMOVIEDB}3/trending/movie/day`
-  const header = {
-    Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZGNlNTk5NGFkMmE1NWU2YjJhMGYxNmZlYmUxOWIxYyIsInN1YiI6IjYwNWY1YTE5ZDJmNWI1MDA1MzkzY2Y2MSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CoEO3sS5wJAnI_GQmsPpbX924zQeBQzmmhuk9z26d3c'
-  }
-
-  const response = await fetch(trendingUrl, {
-    method: 'GET',
-    headers: header
-  })
-
-  const data: TheMovieDbResponse = await response.json()
-
-  return constructMoviesResponseWithImages(data.results)
-}
-
-export async function fetchAllTrending(): Promise<TheMovieDb[]> {
-  const trendingUrl = `${THEMOVIEDB}3/trending/all/day`
-  const header = {
-    Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZGNlNTk5NGFkMmE1NWU2YjJhMGYxNmZlYmUxOWIxYyIsInN1YiI6IjYwNWY1YTE5ZDJmNWI1MDA1MzkzY2Y2MSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CoEO3sS5wJAnI_GQmsPpbX924zQeBQzmmhuk9z26d3c'
-  }
-
-  const response = await fetch(trendingUrl, {
-    method: 'GET',
-    headers: header
-  })
-
-  const data: TheMovieDbResponse = await response.json()
-
-  return constructMoviesResponseWithImages(data.results.slice(0, 10))
-}
-
 export interface TheMovieDb extends Omit<TheMovieDbResult, 'backdrop_path' | 'poster_path'> {
   images: {
     backdrop_paths: {
@@ -91,7 +36,36 @@ export interface TheMovieDb extends Omit<TheMovieDbResult, 'backdrop_path' | 'po
   genres: string[]
 }
 
-async function fetchTheMovieConfiguration() {
+async function fetchTheMovieDb(url: string) {
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZGNlNTk5NGFkMmE1NWU2YjJhMGYxNmZlYmUxOWIxYyIsInN1YiI6IjYwNWY1YTE5ZDJmNWI1MDA1MzkzY2Y2MSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CoEO3sS5wJAnI_GQmsPpbX924zQeBQzmmhuk9z26d3c'
+    }
+  }
+
+  const response = await fetch(url, options)
+  return await response.json()
+}
+
+export async function fetchTrendingMovies(): Promise<TheMovieDb[]> {
+  const trendingUrl = `${THEMOVIEDB}3/trending/movie/day`
+
+  const data: TheMovieDbResponse = await fetchTheMovieDb(trendingUrl)
+
+  return constructMoviesResponseWithImages(data.results)
+}
+
+export async function fetchAllTrending(): Promise<TheMovieDb[]> {
+  const trendingUrl = `${THEMOVIEDB}3/trending/all/day`
+
+  const data: TheMovieDbResponse = await fetchTheMovieDb(trendingUrl)
+
+  return constructMoviesResponseWithImages(data.results.slice(0, 10))
+}
+
+async function fetchTheMovieConfiguration(): Promise<{ base_url: string, backdrop_sizes: string[], poster_sizes: string[]}> {
   const data = await fetchTheMovieDb(`${THEMOVIEDB}3/configuration`)
   
   if (!data.images) {
@@ -103,7 +77,7 @@ async function fetchTheMovieConfiguration() {
   return { base_url, backdrop_sizes , poster_sizes }
 }
 
-async function fetchTheMovieDbGenres() {
+async function fetchTheMovieDbGenres(): Promise<{ id: number, name: string}[]> {
   const response = await fetchTheMovieDb(`${THEMOVIEDB}3/genre/movie/list`)
 
   return response.genres
