@@ -4,10 +4,10 @@ import axios from 'axios'
 import download from 'js-file-download'
 
 import createMagnetLink from '../utils/magnet'
-import { MovieData, MovieDataTorrent } from '../services/movies'
+import { MovieDataTorrent, TheMovieDb } from '../services/movies'
 
 interface Props {
-  movie: MovieData
+  movie: TheMovieDb
 }
 
 function MovieItem({ movie }: Props) {
@@ -20,7 +20,7 @@ function MovieItem({ movie }: Props) {
 
   return (
     <div key={movie.id} className="cursor-pointer w-52 h-72">
-      <img alt={movie.title} src={movie.large_cover_image} width="135" height="200" />
+      <img alt={movie.title} src={movie.images.poster_paths.md} width="135" height="200" />
       <p>{movie.title}</p>
     </div>
   )

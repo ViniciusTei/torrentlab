@@ -1,9 +1,9 @@
 import MovieItem from './MovieItem'
-import { MovieData } from '../services/movies'
+import { TheMovieDb } from '../services/movies'
 
 interface Props {
   title: string
-  data: MovieData[]
+  data: TheMovieDb[]
 }
 
 async function HomePageList({ title, data }: Props) {

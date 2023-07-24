@@ -1,9 +1,9 @@
-import { fetchMovieData } from '../services/movies'
+import { fetchAllTrending } from '../services/movies'
 
 import HomePageCarouselDisplay from './HomePageCarouselDisplay'
 
 async function HomePageCarousel() {
-  const data = await fetchMovieData(5, 1, undefined)
+  const data = await fetchAllTrending() 
   
   if (!data) {
     return <div>Carregando...</div>

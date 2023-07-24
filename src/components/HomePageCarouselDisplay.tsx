@@ -6,10 +6,10 @@ import { BsPlayCircleFill } from 'react-icons/bs'
 import { FaDownload } from 'react-icons/fa'
 import { motion } from 'framer-motion'
 
-import { MovieData } from '../services/movies'
+import { TheMovieDb } from '../services/movies'
 
 interface Props {
-  data: MovieData[]
+  data: TheMovieDb[]
 }
 
 function HomePageCarouselDisplay({ data }: Props) {
@@ -45,13 +45,13 @@ function HomePageCarouselDisplay({ data }: Props) {
             transition={{ ease: "easeIn", duration: 0.2 }}
             className={`flex-1 flex justify-center items-center relative h-[721px]`}
           >
-            <img src={d.background_image} alt={d.title} className="w-[1440px] mx-2 h-[712px]" /> 
+            <img src={d.images.backdrop_paths.lg} alt={d.title} className="w-[1440px] mx-2 h-[712px]" /> 
             <div className='absolute left-48 bottom-36 max-w-lg pl-4'>
               <h2 className='text-3xl font-semibold capitalize mb-3'>{d.title}</h2>
               <div className='my-1 text-xl font-semibold'>
-                {d.genres.join(",")} • {d.year} • {d.rating}
+                {d.genres.join(",")} • {d.release_date} • {d.popularity}
               </div>
-              <p className='text-sm text-gray-100 truncate'>{d.summary}</p>
+              <p className='text-sm text-gray-100 truncate'>{d.overview}</p>
               <div className='flex items-center gap-2'>
                 <button type="button" className='px-5 py-1 mt-3 rounded text-white flex items-center bg-white/10 hover:brightness-90 active:scale-95'>
                  <BsPlayCircleFill color="red" size={20} /> <p className='ml-1'> Go to page </p> 
