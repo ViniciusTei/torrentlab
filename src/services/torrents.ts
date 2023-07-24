@@ -1,3 +1,5 @@
+import { XMLParser } from 'fast-xml-parser'
+
 type OMDBSearch = {
   Title: string
   Year: string
@@ -12,6 +14,13 @@ type OMDBResponse = {
   Response: string
 }
 
+type JackettItem = {
+  title: string
+  guid: string
+  link: string
+  size: number
+}
+
 async function fetchOMBDApi(searchName: string): Promise<OMDBSearch[]> {
   const apiKey = '6c3ebf7c'
   const url = 'http://www.omdbapi.com/'
@@ -22,14 +31,21 @@ async function fetchOMBDApi(searchName: string): Promise<OMDBSearch[]> {
   return data.Search
 }
 
-async function fetchJackettApi(imdbId: string) {
+async function fetchJackettApi(imdbId: string): Promise<JackettItem[]> {
   const url = 'http://localhost:9117/api/v2.0/indexers/all/results/torznab'
 
   const response = await fetch(`${url}?apikey=5ud4rkwctn6wcr8d6ldsr5ysl94zgxey&t=movie&imdbid=${imdbId}`)
   const text = await response.text()
-  const xml = new window.DOMParser().parseFromString(text, 'text/xml')
-  console.log('From jackett', xml)
-  return xml
+  
+  const parser = new XMLParser()
+  console.log('From jackett', text)
+  const data = parser.parse(text)
+  
+  if (!data.rss && !data.rss.channel && !data.rss.channel.item) {
+    throw new Error('Missing items from trackers')
+  }
+
+  return data.rss.channel.item
 }
 
 export async function torrentFactory(search: string) {
@@ -45,6 +61,6 @@ export async function torrentFactory(search: string) {
   if (!data) {
     throw new Error("Could not find a torrent for your movie")
   }
-
+  
   return data
 }

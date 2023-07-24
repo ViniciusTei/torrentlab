@@ -1,7 +1,3 @@
-import axios from 'axios'
-import download from 'js-file-download'
-
-import createMagnetLink from '../utils/magnet'
 import { TheMovieDb } from '../services/movies'
 import { FaDownload } from 'react-icons/fa'
 import { torrentFactory } from '../services/torrents'
@@ -13,12 +9,12 @@ interface Props {
 function MovieItem({ movie }: Props) {
 
   async function handleDownload(name: string) {
-    console.log('going to download', name)
-    const data = await torrentFactory(name)
-    console.log('from factory', data)
-    //const magnet = createMagnetLink(torrent.hash, movie.title)
-    //const response = await axios.post('http://localhost:3000/api/download', { magnet })
-    //download(response.data, `${movie.title}.torrent`)
+    try {
+      const data = await torrentFactory(name)
+      window.open(data[0].link, '_blank').focus();
+    } catch (e) {
+      alert('Nao foi possivel comecar o seu download')
+    }
   }
 
   return (
