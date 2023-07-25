@@ -2,16 +2,28 @@
 
 Search and downaload movies with torrent
 
-## Thanks
-
-Thanks to [TYS API](https://yts.mx/api) service that allows us to search and get the magnet links for the movies.
-
-Thanks to [WebTorrent](https://github.com/webtorrent/webtorrent) service that allows us to download the movies with the magnet links.
-
 ## TODO
 
 - [x] Refactor to TypeScript and Tailwind
 - [x] Refactor to use app routes from Next13
 - [x] Remove TYS API and add Jackett trackers
-- [ ] Better UI with categories, search and favorites
-- [ ] Auto download new episodes from favorites
+- [ ] Create configuration, with a page to tweek it and a local storage for permanence
+- [ ] Create categories for tvshows and animes
+
+# How to use
+
+**Dependencies**
+
+- (Jackett)[https://github.com/Jackett/Jackett]
+
+Get a local instance of Jackett, it is used to fetch torrent magnet links. You must create a OMBdAPI key and paste it in the configuration of Jackett.
+
+```bash
+git clone git@repository
+cd ./TorrentLab
+yarn
+yarn dev
+```
+
+This should get you service running on your localhost.
+
