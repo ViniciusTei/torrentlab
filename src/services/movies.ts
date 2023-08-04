@@ -36,82 +36,110 @@ export interface TheMovieDb extends Omit<TheMovieDbResult, 'backdrop_path' | 'po
   genres: string[]
 }
 
-async function fetchTheMovieDb(url: string) {
-  const options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZGNlNTk5NGFkMmE1NWU2YjJhMGYxNmZlYmUxOWIxYyIsInN1YiI6IjYwNWY1YTE5ZDJmNWI1MDA1MzkzY2Y2MSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CoEO3sS5wJAnI_GQmsPpbX924zQeBQzmmhuk9z26d3c'
+class APIFacade {
+  private token: string
+
+  constructor() {
+    this.token = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZGNlNTk5NGFkMmE1NWU2YjJhMGYxNmZlYmUxOWIxYyIsInN1YiI6IjYwNWY1YTE5ZDJmNWI1MDA1MzkzY2Y2MSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CoEO3sS5wJAnI_GQmsPpbX924zQeBQzmmhuk9z26d3c'
+  }
+
+  private async fetchTheMovieDb(url: string) {
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        Authorization: this.token
+      }
     }
+
+    const response = await fetch(url, options)
+    return await response.json()
   }
 
-  const response = await fetch(url, options)
-  return await response.json()
-}
+  public async fetchTrendingMovies(): Promise<TheMovieDb[]> {
+    const trendingUrl = `${THEMOVIEDB}3/trending/movie/day`
 
-export async function fetchTrendingMovies(): Promise<TheMovieDb[]> {
-  const trendingUrl = `${THEMOVIEDB}3/trending/movie/day`
+    const data: TheMovieDbResponse = await this.fetchTheMovieDb(trendingUrl)
 
-  const data: TheMovieDbResponse = await fetchTheMovieDb(trendingUrl)
-
-  return constructMoviesResponseWithImages(data.results)
-}
-
-export async function fetchAllTrending(): Promise<TheMovieDb[]> {
-  const trendingUrl = `${THEMOVIEDB}3/trending/all/day`
-
-  const data: TheMovieDbResponse = await fetchTheMovieDb(trendingUrl)
-
-  return constructMoviesResponseWithImages(data.results.slice(0, 10))
-}
-
-async function fetchTheMovieConfiguration(): Promise<{ base_url: string, backdrop_sizes: string[], poster_sizes: string[]}> {
-  const data = await fetchTheMovieDb(`${THEMOVIEDB}3/configuration`)
-  
-  if (!data.images) {
-    throw new Error('Missing images configuration data')
+    return this.constructMoviesResponseWithImages(data.results)
   }
 
-  const { base_url, backdrop_sizes, poster_sizes } = data.images
-  
-  return { base_url, backdrop_sizes , poster_sizes }
-}
+  public async fetchAllTrending(): Promise<TheMovieDb[]> {
+    const trendingUrl = `${THEMOVIEDB}3/trending/all/day`
 
-async function fetchTheMovieDbGenres(): Promise<{ id: number, name: string}[]> {
-  const response = await fetchTheMovieDb(`${THEMOVIEDB}3/genre/movie/list`)
+    const data: TheMovieDbResponse = await this.fetchTheMovieDb(trendingUrl)
 
-  return response.genres
-}
+    return this.constructMoviesResponseWithImages(data.results.slice(0, 10))
+  }
+
+  private async fetchTheMovieConfiguration(): Promise<{ base_url: string, backdrop_sizes: string[], poster_sizes: string[]}> {
+    const data = await this.fetchTheMovieDb(`${THEMOVIEDB}3/configuration`)
+    
+    if (!data.images) {
+      throw new Error('Missing images configuration data')
+    }
+
+    const { base_url, backdrop_sizes, poster_sizes } = data.images
+    
+    return { base_url, backdrop_sizes , poster_sizes }
+  }
+
+  private async fetchTheMovieDbGenres(): Promise<{ id: number, name: string}[]> {
+    const response = await this.fetchTheMovieDb(`${THEMOVIEDB}3/genre/movie/list`)
+
+    return response.genres
+  }
 
 
-async function constructMoviesResponseWithImages(entryData: TheMovieDbResult[]): Promise<TheMovieDb[]> {
-  const { base_url, backdrop_sizes, poster_sizes } = await fetchTheMovieConfiguration()
-  const batchGenres = await fetchTheMovieDbGenres()
+  private async constructMoviesResponseWithImages(entryData: TheMovieDbResult[]): Promise<TheMovieDb[]> {
+    const { base_url, backdrop_sizes, poster_sizes } = await this.fetchTheMovieConfiguration()
+    const batchGenres = await this.fetchTheMovieDbGenres()
 
-  const result = entryData.map(entry => {
-    const entryMap = {
-      ...entry,
-      images: {
-        backdrop_paths: {
-          sm: `${base_url}/${backdrop_sizes.find(s => s === 'w300') ?? 'original'}${entry.backdrop_path}`, 
-          md: `${base_url}/${backdrop_sizes.find(s => s === 'w700') ?? 'original'}${entry.backdrop_path}`, 
-          lg: `${base_url}/${backdrop_sizes.find(s => s === 'w1280') ?? 'original'}${entry.backdrop_path}`, 
-        },
-        poster_paths: {
-          sm: `${base_url}/${poster_sizes.find(s => s === 'w92') ?? 'original'}${entry.poster_path}`, 
-          md: `${base_url}/${poster_sizes.find(s => s === 'w185') ?? 'original'}${entry.poster_path}`, 
-          lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${entry.poster_path}`, 
+    const arrResult = [] as TheMovieDb[]
 
+    for (const entry of entryData) {
+        const data: TheMovieDb = {
+          id: entry.id,
+          title: entry.title,
+          overview: entry.overview,
+          genre_ids: entry.genre_ids,
+          popularity: entry.popularity,
+          release_date: entry.release_date,
+          original_title: entry.original_title,
+          original_language: entry.original_language,
+          images: {
+            backdrop_paths: {
+              sm: `${base_url}/${backdrop_sizes.find(s => s === 'w300') ?? 'original'}${entry.backdrop_path}`, 
+              md: `${base_url}/${backdrop_sizes.find(s => s === 'w700') ?? 'original'}${entry.backdrop_path}`, 
+              lg: `${base_url}/${backdrop_sizes.find(s => s === 'w1280') ?? 'original'}${entry.backdrop_path}`, 
+            },
+            poster_paths: {
+              sm: `${base_url}/${poster_sizes.find(s => s === 'w92') ?? 'original'}${entry.poster_path}`, 
+              md: `${base_url}/${poster_sizes.find(s => s === 'w185') ?? 'original'}${entry.poster_path}`, 
+              lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${entry.poster_path}`, 
+            }
+          },
+          genres: entry.genre_ids.map(id => (batchGenres.find(x => x.id === id)?.name ?? 'Outros'))
         }
-      },
-      genres: entry.genre_ids.map(id => (batchGenres.find(x => x.id === id)?.name ?? 'Outros'))
+        
+        arrResult.push(data)
     }
 
-    delete entryMap.backdrop_path
-    delete entryMap.poster_path
-
-    return entryMap
-  })
-
-  return result
+    return arrResult
+  }
 }
+
+let globalAPI: APIFacade | null = null
+
+function getAPI() {
+  if (!globalAPI) {
+    globalAPI = new APIFacade()
+  }
+
+  return globalAPI
+
+}
+
+
+export default getAPI
+

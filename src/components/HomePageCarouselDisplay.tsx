@@ -33,7 +33,7 @@ function HomePageCarouselDisplay({ data }: Props) {
     <div className='w-full flex justify-around items-center'>
       <div>
         <button type="button" onClick={() => handleArrowClick('back')} > 
-          <div className="h-24 w-12 bg-white rounded-br-full rounded-tr-full flex justify-center items-center hover:brightness-90 active:scale-105">
+          <div className="h-24 w-12 bg-gray-700 rounded-br-full rounded-tr-full flex justify-center items-center hover:brightness-90 active:scale-105">
             <MdArrowBackIos color="red" size={24}/>
           </div>
         </button>
@@ -67,7 +67,7 @@ function HomePageCarouselDisplay({ data }: Props) {
       )}
       <div>
         <button type="button" onClick={() => handleArrowClick('forward')}>
-          <div className="h-24 w-12 bg-white rounded-bl-full rounded-tl-full flex justify-center items-center hover:brightness-90 active:scale-105">
+          <div className="h-24 w-12 bg-gray-700 rounded-bl-full rounded-tl-full flex justify-center items-center hover:brightness-90 active:scale-105">
             <MdArrowForwardIos color="red" size={24}/>
           </div>
         </button>

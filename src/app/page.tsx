@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 
 import HomePageList from '../components/HomePageList'
 import HomePageCarousel from '../components/HomePageCarousel'
-import { fetchTrendingMovies } from '../services/movies'
+import MovieAPI from '../services/movies'
 
 export const metadata: Metadata = {
   title: 'Torrent Lab',
@@ -13,12 +13,14 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  const response = await fetchTrendingMovies() 
+  const api = MovieAPI()
+  const response = await api.fetchTrendingMovies() 
+  const responseAllTrending = await api.fetchAllTrending()
 
   return (
     <main className="flex flex-col items-center min-h-screen">
       <HomePageCarousel />
-      <HomePageList title="Continue assistindo" data={response} /> 
+      <HomePageList title="Em destaque" data={responseAllTrending} /> 
       <HomePageList title="Filmes recentes" data={response} /> 
     </main>
   )
