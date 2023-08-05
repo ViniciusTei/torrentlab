@@ -1,4 +1,4 @@
-import MovieAPI from '../services/movies'
+import MovieAPI from '../services/api'
 
 import HomePageCarouselDisplay from './HomePageCarouselDisplay'
 

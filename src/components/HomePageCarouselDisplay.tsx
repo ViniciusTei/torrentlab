@@ -6,10 +6,10 @@ import { BsPlayCircleFill } from 'react-icons/bs'
 import { FaDownload } from 'react-icons/fa'
 import { motion } from 'framer-motion'
 
-import { TheMovieDb } from '../services/movies'
+import { MovieType } from '../services/movies'
 
 interface Props {
-  data: TheMovieDb[]
+  data: MovieType[]
 }
 
 function HomePageCarouselDisplay({ data }: Props) {
