@@ -5,14 +5,15 @@ import { MdArrowForwardIos, MdArrowBackIos } from 'react-icons/md'
 import { BsPlayCircleFill } from 'react-icons/bs'
 import { FaDownload } from 'react-icons/fa'
 import { motion } from 'framer-motion'
-
-import { MovieType } from '../services/movies'
+import { TheMovieDbTrendingType } from '../services/themoviedb'
+import { useRouter } from 'next/navigation'
 
 interface Props {
-  data: MovieType[]
+  data: TheMovieDbTrendingType[]
 }
 
 function HomePageCarouselDisplay({ data }: Props) {
+  const router = useRouter()
   const [current, setCurrent] = useState(0)
   const [motionInitialState, setMotionInitialState] = useState({x:100}) 
 
@@ -27,6 +28,14 @@ function HomePageCarouselDisplay({ data }: Props) {
       setCurrent(current < data.length - 1 ? current + 1 : 0)
     }
 
+  }
+
+  function handleGotoPageButton(item: TheMovieDbTrendingType) {
+    if (item.is_movie) {
+      router.push(`/movie/${item.id}`)
+    }
+
+    router.push(`/tvshow/${item.id}`)
   }
 
   return (
@@ -54,8 +63,8 @@ function HomePageCarouselDisplay({ data }: Props) {
               </div>
               <p className='text-sm text-gray-100 truncate'>{d.overview}</p>
               <div className='flex items-center gap-2'>
-                <button type="button" className='px-5 py-1 mt-3 rounded text-white flex items-center bg-white/10 hover:brightness-90 active:scale-95'>
-                 <BsPlayCircleFill color="red" size={20} /> <p className='ml-1'> Go to page </p> 
+                <button type="button" onClick={() => handleGotoPageButton(d)} className='px-5 py-1 mt-3 rounded text-white flex items-center bg-white/10 hover:brightness-90 active:scale-95'>
+                   <BsPlayCircleFill color="red" size={20} /> <p className='ml-1'> Go to page </p> 
                 </button>
                 <button type="button" className='px-5 py-1 mt-3 rounded text-white flex items-center bg-transparent border hover:brightness-90 active:scale-95'>
                   <FaDownload/> <p className='ml-1'>Download</p>

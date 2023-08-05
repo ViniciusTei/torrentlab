@@ -53,8 +53,9 @@ class TheMoviesDB {
             lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${data.poster_path}`, 
           }
         },
-        genres: data.genres.map(g => g.name),
+        genres: data.genres?.map(g => g.name),
         imdb_id: data.imdb_id,
+        is_movie,
         is_tv_show: false
       }
     
@@ -81,8 +82,9 @@ class TheMoviesDB {
           lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${data.poster_path}`, 
         }
       },
-      genres: data.genres.map(g => g.name),
+      genres: data.genres?.map(g => g.name),
       imdb_id: data.imdb_id,
+      is_movie,
       is_tv_show: true
     }
 

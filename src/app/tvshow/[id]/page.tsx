@@ -22,7 +22,7 @@ async function TvShowPage({ params }: { params: PageProps }) {
         <div>
           <p className="font-semibold text-3xl">{results.title}</p>
           <div className="my-1 text-lg font-semibold">
-            {results.genres.join(",")} • {results.release_date}
+            {results.genres?.join(",")} • {results.release_date}
           </div>
         </div>
       </div>
