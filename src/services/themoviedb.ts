@@ -48,3 +48,26 @@ export interface TheMovieDbTrendingType {
   genres: string[]
 }
 
+export interface TheMovieDbDetailsType {
+  id: number
+  title: string
+  overview: string
+  release_date: string
+  popularity: number
+  is_movie: boolean
+  images: {
+    backdrop_paths: {
+      sm: string
+      md: string
+      lg: string
+    },
+    poster_paths: {
+      sm: string
+      md: string
+      lg: string
+    }
+  }
+  genres: string[]
+  imdb_id: string
+  is_tv_show: boolean
+}

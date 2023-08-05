@@ -41,6 +41,13 @@ class APIFacade {
     return data
   }
 
+  public async fetchTvShowsDetails(id: number) {
+    const trendingUrl = `${THEMOVIEDB}3/tv/${id}?language=pt-BR`
+
+    const data = await this.moviesAPI.fetchTheMovieDBDetails(trendingUrl, false)
+
+    return data
+  }
 }
 
 let globalAPI: APIFacade | null = null

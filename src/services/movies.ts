@@ -1,4 +1,4 @@
-import { TheMovieDbDetailResponse, TheMovieDbResult, TheMovieDbTrendingResponse, TheMovieDbTrendingType } from "./themoviedb"
+import { TheMovieDbDetailResponse, TheMovieDbDetailsType, TheMovieDbResult, TheMovieDbTrendingResponse, TheMovieDbTrendingType } from "./themoviedb"
 
 const THEMOVIEDB = 'https://api.themoviedb.org/'
 
@@ -28,7 +28,7 @@ class TheMoviesDB {
     return this.constructMoviesResponseWithImages(data.results)
   }
 
-  public async fetchTheMovieDBDetails(fetch_url: string, is_movie = true) {
+  public async fetchTheMovieDBDetails(fetch_url: string, is_movie = true): Promise<TheMovieDbDetailsType> {
     const data: TheMovieDbDetailResponse = await this.fetchTheMovieDb(fetch_url)
     const { base_url, backdrop_sizes, poster_sizes } = await this.fetchTheMovieConfiguration()
 
