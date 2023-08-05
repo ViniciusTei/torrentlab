@@ -1,6 +1,9 @@
 import React from 'react'
 import MovieAPI from '../../../services/api'
 import { torrentFactory } from '../../../services/torrents'
+import { formatBytes } from '../../../utils/formatters'
+import { FaDownload } from 'react-icons/fa'
+import Link from 'next/link'
 
 interface MoviePageProps {
   movie: string
@@ -9,7 +12,7 @@ interface MoviePageProps {
 async function MoviePage({ params }: { params: MoviePageProps }) {
   const api = MovieAPI()
   const results = await api.fetchMovieDetails(Number(params.movie))
-  const downloads = await torrentFactory(results.title)
+  const downloads = await torrentFactory({ imdb_id: results.imdb_id })
   
   return (
     <div className="text-white">
@@ -23,18 +26,20 @@ async function MoviePage({ params }: { params: MoviePageProps }) {
         </div>
       </div>
       <section className="px-40">
-        <h2 className="text-xl font-bold my-4">Descricao</h2>
+        <h2 className="text-xl font-bold my-4">Descrição</h2>
         <p>{results.overview}</p>
       </section>
       <section className="px-40">
         <h2 className="text-xl font-bold my-4">Downloads</h2>
-        <div>
+        <ul>
          {downloads && downloads.map(item => (
-            <>
-              {item.title} / {item.size}
-            </>
+            <li key={item.guid} className="my-2">
+              <Link href={item.link} className="flex items-center justify-start gap-2">
+                <FaDownload /> <p> {item.title} / {formatBytes(item.size)} </p>
+              </Link>
+            </li>
           ))} 
-        </div>
+        </ul>
       </section>
     </div>
   )
