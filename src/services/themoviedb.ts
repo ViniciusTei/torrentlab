@@ -8,42 +8,43 @@ export type TheMovieDbResult = {
   overview: string
   poster_path: string
   popularity: number
-  release_date: string
+  release_date?: string
+  first_air_date?: string
   genre_ids: number[]
-  imdb_id?: string
+  media_type: "movie" | "tv"
 }
 
-export type TheMovieDbResponse = {
+export type TheMovieDbTrendingResponse = {
   page: number
   total_page: number
   total_results: number
   results: TheMovieDbResult[]
 }
 
-export interface TheMovieDbDetailResponse extends Omit<TheMovieDbResult, 'genre_ids'> {
+export interface TheMovieDbDetailResponse extends Omit<TheMovieDbResult, 'genre_ids' | 'media_type'> {
   genres: { id: number, name: string }[]
+  imdb_id: string
 }
 
-class TheMoviesDB {
-   private token: string
-
-  constructor() {
-    this.token = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZGNlNTk5NGFkMmE1NWU2YjJhMGYxNmZlYmUxOWIxYyIsInN1YiI6IjYwNWY1YTE5ZDJmNWI1MDA1MzkzY2Y2MSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CoEO3sS5wJAnI_GQmsPpbX924zQeBQzmmhuk9z26d3c'
-  }
-
-  public async fetchTheMovieDb(fetch_url: string) {
-    const options = {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-        Authorization: this.token
-      }
+export interface TheMovieDbTrendingType {
+  id: number
+  title: string
+  overview: string
+  release_date: string
+  popularity: number
+  is_movie: boolean
+  images: {
+    backdrop_paths: {
+      sm: string
+      md: string
+      lg: string
+    },
+    poster_paths: {
+      sm: string
+      md: string
+      lg: string
     }
-
-    const response = await fetch(fetch_url, options)
-    return await response.json()
   }
+  genres: string[]
 }
-
-export default TheMoviesDB
 

@@ -1,44 +1,72 @@
-import TheMoviesDB, { TheMovieDbDetailResponse, TheMovieDbResponse, TheMovieDbResult } from "./themoviedb"
+import { TheMovieDbDetailResponse, TheMovieDbResult, TheMovieDbTrendingResponse, TheMovieDbTrendingType } from "./themoviedb"
 
 const THEMOVIEDB = 'https://api.themoviedb.org/'
 
-export interface MovieType extends Omit<TheMovieDbResult, 'backdrop_path' | 'poster_path' | 'genre_ids'> {
-  images: {
-    backdrop_paths: {
-      sm: string
-      md: string
-      lg: string
-    },
-    poster_paths: {
-      sm: string
-      md: string
-      lg: string
-    }
-  }
-  genres: string[]
-}
+class TheMoviesDB {
+   private token: string
 
-class Movies extends TheMoviesDB {
   constructor() {
-    super()
+    this.token = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZGNlNTk5NGFkMmE1NWU2YjJhMGYxNmZlYmUxOWIxYyIsInN1YiI6IjYwNWY1YTE5ZDJmNWI1MDA1MzkzY2Y2MSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CoEO3sS5wJAnI_GQmsPpbX924zQeBQzmmhuk9z26d3c'
   }
 
-  public async fetchMovies(fetch_url: string): Promise<MovieType[]> {
-    const data: TheMovieDbResponse = await this.fetchTheMovieDb(fetch_url)
+  public async fetchTheMovieDb(fetch_url: string) {
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        Authorization: this.token
+      }
+    }
+
+    const response = await fetch(fetch_url, options)
+    return await response.json()
+  }
+
+  public async fetchTheMovieDBTrending(fetch_url: string): Promise<TheMovieDbTrendingType[]> {
+    const data: TheMovieDbTrendingResponse = await this.fetchTheMovieDb(fetch_url)
 
     return this.constructMoviesResponseWithImages(data.results)
   }
 
-  public async fetchDetails(fetch_url: string): Promise<MovieType> {
+  public async fetchTheMovieDBDetails(fetch_url: string, is_movie = true) {
     const data: TheMovieDbDetailResponse = await this.fetchTheMovieDb(fetch_url)
     const { base_url, backdrop_sizes, poster_sizes } = await this.fetchTheMovieConfiguration()
 
-    const response: MovieType = {
+    if (is_movie) {
+      const response = {
+        id: data.id,
+        title: data.title || data.original_name || data.original_title || "",
+        overview: data.overview,
+        popularity: data.popularity,
+        release_date: new Date(data.release_date || data.first_air_date || "").toLocaleDateString("pt-BR"),
+        original_title: data.original_name,
+        original_language: data.original_language,
+        images: {
+          backdrop_paths: {
+            sm: `${base_url}/${backdrop_sizes.find(s => s === 'w300') ?? 'original'}${data.backdrop_path}`, 
+            md: `${base_url}/${backdrop_sizes.find(s => s === 'w700') ?? 'original'}${data.backdrop_path}`, 
+            lg: `${base_url}/${backdrop_sizes.find(s => s === 'w1280') ?? 'original'}${data.backdrop_path}`, 
+          },
+          poster_paths: {
+            sm: `${base_url}/${poster_sizes.find(s => s === 'w92') ?? 'original'}${data.poster_path}`, 
+            md: `${base_url}/${poster_sizes.find(s => s === 'w185') ?? 'original'}${data.poster_path}`, 
+            lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${data.poster_path}`, 
+          }
+        },
+        genres: data.genres.map(g => g.name),
+        imdb_id: data.imdb_id,
+        is_tv_show: false
+      }
+    
+      return response
+    }
+
+    const response = {
       id: data.id,
       title: data.title || data.original_name || data.original_title || "",
       overview: data.overview,
       popularity: data.popularity,
-      release_date: new Date(data.release_date).toLocaleDateString("pt-BR"),
+      release_date: new Date(data.release_date || data.first_air_date || "").toLocaleDateString("pt-BR"),
       original_title: data.original_name,
       original_language: data.original_language,
       images: {
@@ -55,8 +83,9 @@ class Movies extends TheMoviesDB {
       },
       genres: data.genres.map(g => g.name),
       imdb_id: data.imdb_id,
+      is_tv_show: true
     }
-  
+
     return response
   }
 
@@ -79,21 +108,19 @@ class Movies extends TheMoviesDB {
   }
 
 
-  private async constructMoviesResponseWithImages(entryData: TheMovieDbResult[]): Promise<MovieType[]> {
+  private async constructMoviesResponseWithImages(entryData: TheMovieDbResult[]): Promise<TheMovieDbTrendingType[]> {
     const { base_url, backdrop_sizes, poster_sizes } = await this.fetchTheMovieConfiguration()
     const batchGenres = await this.fetchTheMovieDbGenres()
 
-    const arrResult = [] as MovieType[]
+    const arrResult = [] as TheMovieDbTrendingType[]
 
     for (const entry of entryData) {
-      const data: MovieType = {
+      const data: TheMovieDbTrendingType = {
         id: entry.id,
         title: entry.title || entry.original_name || entry.original_title || "",
         overview: entry.overview,
         popularity: entry.popularity,
-        release_date: new Date(entry.release_date).toLocaleDateString("pt-BR"),
-        original_title: entry.original_name,
-        original_language: entry.original_language,
+        release_date: new Date(entry.release_date || entry.first_air_date || "").toLocaleDateString("pt-BR"),
         images: {
           backdrop_paths: {
             sm: `${base_url}/${backdrop_sizes.find(s => s === 'w300') ?? 'original'}${entry.backdrop_path}`, 
@@ -106,7 +133,8 @@ class Movies extends TheMoviesDB {
             lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${entry.poster_path}`, 
           }
         },
-        genres: entry.genre_ids.map(id => (batchGenres.find(x => x.id === id)?.name ?? 'Outros'))
+        genres: entry.genre_ids.map(id => (batchGenres.find(x => x.id === id)?.name ?? 'Outros')),
+        is_movie: entry.media_type === "movie"
       }
       
       arrResult.push(data)
@@ -116,5 +144,5 @@ class Movies extends TheMoviesDB {
   }
 }
 
-export default Movies
+export default TheMoviesDB
 

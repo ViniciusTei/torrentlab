@@ -1,4 +1,5 @@
-import Movies, { MovieType } from './movies'
+import Movies from './movies'
+import { TheMovieDbDetailResponse, TheMovieDbTrendingType } from './themoviedb'
 const THEMOVIEDB = 'https://api.themoviedb.org/'
 
 class APIFacade {
@@ -8,34 +9,34 @@ class APIFacade {
     this.moviesAPI = new Movies()
   }
 
-  public async fetchTrendingMovies(): Promise<MovieType[]> {
+  public async fetchTrendingMovies(): Promise<TheMovieDbTrendingType[]> {
     const trendingUrl = `${THEMOVIEDB}3/trending/movie/day?language=pt-BR`
 
-    const data = await this.moviesAPI.fetchMovies(trendingUrl)
+    const data = await this.moviesAPI.fetchTheMovieDBTrending(trendingUrl)
 
     return data 
   }
 
-  public async fetchAllTrending(): Promise<MovieType[]> {
+  public async fetchAllTrending(): Promise<TheMovieDbTrendingType[]> {
     const trendingUrl = `${THEMOVIEDB}3/trending/all/day?language=pt-BR`
 
-    const data = await this.moviesAPI.fetchMovies(trendingUrl)
+    const data = await this.moviesAPI.fetchTheMovieDBTrending(trendingUrl)
 
     return data
   }
 
-  public async fetchTrendingTvShows(): Promise<MovieType[]> {
+  public async fetchTrendingTvShows(): Promise<TheMovieDbTrendingType[]> {
     const trendingUrl = `${THEMOVIEDB}3/trending/tv/day?language=pt-BR`
 
-    const data = await this.moviesAPI.fetchMovies(trendingUrl)
+    const data = await this.moviesAPI.fetchTheMovieDBTrending(trendingUrl)
 
     return data
   }
   
-  public async fetchMovieDetails(movie_id: number): Promise<MovieType> {
+  public async fetchMovieDetails(movie_id: number) {
     const trendingUrl = `${THEMOVIEDB}3/movie/${movie_id}?language=pt-BR`
 
-    const data = await this.moviesAPI.fetchDetails(trendingUrl)
+    const data = await this.moviesAPI.fetchTheMovieDBDetails(trendingUrl)
 
     return data
   }
