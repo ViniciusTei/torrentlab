@@ -15,11 +15,13 @@ export const metadata: Metadata = {
 
 function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en">
-      <body className="bg-black text-white overflow-x-hidden">
+    <html lang="en" className="flex flex-col h-[100dvh]">
+      <body className="bg-black text-white overflow-x-hidden h-full">
         <NavHeader />
-        {children}
-        <footer className="flex items-center text-white px-2 py-6 border-t border-t-white mt-2 h-20 fixed bottom-0 w-full">
+        <main className="flex-1">
+          {children}
+        </main>
+        <footer className="flex items-center text-white px-2 py-6 border-t border-t-white mt-2 h-20 w-full">
           Powered by
 
           <a href="https://nextjs.org">

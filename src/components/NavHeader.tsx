@@ -8,7 +8,7 @@ import SearchInput from './Search'
 
 function NavHeader() {
   return (
-    <div className="flex items-center my-1 mx-16">
+    <header className="flex items-center my-1 mx-16">
       <img src="/bd-logo.svg" alt="Logo" className="p-1 mr-2" width="37px" height="41px" />
       <nav className="flex-1">
         <ul className="flex gap-2">
@@ -24,7 +24,7 @@ function NavHeader() {
       <div>
         <SearchInput />
       </div>
-    </div>
+    </header>
   )
 }
 
