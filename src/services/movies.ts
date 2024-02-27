@@ -24,9 +24,11 @@ class TheMoviesDB {
     return response.data
   }
 
-  public async fetchTheMovieDBSearch(query: string): Promise<TheMovieDbTrendingResponse> {
+  public async fetchTheMovieDBSearch(query: string) {
     const fetch_url = `/3/search/multi?query=${query}&include_adult=false&language=pt-BR&page=1`
-    return this.fetchTheMovieDb(fetch_url)
+    const data = await this.fetchTheMovieDb(fetch_url)
+
+    return await this.constructMoviesResponseWithImages(data.results)
   }
 
   public async fetchTheMovieDBTrending(fetch_url: string): Promise<TheMovieDbTrendingType[]> {
