@@ -1,16 +1,18 @@
+import axios, { RawAxiosRequestConfig } from "axios"
 import { TheMovieDbDetailResponse, TheMovieDbDetailsType, TheMovieDbResult, TheMovieDbTrendingResponse, TheMovieDbTrendingType } from "./themoviedb"
 
 const THEMOVIEDB = 'https://api.themoviedb.org/'
 
 class TheMoviesDB {
-   private token: string
+  private token: string
 
   constructor() {
     this.token = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZGNlNTk5NGFkMmE1NWU2YjJhMGYxNmZlYmUxOWIxYyIsInN1YiI6IjYwNWY1YTE5ZDJmNWI1MDA1MzkzY2Y2MSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CoEO3sS5wJAnI_GQmsPpbX924zQeBQzmmhuk9z26d3c'
   }
 
-  public async fetchTheMovieDb(fetch_url: string) {
-    const options = {
+  private async fetchTheMovieDb(fetch_url: string) {
+    const options: RawAxiosRequestConfig = {
+      baseURL: THEMOVIEDB,
       method: 'GET',
       headers: {
         accept: 'application/json',
@@ -18,8 +20,13 @@ class TheMoviesDB {
       }
     }
 
-    const response = await fetch(fetch_url, options)
-    return await response.json()
+    const response = await axios.get(fetch_url, options)
+    return response.data
+  }
+
+  public async fetchTheMovieDBSearch(query: string): Promise<TheMovieDbTrendingResponse> {
+    const fetch_url = `/3/search/multi?query=${query}&include_adult=false&language=pt-BR&page=1`
+    return this.fetchTheMovieDb(fetch_url)
   }
 
   public async fetchTheMovieDBTrending(fetch_url: string): Promise<TheMovieDbTrendingType[]> {
@@ -43,14 +50,14 @@ class TheMoviesDB {
         original_language: data.original_language,
         images: {
           backdrop_paths: {
-            sm: `${base_url}/${backdrop_sizes.find(s => s === 'w300') ?? 'original'}${data.backdrop_path}`, 
-            md: `${base_url}/${backdrop_sizes.find(s => s === 'w700') ?? 'original'}${data.backdrop_path}`, 
-            lg: `${base_url}/${backdrop_sizes.find(s => s === 'w1280') ?? 'original'}${data.backdrop_path}`, 
+            sm: `${base_url}/${backdrop_sizes.find(s => s === 'w300') ?? 'original'}${data.backdrop_path}`,
+            md: `${base_url}/${backdrop_sizes.find(s => s === 'w700') ?? 'original'}${data.backdrop_path}`,
+            lg: `${base_url}/${backdrop_sizes.find(s => s === 'w1280') ?? 'original'}${data.backdrop_path}`,
           },
           poster_paths: {
-            sm: `${base_url}/${poster_sizes.find(s => s === 'w92') ?? 'original'}${data.poster_path}`, 
-            md: `${base_url}/${poster_sizes.find(s => s === 'w185') ?? 'original'}${data.poster_path}`, 
-            lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${data.poster_path}`, 
+            sm: `${base_url}/${poster_sizes.find(s => s === 'w92') ?? 'original'}${data.poster_path}`,
+            md: `${base_url}/${poster_sizes.find(s => s === 'w185') ?? 'original'}${data.poster_path}`,
+            lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${data.poster_path}`,
           }
         },
         genres: data.genres?.map(g => g.name),
@@ -58,7 +65,7 @@ class TheMoviesDB {
         is_movie,
         is_tv_show: false
       }
-    
+
       return response
     }
 
@@ -72,14 +79,14 @@ class TheMoviesDB {
       original_language: data.original_language,
       images: {
         backdrop_paths: {
-          sm: `${base_url}/${backdrop_sizes.find(s => s === 'w300') ?? 'original'}${data.backdrop_path}`, 
-          md: `${base_url}/${backdrop_sizes.find(s => s === 'w700') ?? 'original'}${data.backdrop_path}`, 
-          lg: `${base_url}/${backdrop_sizes.find(s => s === 'w1280') ?? 'original'}${data.backdrop_path}`, 
+          sm: `${base_url}/${backdrop_sizes.find(s => s === 'w300') ?? 'original'}${data.backdrop_path}`,
+          md: `${base_url}/${backdrop_sizes.find(s => s === 'w700') ?? 'original'}${data.backdrop_path}`,
+          lg: `${base_url}/${backdrop_sizes.find(s => s === 'w1280') ?? 'original'}${data.backdrop_path}`,
         },
         poster_paths: {
-          sm: `${base_url}/${poster_sizes.find(s => s === 'w92') ?? 'original'}${data.poster_path}`, 
-          md: `${base_url}/${poster_sizes.find(s => s === 'w185') ?? 'original'}${data.poster_path}`, 
-          lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${data.poster_path}`, 
+          sm: `${base_url}/${poster_sizes.find(s => s === 'w92') ?? 'original'}${data.poster_path}`,
+          md: `${base_url}/${poster_sizes.find(s => s === 'w185') ?? 'original'}${data.poster_path}`,
+          lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${data.poster_path}`,
         }
       },
       genres: data.genres?.map(g => g.name),
@@ -90,25 +97,6 @@ class TheMoviesDB {
 
     return response
   }
-
-  private async fetchTheMovieConfiguration(): Promise<{ base_url: string, backdrop_sizes: string[], poster_sizes: string[]}> {
-    const data = await this.fetchTheMovieDb(`${THEMOVIEDB}3/configuration`)
-    
-    if (!data.images) {
-      throw new Error('Missing images configuration data')
-    }
-
-    const { base_url, backdrop_sizes, poster_sizes } = data.images
-    
-    return { base_url, backdrop_sizes , poster_sizes }
-  }
-
-  private async fetchTheMovieDbGenres(): Promise<{ id: number, name: string}[]> {
-    const response = await this.fetchTheMovieDb(`${THEMOVIEDB}3/genre/movie/list`)
-
-    return response.genres
-  }
-
 
   private async constructMoviesResponseWithImages(entryData: TheMovieDbResult[]): Promise<TheMovieDbTrendingType[]> {
     const { base_url, backdrop_sizes, poster_sizes } = await this.fetchTheMovieConfiguration()
@@ -125,25 +113,44 @@ class TheMoviesDB {
         release_date: new Date(entry.release_date || entry.first_air_date || "").toLocaleDateString("pt-BR"),
         images: {
           backdrop_paths: {
-            sm: `${base_url}/${backdrop_sizes.find(s => s === 'w300') ?? 'original'}${entry.backdrop_path}`, 
-            md: `${base_url}/${backdrop_sizes.find(s => s === 'w700') ?? 'original'}${entry.backdrop_path}`, 
-            lg: `${base_url}/${backdrop_sizes.find(s => s === 'w1280') ?? 'original'}${entry.backdrop_path}`, 
+            sm: `${base_url}/${backdrop_sizes.find(s => s === 'w300') ?? 'original'}${entry.backdrop_path}`,
+            md: `${base_url}/${backdrop_sizes.find(s => s === 'w700') ?? 'original'}${entry.backdrop_path}`,
+            lg: `${base_url}/${backdrop_sizes.find(s => s === 'w1280') ?? 'original'}${entry.backdrop_path}`,
           },
           poster_paths: {
-            sm: `${base_url}/${poster_sizes.find(s => s === 'w92') ?? 'original'}${entry.poster_path}`, 
-            md: `${base_url}/${poster_sizes.find(s => s === 'w185') ?? 'original'}${entry.poster_path}`, 
-            lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${entry.poster_path}`, 
+            sm: `${base_url}/${poster_sizes.find(s => s === 'w92') ?? 'original'}${entry.poster_path}`,
+            md: `${base_url}/${poster_sizes.find(s => s === 'w185') ?? 'original'}${entry.poster_path}`,
+            lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${entry.poster_path}`,
           }
         },
         genres: entry.genre_ids.map(id => (batchGenres.find(x => x.id === id)?.name ?? 'Outros')),
         is_movie: entry.media_type === "movie"
       }
-      
+
       arrResult.push(data)
     }
 
     return arrResult
   }
+
+  private async fetchTheMovieConfiguration(): Promise<{ base_url: string, backdrop_sizes: string[], poster_sizes: string[] }> {
+    const data = await this.fetchTheMovieDb(`${THEMOVIEDB}3/configuration`)
+
+    if (!data.images) {
+      throw new Error('Missing images configuration data')
+    }
+
+    const { base_url, backdrop_sizes, poster_sizes } = data.images
+
+    return { base_url, backdrop_sizes, poster_sizes }
+  }
+
+  private async fetchTheMovieDbGenres(): Promise<{ id: number, name: string }[]> {
+    const response = await this.fetchTheMovieDb(`${THEMOVIEDB}3/genre/movie/list`)
+
+    return response.genres
+  }
+
 }
 
 export default TheMoviesDB

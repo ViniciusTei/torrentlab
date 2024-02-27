@@ -1,26 +1,21 @@
-'use client'
+import API from 'src/services/api'
+import SearchInput from 'src/ui/searchinput'
 
-import { useState } from 'react'
-import { FaSearch } from 'react-icons/fa'
+function Search() {
+  const api = API()
 
-function SearchInput() {
-  const [search, setSearch] = useState<string>()
-
-  async function handleSearch() {
+  async function handleSearch(search: string) {
     if (search) {
-      alert(`Search for ${search}`)
-      setSearch(undefined)
+      const res = await api.searchAll(search)
+      console.log(res.results)
     }
   }
 
   return (
     <div>
-      <input className="rounded-lg mr-2 h-5 pl-1 text-sm bg-gray-700 text-white" placeholder="Buscar filme" onChange={(ev) => setSearch(ev.target.value)}/>
-      <button onClick={handleSearch} className="h-12 w-12 bg-transparent cursor-pointer">
-        <FaSearch size="1.1rem"/>
-      </button>
+      <SearchInput onSearch={handleSearch} />
     </div>
   )
 }
 
-export default SearchInput
+export default Search
