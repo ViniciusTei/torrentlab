@@ -17,9 +17,9 @@ function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body className="bg-black text-white overflow-x-hidden">
-        <NavHeader/>
+        <NavHeader />
         {children}
-        <footer className="flex items-center text-white px-2 py-6 border-t border-t-white mt-2">
+        <footer className="flex items-center text-white px-2 py-6 border-t border-t-white mt-2 h-20 fixed bottom-0 w-full">
           Powered by
 
           <a href="https://nextjs.org">
@@ -30,7 +30,7 @@ function RootLayout({ children }: RootLayoutProps) {
                 fill: '#fff',
                 marginLeft: '1rem'
               }}
-            />        
+            />
           </a>
 
         </footer>
