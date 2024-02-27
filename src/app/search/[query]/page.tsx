@@ -12,10 +12,6 @@ interface PageProps {
   }
 }
 
-function parseQueryToString(query: string) {
-  return new URLSearchParams(`?query=${query}`).get('query')
-}
-
 async function SearchPage({ params }: PageProps) {
   const api = API()
   const searchResults = await api.searchAll(params.query)
@@ -83,6 +79,10 @@ function ItemLink({ item, children }: ItemLinkProps) {
       {children}
     </Link>
   )
+}
+
+function parseQueryToString(query: string) {
+  return new URLSearchParams(`?query=${query}`).get('query')
 }
 
 export default SearchPage
