@@ -1,9 +1,10 @@
 import React from 'react'
-import MovieAPI from '../../../services/api'
-import Torrents from '../../../services/torrents'
-import { formatBytes } from '../../../utils/formatters'
 import { FaDownload } from 'react-icons/fa'
 import Link from 'next/link'
+
+import MovieAPI from 'src/services/api'
+import Torrents from 'src/services/torrents'
+import { formatBytes } from 'src/utils/formatters'
 import Alert from 'src/ui/alert'
 
 interface MoviePageProps {
