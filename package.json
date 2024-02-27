@@ -10,15 +10,21 @@
   },
   "dependencies": {
     "@next/font": "13.1.5",
+    "@radix-ui/react-slot": "^1.0.2",
     "axios": "^1.2.3",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
     "framer-motion": "^10.13.0",
     "js-file-download": "^0.4.12",
+    "lucide-react": "^0.341.0",
     "magnet2torrent-js": "^1.4.0",
     "next": "^13.4.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.7.1",
     "react-query": "^3.39.2",
+    "tailwind-merge": "^2.2.1",
+    "tailwindcss-animate": "^1.0.7",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
