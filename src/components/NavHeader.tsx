@@ -1,9 +1,10 @@
 'use client'
-import SearchInput from './Search'
+import Link from 'next/link'
 import { GoHome } from 'react-icons/go'
 import { TbMovie } from 'react-icons/tb'
 import { BsFillCollectionPlayFill } from 'react-icons/bs'
-import Link from 'next/link'
+
+import SearchInput from './Search'
 
 function NavHeader() {
   return (
