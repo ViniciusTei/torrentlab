@@ -14,7 +14,7 @@ class APIFacade {
 
     const data = await this.moviesAPI.fetchTheMovieDBTrending(trendingUrl)
 
-    return data 
+    return data
   }
 
   public async fetchAllTrending(): Promise<TheMovieDbTrendingType[]> {
@@ -32,7 +32,7 @@ class APIFacade {
 
     return data
   }
-  
+
   public async fetchMovieDetails(movie_id: number) {
     const trendingUrl = `${THEMOVIEDB}3/movie/${movie_id}?language=pt-BR`
 

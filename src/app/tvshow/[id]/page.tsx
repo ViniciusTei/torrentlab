@@ -13,12 +13,16 @@ interface PageProps {
 async function TvShowPage({ params }: { params: PageProps }) {
   const api = MovieAPI()
   const results = await api.fetchTvShowsDetails(Number(params.id))
-  const downloads = await torrentFactory({ imdb_id: results.imdb_id })
-  
+  const downloads = await torrentFactory({
+    type: "series",
+    imdb_id: results.imdb_id,
+    search: results.title,
+  })
+
   return (
     <div className="text-white">
       <div className="flex gap-1 items-end relative min-w-[800px] w-fit mx-auto">
-        <img src={results.images.poster_paths.lg} alt="Poster detail image" className="w-52 h-72"  />
+        <img src={results.images.poster_paths.lg} alt="Poster detail image" className="w-52 h-72" />
         <div>
           <p className="font-semibold text-3xl">{results.title}</p>
           <div className="my-1 text-lg font-semibold">
@@ -33,20 +37,20 @@ async function TvShowPage({ params }: { params: PageProps }) {
       <section className="px-40">
         <h2 className="text-xl font-bold my-4">Downloads</h2>
         <ul>
-         {downloads && downloads.map(item => (
+          {downloads && downloads.map(item => (
             <li key={item.guid} className="my-2">
               <Link href={item.link} className="flex items-center justify-start gap-2">
                 <FaDownload /> <p> {item.title} / {formatBytes(item.size)} </p>
               </Link>
             </li>
-          ))} 
+          ))}
         </ul>
-	{downloads && downloads.length === 0 && (
-		<div className="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4" role="alert">
-		  <p className="font-bold">Sem downloads</p>
-		  <p>Ainda não foram encontrados torrents disponíveis para essa mídia.</p>
-		</div>
-	)}
+        {downloads && downloads.length === 0 && (
+          <div className="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4" role="alert">
+            <p className="font-bold">Sem downloads</p>
+            <p>Ainda não foram encontrados torrents disponíveis para essa mídia.</p>
+          </div>
+        )}
       </section>
     </div>
   )

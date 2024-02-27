@@ -55,13 +55,16 @@ async function fetchJackettApi(imdbId: string): Promise<JackettItem[]> {
   }
 
   if (Array.isArray(data.rss.channel)) {
-    const items = data.rss.channel.reduce(
+    const channelsWithItems = data.rss.channel.filter((chan: JackettChannel) => !!chan.item) as JackettChannel[]
+
+    const items = channelsWithItems.reduce(
       (acc: JackettItem[], chan: JackettChannel) => {
         chan.item.forEach(i => acc.push(i))
         return acc
       },
       [] as JackettItem[]
     )
+
     return items
   }
 
@@ -69,19 +72,22 @@ async function fetchJackettApi(imdbId: string): Promise<JackettItem[]> {
 }
 
 interface TorrentProps {
+  type: "movie" | "series"
   search?: string
   imdb_id?: string
 }
 
-async function createTorrentWithSearchTerm(search: string) {
+async function createTorrentWithSearchTerm(search: string, type: "movie" | "series") {
+  console.log(`[SERVER]: Quering ids for ${search}`)
   const response = await fetchOMBDApi(search)
-  const movie = response?.find(f => f.Title === search && f.Type === "movie")
+  const movie = response?.find(f => f.Title === search && f.Type === type)
 
   if (!movie) {
     //    throw new Error("Could not find a correspondenting imdb movie");
     return []
   }
 
+  console.log(`[SERVER]: Quering trackers for ${movie.imdbID}:${movie.Title}`)
   const data = await fetchJackettApi(movie.imdbID)
 
   if (!data) {
@@ -93,12 +99,12 @@ async function createTorrentWithSearchTerm(search: string) {
 }
 
 export async function torrentFactory(params: TorrentProps) {
-  if (params.search) {
-    return await createTorrentWithSearchTerm(params.search)
-  }
-
   if (params.imdb_id) {
     return await fetchJackettApi(params.imdb_id)
+  }
+
+  if (params.search) {
+    return await createTorrentWithSearchTerm(params.search, params.type)
   }
 
   return []
