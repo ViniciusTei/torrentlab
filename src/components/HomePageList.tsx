@@ -11,6 +11,7 @@ interface Props {
 
 function HomePageList({ title, data }: Props) {
   const [displayData, setDisplayData] = useState(data.splice(0, 7))
+  console.log({ data })
   return (
     <div className="w-full max-w-full overflow-hidden min-h-fit">
       <h2 className="text-3xl capitalize mb-4 mt-6">{title}</h2>

@@ -125,7 +125,7 @@ class TheMoviesDB {
             lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${entry.poster_path}`,
           }
         },
-        genres: entry.genre_ids.map(id => (batchGenres.find(x => x.id === id)?.name ?? 'Outros')),
+        genres: entry.genre_ids?.map(id => (batchGenres.find(x => x.id === id)?.name ?? 'Outros')),
         is_movie: entry.media_type === "movie"
       }
 

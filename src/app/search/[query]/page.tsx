@@ -57,7 +57,7 @@ async function SearchPage({ params }: PageProps) {
               <ItemLink item={item}>
                 <h2 className="text-slate-900 text-base font-semibold">{item.title}</h2>
               </ItemLink>
-              <p className="text-slate-200 text-xs my-2">{item.release_date} - {item.genres.join(',')}</p>
+              <p className="text-slate-200 text-xs my-2">{item.release_date} - {item.genres?.join(',')}</p>
               <p>{item.overview}</p>
             </div>
           </div>
@@ -75,7 +75,7 @@ interface ItemLinkProps {
 
 function ItemLink({ item, children }: ItemLinkProps) {
   return (
-    <Link href={item.is_movie ? `/movie/${item.id}` : `/tvhsow/${item.id}`}>
+    <Link href={item.is_movie ? `/movie/${item.id}` : `/tvshow/${item.id}`}>
       {children}
     </Link>
   )

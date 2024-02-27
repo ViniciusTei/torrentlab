@@ -10,7 +10,7 @@ export type TheMovieDbResult = {
   popularity: number
   release_date?: string
   first_air_date?: string
-  genre_ids: number[]
+  genre_ids: number[] | undefined
   media_type: "movie" | "tv"
 }
 
@@ -45,7 +45,7 @@ export interface TheMovieDbTrendingType {
       lg: string
     }
   }
-  genres: string[]
+  genres: string[] | undefined
 }
 
 export interface TheMovieDbDetailsType {
@@ -67,7 +67,7 @@ export interface TheMovieDbDetailsType {
       lg: string
     }
   }
-  genres: string[]
+  genres: string[] | undefined
   imdb_id: string
   is_tv_show: boolean
 }
