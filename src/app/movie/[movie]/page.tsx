@@ -35,7 +35,7 @@ async function MoviePage({ params }: { params: MoviePageProps }) {
         <ul>
           {downloads && downloads.map(item => (
             <li key={item.guid} className="my-2">
-              <Link href={item.link} className="flex items-center justify-start gap-2">
+              <Link href={Array.isArray(item.link) ? item.link[0] : item.link} className="flex items-center justify-start gap-2">
                 <FaDownload /> <p> {item.title} / {formatBytes(item.size)} </p>
               </Link>
             </li>
