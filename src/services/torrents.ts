@@ -1,4 +1,3 @@
-import { XMLParser } from 'fast-xml-parser'
 import xml from 'xml2js'
 import axios from 'axios'
 
@@ -31,10 +30,8 @@ async function fetchOMBDApi(searchName: string): Promise<OMDBSearch[]> {
   const apiKey = '6c3ebf7c'
   const url = 'http://www.omdbapi.com/'
 
-  const response = await fetch(`${url}?apikey=${apiKey}&s=${searchName}`)
-  const data: OMDBResponse = await response.json()
-
-  return data.Search
+  const response = await axios.get<OMDBResponse>(`${url}?apikey=${apiKey}&s=${searchName}`)
+  return response.data.Search
 }
 
 async function fetchJackettApi(imdbId: string): Promise<JackettItem[]> {
