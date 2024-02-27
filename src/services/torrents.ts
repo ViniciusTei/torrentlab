@@ -1,4 +1,6 @@
 import { XMLParser } from 'fast-xml-parser'
+import xml from 'xml2js'
+import axios from 'axios'
 
 type OMDBSearch = {
   Title: string
@@ -14,6 +16,10 @@ type OMDBResponse = {
   Response: string
 }
 
+type JackettChannel = {
+  item: JackettItem[]
+}
+
 type JackettItem = {
   title: string
   guid: string
@@ -27,24 +33,42 @@ async function fetchOMBDApi(searchName: string): Promise<OMDBSearch[]> {
 
   const response = await fetch(`${url}?apikey=${apiKey}&s=${searchName}`)
   const data: OMDBResponse = await response.json()
-  
+
   return data.Search
 }
 
 async function fetchJackettApi(imdbId: string): Promise<JackettItem[]> {
   const url = 'http://localhost:9117/api/v2.0/indexers/all/results/torznab'
 
-  const response = await fetch(`${url}?apikey=5ud4rkwctn6wcr8d6ldsr5ysl94zgxey&t=movie&imdbid=${imdbId}`)
-  const text = await response.text()
-  
-  const parser = new XMLParser()
-  const data = parser.parse(text)
-  
-  if (!data.rss && !data.rss.channel && !data.rss.channel.item) {
+  const response = await axios.get(`${url}?apikey=sopqxl8kcm4j0fe7atq4tevsc4kg9kgd&imdbid=${imdbId}`, {
+    responseType: 'text'
+  })
+
+  const data = await xml.parseStringPromise(response.data)
+
+  if (data.error) {
+    throw new Error(`Fetching trackers: ${data.error['$'].description}`)
+  }
+
+  if (
+    data.rss === undefined &&
+    data.rss.channel === undefined &&
+    data.rss.channel.item === undefined) {
     throw new Error('Missing items from trackers')
   }
 
-  return data.rss.channel.item
+  if (Array.isArray(data.rss.channel)) {
+    const items = data.rss.channel.reduce(
+      (acc: JackettItem[], chan: JackettChannel) => {
+        chan.item.forEach(i => acc.push(i))
+        return acc
+      },
+      [] as JackettItem[]
+    )
+    return items
+  }
+
+  return data.rss.channel.item as JackettItem[]
 }
 
 interface TorrentProps {
@@ -57,17 +81,17 @@ async function createTorrentWithSearchTerm(search: string) {
   const movie = response?.find(f => f.Title === search && f.Type === "movie")
 
   if (!movie) {
-//    throw new Error("Could not find a correspondenting imdb movie");
+    //    throw new Error("Could not find a correspondenting imdb movie");
     return []
   }
 
   const data = await fetchJackettApi(movie.imdbID)
-  
+
   if (!data) {
     //throw new Error("Could not find a torrent for your movie")
     return []
   }
-  
+
   return data
 }
 
