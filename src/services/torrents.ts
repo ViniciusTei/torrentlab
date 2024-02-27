@@ -22,7 +22,7 @@ type JackettChannel = {
 type JackettItem = {
   title: string
   guid: string
-  link: string
+  link: string | string[]
   size: number
 }
 
