@@ -1,6 +1,6 @@
 import React from 'react'
 import MovieAPI from '../../../services/api'
-import { torrentFactory } from '../../../services/torrents'
+import Torrents from '../../../services/torrents'
 import { formatBytes } from '../../../utils/formatters'
 import { FaDownload } from 'react-icons/fa'
 import Link from 'next/link'
@@ -12,7 +12,7 @@ interface MoviePageProps {
 async function MoviePage({ params }: { params: MoviePageProps }) {
   const api = MovieAPI()
   const results = await api.fetchMovieDetails(Number(params.movie))
-  const downloads = await torrentFactory({ type: "movie", imdb_id: results.imdb_id })
+  const downloads = await Torrents({ type: "movie", imdb_id: results.imdb_id })
 
   return (
     <div className="text-white">

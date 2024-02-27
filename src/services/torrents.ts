@@ -98,7 +98,7 @@ async function createTorrentWithSearchTerm(search: string, type: "movie" | "seri
   return data
 }
 
-export async function torrentFactory(params: TorrentProps) {
+export default async function Torrents(params: TorrentProps) {
   if (params.imdb_id) {
     return await fetchJackettApi(params.imdb_id)
   }

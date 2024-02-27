@@ -1,7 +1,7 @@
 
 import React from 'react'
 import MovieAPI from '../../../services/api'
-import { torrentFactory } from '../../../services/torrents'
+import Torrents from '../../../services/torrents'
 import { formatBytes } from '../../../utils/formatters'
 import { FaDownload } from 'react-icons/fa'
 import Link from 'next/link'
@@ -13,7 +13,7 @@ interface PageProps {
 async function TvShowPage({ params }: { params: PageProps }) {
   const api = MovieAPI()
   const results = await api.fetchTvShowsDetails(Number(params.id))
-  const downloads = await torrentFactory({
+  const downloads = await Torrents({
     type: "series",
     imdb_id: results.imdb_id,
     search: results.title,
