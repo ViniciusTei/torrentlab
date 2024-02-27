@@ -5,6 +5,7 @@ import Torrents from '../../../services/torrents'
 import { formatBytes } from '../../../utils/formatters'
 import { FaDownload } from 'react-icons/fa'
 import Link from 'next/link'
+import Alert from 'src/ui/alert'
 
 interface PageProps {
   id: string
@@ -46,10 +47,10 @@ async function TvShowPage({ params }: { params: PageProps }) {
           ))}
         </ul>
         {downloads && downloads.length === 0 && (
-          <div className="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4" role="alert">
-            <p className="font-bold">Sem downloads</p>
-            <p>Ainda não foram encontrados torrents disponíveis para essa mídia.</p>
-          </div>
+          <Alert
+            title="Sem downloads"
+            message="Ainda não foram encontrados torrents disponíveis para essa mídia."
+          />
         )}
       </section>
     </div>
