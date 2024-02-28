@@ -5,7 +5,7 @@ import { MdArrowForwardIos, MdArrowBackIos } from 'react-icons/md'
 import { BsPlayCircleFill } from 'react-icons/bs'
 import { FaDownload } from 'react-icons/fa'
 import { motion } from 'framer-motion'
-import { TheMovieDbTrendingType } from '../services/themoviedb'
+import { TheMovieDbTrendingType } from '../services/types/themoviedb'
 import { useRouter } from 'next/navigation'
 
 interface Props {

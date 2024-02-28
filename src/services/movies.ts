@@ -1,5 +1,11 @@
 import axios, { RawAxiosRequestConfig } from "axios"
-import { TheMovieDbDetailResponse, TheMovieDbDetailsType, TheMovieDbResult, TheMovieDbTrendingResponse, TheMovieDbTrendingType } from "./themoviedb"
+import {
+  TheMovieDbDetailResponse,
+  TheMovieDbDetailsType,
+  TheMovieDbResult,
+  TheMovieDbTrendingResponse,
+  TheMovieDbTrendingType
+} from "./types/themoviedb"
 
 const THEMOVIEDB = 'https://api.themoviedb.org/'
 

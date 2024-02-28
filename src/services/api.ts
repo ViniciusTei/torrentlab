@@ -1,5 +1,5 @@
 import Movies from './movies'
-import { TheMovieDbTrendingType } from './themoviedb'
+import { TheMovieDbTrendingType } from './types/themoviedb'
 
 class API {
   private moviesAPI: Movies

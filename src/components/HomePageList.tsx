@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { TheMovieDbTrendingType } from '../services/themoviedb'
+import { TheMovieDbTrendingType } from '../services/types/themoviedb'
 import MovieItem from './MovieItem'
 
 interface Props {

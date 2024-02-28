@@ -2,7 +2,7 @@ import { FaDownload } from 'react-icons/fa'
 import Link from 'next/link'
 
 import Torrents from 'src/services/torrents'
-import { TheMovieDbTrendingType } from 'src/services/themoviedb'
+import { TheMovieDbTrendingType } from 'src/services/types/themoviedb'
 
 interface Props {
   item: TheMovieDbTrendingType

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import React from 'react'
 
 import API from 'src/services/api'
-import { TheMovieDbTrendingType } from 'src/services/themoviedb'
+import { TheMovieDbTrendingType } from 'src/services/types/themoviedb'
 import { Badge } from 'src/ui/badge'
 
 interface PageProps {
