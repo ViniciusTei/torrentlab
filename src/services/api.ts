@@ -27,11 +27,15 @@ class API {
   }
 
   public async fetchMovieDetails(movie_id: number) {
-    const trendingUrl = `/3/movie/${movie_id}?language=pt-BR`
+    try {
+      const trendingUrl = `/3/movie/${movie_id}?language=pt-BR`
 
-    const data = await this.moviesAPI.fetchTheMovieDBDetails(trendingUrl)
+      const data = await this.moviesAPI.fetchTheMovieDBDetails(trendingUrl)
 
-    return data
+      return data
+    } catch (error) {
+      throw new Error('Algo de errado aconteceu ao tentar buscar os detalhes do filme.')
+    }
   }
 
   public async fetchTvShowsDetails(id: number) {
