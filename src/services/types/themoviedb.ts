@@ -1,3 +1,5 @@
+import { Subtitle } from "./subtitles"
+
 export type TheMovieDbResult = {
   id: number
   backdrop_path: string
@@ -70,4 +72,6 @@ export interface TheMovieDbDetailsType {
   genres: string[] | undefined
   imdb_id: string
   is_tv_show: boolean
+  subtitles: Subtitle[] | undefined
 }
+

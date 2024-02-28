@@ -6,14 +6,18 @@ import {
   TheMovieDbTrendingResponse,
   TheMovieDbTrendingType
 } from "./types/themoviedb"
+import SubtitlesApi from "./subtitles"
+import { throws } from "assert"
 
 const THEMOVIEDB = 'https://api.themoviedb.org/'
 
 class TheMoviesDB {
   private token: string
+  private subtitleApi: SubtitlesApi
 
   constructor() {
     this.token = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZGNlNTk5NGFkMmE1NWU2YjJhMGYxNmZlYmUxOWIxYyIsInN1YiI6IjYwNWY1YTE5ZDJmNWI1MDA1MzkzY2Y2MSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CoEO3sS5wJAnI_GQmsPpbX924zQeBQzmmhuk9z26d3c'
+    this.subtitleApi = new SubtitlesApi()
   }
 
   private async fetchTheMovieDb(fetch_url: string) {
@@ -46,6 +50,8 @@ class TheMoviesDB {
   public async fetchTheMovieDBDetails(fetch_url: string, is_movie = true): Promise<TheMovieDbDetailsType> {
     const data: TheMovieDbDetailResponse = await this.fetchTheMovieDb(fetch_url)
     const { base_url, backdrop_sizes, poster_sizes } = await this.fetchTheMovieConfiguration()
+    const subsResponse = await this.subtitleApi.searchForSubtitles(data.id)
+    const subtitles = subsResponse.data
 
     if (is_movie) {
       const response = {
@@ -71,7 +77,8 @@ class TheMoviesDB {
         genres: data.genres?.map(g => g.name),
         imdb_id: data.imdb_id,
         is_movie,
-        is_tv_show: false
+        is_tv_show: false,
+        subtitles: subtitles.data,
       }
 
       return response
@@ -100,7 +107,8 @@ class TheMoviesDB {
       genres: data.genres?.map(g => g.name),
       imdb_id: data.imdb_id,
       is_movie,
-      is_tv_show: true
+      is_tv_show: true,
+      subtitles: subtitles.data,
     }
 
     return response
