@@ -23,7 +23,7 @@ async function MoviePage({ params }: { params: MoviePageProps }) {
         <div>
           <p className="font-semibold text-3xl">{results.title}</p>
           <div className="my-1 text-lg font-semibold">
-            {results.genres.join(",")} • {results.release_date}
+            {results.genres?.join(", ")} • {results.release_date}
           </div>
         </div>
       </div>
@@ -48,7 +48,24 @@ async function MoviePage({ params }: { params: MoviePageProps }) {
             message="Ainda não foram encontrados torrents disponíveis para essa mídia."
           />
         )}
-
+      </section>
+      <section className="px-40">
+        <h2 className="text-xl font-bold my-4">Legendas</h2>
+        <ul>
+          {results.subtitles && results.subtitles.map(item => (
+            <li key={item.id} className="my-2">
+              <div className="flex items-center justify-start gap-2">
+                <FaDownload /> <p>{item.attributes.release} ({item.attributes.language.toUpperCase()}) </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        {!results.subtitles || results.subtitles.length === 0 && (
+          <Alert
+            title="Sem legendas"
+            message="Ainda não foram encontrados legendas disponíveis para essa mídia."
+          />
+        )}
       </section>
     </div>
   )
