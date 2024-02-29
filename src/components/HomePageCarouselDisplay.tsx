@@ -50,6 +50,7 @@ function HomePageCarouselDisplay({ data }: Props) {
       </div>
       {data.map((d, index) => current === index && (
         <motion.div
+          key={d.id}
           initial={motionInitialState}
           animate={{ x: 0 }}
           transition={{ ease: "easeIn", duration: 0.2 }}
@@ -60,7 +61,7 @@ function HomePageCarouselDisplay({ data }: Props) {
           <div className='absolute left-48 bottom-36 max-w-lg pl-4'>
             <h2 className='text-3xl font-semibold capitalize mb-3'>{d.title}</h2>
             <div className='my-1 text-xl font-semibold'>
-              {d.genres.join(",")} • {d.release_date} • {d.popularity}
+              {d.genres?.join(",")} • {d.release_date} • {d.popularity}
             </div>
             <p className='text-sm text-gray-100 truncate'>{d.overview}</p>
             <div className='flex items-center gap-2'>
