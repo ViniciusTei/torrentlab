@@ -6,6 +6,7 @@ import MovieAPI from 'src/services/api'
 import Torrents from 'src/services/torrents'
 import { formatBytes } from 'src/utils/formatters'
 import Alert from 'src/ui/alert'
+import SubtitleItem from 'src/components/SubtitleItem'
 
 interface MoviePageProps {
   movie: string
@@ -53,11 +54,7 @@ async function MoviePage({ params }: { params: MoviePageProps }) {
         <h2 className="text-xl font-bold my-4">Legendas</h2>
         <ul>
           {results.subtitles && results.subtitles.map(item => (
-            <li key={item.id} className="my-2">
-              <div className="flex items-center justify-start gap-2">
-                <FaDownload /> <p>{item.attributes.release} ({item.attributes.language.toUpperCase()}) </p>
-              </div>
-            </li>
+            <SubtitleItem key={item.id} subtitle={item} />
           ))}
         </ul>
         {!results.subtitles || results.subtitles.length === 0 && (
