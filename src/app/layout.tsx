@@ -1,8 +1,10 @@
 import React from 'react'
 import { Metadata } from 'next'
-import '../styles/global.css'
 
-import NavHeader from '../components/NavHeader'
+import { Toaster } from 'src/ui/toaster'
+import NavHeader from 'src/components/NavHeader'
+
+import 'src/styles/global.css'
 
 interface RootLayoutProps {
   children: React.ReactNode
@@ -20,6 +22,7 @@ function RootLayout({ children }: RootLayoutProps) {
         <NavHeader />
         <main className="flex-1">
           {children}
+          <Toaster />
         </main>
         <footer className="flex items-center text-white px-2 py-6 border-t border-t-white mt-2 h-20 w-full">
           Powered by
