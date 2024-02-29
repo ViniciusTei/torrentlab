@@ -167,6 +167,10 @@ class TheMoviesDB {
     return response.genres
   }
 
+  public async downloadSubs(id: number) {
+    return this.subtitleApi.download(id)
+  }
+
 }
 
 export default TheMoviesDB

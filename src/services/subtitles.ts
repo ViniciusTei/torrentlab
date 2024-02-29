@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import { SubtitlesResponse } from './types/subtitles'
+import { SubtitleDownloadResponse, SubtitlesResponse } from './types/subtitles'
 import env from 'src/utils/env'
 
 class SubtitlesApi {
@@ -28,9 +28,10 @@ class SubtitlesApi {
   public async download(file_id: number) {
     const bearer = await this.login()
 
-    return this.baseApi.post('/download', { file_id }, {
+    return this.baseApi.post<SubtitleDownloadResponse>('/download', { file_id }, {
       headers: {
-        'Authorization': `Bearer ${bearer}`
+        'Authorization': `Bearer ${bearer}`,
+        'Accept': '*/*',
       }
     })
   }

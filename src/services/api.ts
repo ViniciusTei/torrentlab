@@ -49,6 +49,10 @@ class API {
   public async searchAll(query: string) {
     return await this.moviesAPI.fetchTheMovieDBSearch(query)
   }
+
+  public async downloadSubtitles(id: number) {
+    return this.moviesAPI.downloadSubs(id)
+  }
 }
 
 let globalAPI: API | null = null
