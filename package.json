@@ -32,6 +32,7 @@
     "react-query": "^3.39.2",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
+    "webtorrent": "^2.1.36",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
@@ -40,6 +41,7 @@
     "@types/nprogress": "^0.2.3",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
+    "@types/webtorrent": "^0.109.8",
     "@types/xml2js": "^0.4.14",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.27",
