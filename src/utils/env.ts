@@ -4,12 +4,11 @@ type Env = {
   SUBTITLES_PASS: string
 }
 
-
 function getEnv() {
   const env = {
-    SUBTITLES_EMAIL: process.env.SUBTITLES_EMAIL,
-    SUBTITLES_KEY: process.env.SUBTITLES_KEY,
-    SUBTITLES_PASS: process.env.SUBTITLES_PASS,
+    SUBTITLES_EMAIL: import.meta.env.VITE_SUBTITLES_EMAIL,
+    SUBTITLES_KEY: import.meta.env.VITE_SUBTITLES_KEY,
+    SUBTITLES_PASS: import.meta.env.VITE_SUBTITLES_PASS,
   }
 
   Object.entries(env).forEach(([key, val]) => {

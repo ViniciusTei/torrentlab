@@ -1,29 +1,30 @@
-# TorrentLab
+# React + TypeScript + Vite
 
-Search and downaload movies with torrent
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## TODO
+Currently, two official plugins are available:
 
-- [x] Refactor to TypeScript and Tailwind
-- [x] Refactor to use app routes from Next13
-- [x] Remove TYS API and add Jackett trackers
-- [ ] Create configuration, with a page to tweek it and a local storage for permanence
-- [ ] Create categories for tvshows and animes
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-# How to use
+## Expanding the ESLint configuration
 
-**Dependencies**
+If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
 
-- (Jackett)[https://github.com/Jackett/Jackett]
+- Configure the top-level `parserOptions` property like this:
 
-Get a local instance of Jackett, it is used to fetch torrent magnet links. You must create a OMBdAPI key and paste it in the configuration of Jackett.
-
-```bash
-git clone git@repository
-cd ./TorrentLab
-yarn
-yarn dev
+```js
+export default {
+  // other rules...
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    project: ['./tsconfig.json', './tsconfig.node.json'],
+    tsconfigRootDir: __dirname,
+  },
+}
 ```
 
-This should get you service running on your localhost.
-
+- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
+- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
+- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list

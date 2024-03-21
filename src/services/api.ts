@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios'
 import Movies from './movies'
 import { TheMovieDbTrendingType } from './types/themoviedb'
 
@@ -34,6 +35,10 @@ class API {
 
       return data
     } catch (error) {
+      if (error instanceof AxiosError) {
+        throw error
+      }
+
       throw new Error('Algo de errado aconteceu ao tentar buscar os detalhes do filme.')
     }
   }

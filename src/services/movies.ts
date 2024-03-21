@@ -7,7 +7,6 @@ import {
   TheMovieDbTrendingType
 } from "./types/themoviedb"
 import SubtitlesApi from "./subtitles"
-import { throws } from "assert"
 
 const THEMOVIEDB = 'https://api.themoviedb.org/'
 

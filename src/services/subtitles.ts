@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
+
+import env from '@/utils/env'
 import { SubtitleDownloadResponse, SubtitlesResponse } from './types/subtitles'
-import env from 'src/utils/env'
 
 class SubtitlesApi {
   private baseApi: AxiosInstance
@@ -11,16 +12,24 @@ class SubtitlesApi {
       baseURL: 'https://api.opensubtitles.com/api/v1',
       headers: {
         'Api-Key': env.SUBTITLES_KEY,
-        'User-Agent': 'torrentlab v0.0.1'
+        'User-Agent': 'torrentlab v0.0.1',
+        'Access-Control-Allow-Origin': '*',
       }
     })
+    this.token = ''
   }
 
-  public searchForSubtitles(tmdb_id: number) {
+  public async searchForSubtitles(tmdb_id: number) {
+    const bearer = await this.login()
+
     return this.baseApi.get<SubtitlesResponse>('/subtitles', {
       params: {
         tmdb_id,
         languages: 'pt-br',
+      },
+      headers: {
+        'Authorization': `Bearer ${bearer}`,
+        'Accept': '*/*',
       }
     })
   }
