@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import socket from './webtorrent'
+import { useToast } from "@/components/ui/use-toast"
 
 type DownloadItem = {
   itemId: string
@@ -12,10 +13,12 @@ type DownloadItem = {
 function useSockets() {
   const [onDownloadItems, setOnDownloadItems] = useState<DownloadItem[]>([])
   const [isConnected, setIsConnected] = useState(socket.connected)
+  const { toast } = useToast()
 
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
+      socket.emit('ready', 'Start', (res: any) => console.log(res))
     }
 
     function onDisconnect() {
@@ -30,6 +33,13 @@ function useSockets() {
     socket.on('connect', onConnect)
     socket.on('disconnect', onDisconnect)
     socket.on('downloaded', onEvent)
+    socket.on('done', function onDone() {
+      toast({
+        title: 'Download finalizado',
+        description: 'Abra na pasta para visualizar o arquivo.',
+        variant: 'default'
+      })
+    })
 
     return () => {
       socket.off('connect', onConnect)
