@@ -52,7 +52,7 @@ const clientAdd = (info, id, cb) => {
       const stmt = db.prepare(`
         UPDATE downloads
         SET downloaded = 1
-        WHERE download_id = ${id};
+        WHERE download_id = '${id}';
         `)
       stmt.run((_, err) => {
         if (err) console.log(err)
