@@ -44,7 +44,9 @@ const clientAdd = (info, id, cb) => {
       }
 
       if (downloadData.progress < 1) {
-        _socket.emit('downloaded', downloadData)
+        if (_socket) {
+          _socket.emit('downloaded', downloadData)
+        }
       }
     })
 
@@ -57,12 +59,16 @@ const clientAdd = (info, id, cb) => {
       stmt.run((_, err) => {
         if (err) console.log(err)
       })
-      _socket.emit('done', 'Download finished')
+      if (_socket) {
+        _socket.emit('done', 'Download finished')
+      }
     })
 
     torrent.on('error', function(err) {
       console.log('Torrent error', err)
-      _socket.emit('error', err)
+      if (_socket) {
+        _socket.emit('error', err)
+      }
     })
 
     if (cb) cb(torrent)
