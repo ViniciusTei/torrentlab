@@ -11,6 +11,23 @@ export type MovieDetails = {
 export default function useServices() {
   const api = getAPI()
 
+  function useHomePageData() {
+    return useQuery({
+      queryKey: ['home'],
+      queryFn: async () => {
+        const responseAllTrending = await api.fetchAllTrending()
+        const responseMovies = await api.fetchTrendingMovies()
+        const responseTvShows = await api.fetchTrendingTvShows()
+
+        return {
+          trending: responseAllTrending,
+          movies: responseMovies,
+          tvShows: responseTvShows,
+        }
+      }
+    })
+  }
+
   function useAllTrending() {
     return useQuery({
       queryKey: ['trending-movies'],
@@ -39,5 +56,5 @@ export default function useServices() {
     })
   }
 
-  return { useAllTrending, useMovieDetails }
+  return { useAllTrending, useMovieDetails, useHomePageData }
 }

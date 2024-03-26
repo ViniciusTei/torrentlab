@@ -1,16 +1,44 @@
 import HomePageList from '@/components/home-list'
+import { Skeleton } from '@/components/ui/skeleton'
 import useServices from '@/services/useServices'
-import socket from '@/services/webtorrent'
 
 function App() {
-  const { useAllTrending } = useServices()
-  const { data: trendingMovies } = useAllTrending()
-  socket.on('connect', () => console.log('Connect to server'))
+  const { useHomePageData } = useServices()
+  const { data } = useHomePageData()
+
+  if (!data) {
+    return (
+      <>
+        <Skeleton className="max-w-[426px] h-8 mx-8 my-4" />
+        <div className="flex gap-2 pl-8 items-center">
+          {[0, 1, 2, 3, 4].map(val => (
+            <Skeleton key={val} className="min-w-[226px] h-[385px]" />
+          ))}
+        </div>
+        <Skeleton className="max-w-[426px] h-8 mx-8 my-4" />
+        <div className="flex gap-2 pl-8 items-center">
+          {[0, 1, 2, 3, 4].map(val => (
+            <Skeleton key={val} className="min-w-[226px] h-[385px]" />
+          ))}
+        </div>
+      </>
+    )
+  }
+
+  const { trending, movies, tvShows } = data
 
   return (
     <div className="flex flex-col items-center min-h-screen">
-      {trendingMovies && (
-        <HomePageList title="Em destaque" data={trendingMovies} />
+      {trending && (
+        <HomePageList title="Todos em destaque" data={trending} />
+      )}
+
+      {movies && (
+        <HomePageList title="Filmes em destaque" data={movies} />
+      )}
+
+      {tvShows && (
+        <HomePageList title="Tv em destaque" data={tvShows} />
       )}
     </div>
   )
