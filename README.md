@@ -1,30 +1,73 @@
-# React + TypeScript + Vite
+# TorrentLab 🍿📺
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Welcome to the Torrent Aggregator, a versatile tool for searching and downloading movies and TV shows from various torrent sources. This open-source project aims to provide users with a seamless experience for finding and accessing their favorite media content.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Search Functionality:** Easily search for movies and TV shows using keywords.
+- **Torrent Aggregation:** Aggregates torrents from multiple sources for comprehensive search results.
+- **Download Capability:** Download movies and TV shows directly through the application.
+- **Subtitles Support:** Automatically download missing subtitles using OpenSubtitles.
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+To use the Torrent Aggregator, follow these steps:
 
-- Configure the top-level `parserOptions` property like this:
+1. Clone the repository to your local machine:
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+   ```
+   git clone https://github.com/ViniciusTei/torrentlab.git
+   ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+2. Navigate to the project directory:
+
+   ```
+   cd torrentlab
+   ```
+
+3. Install dependencies:
+
+   ```
+   npm install
+   ```
+
+4. Start the application:
+
+   ```
+   npm start
+   ```
+
+**Server**
+
+It has a server side application that is used to download the torrents. To use it you must navigate to the `server` folder and run `npm install && npm start`.
+
+**Client**
+
+With everything running the application should be running on port 5173 on your local machine.
+
+## Contributing
+
+Contributions to the Torrent Aggregator project are welcomed and encouraged. If you'd like to contribute, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them with descriptive messages.
+4. Push your changes to your fork.
+5. Submit a pull request to the main repository.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+## Acknowledgements
+
+Special thanks to the developers of the libraries and tools used in this project.
+
+- [TheMovieDb](https://www.themoviedb.org/) - API for fetching movie and TV show information.
+- [OpenSubtitles](https://www.opensubtitles.org/) - Platform for downloading subtitles for movies and TV shows.
+- [Jackett](https://github.com/Jackett/Jackett) - Open-source project for fetching torrent files from various trackers.
+
+---
+
+Thank you for using the Torrent Lab! Happy downloading! 
