@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
-import socket from './webtorrent'
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from '@/components/ui/use-toast'
+import socket from '@/services/webtorrent'
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
 type DownloadItem = {
   itemId: string
@@ -16,7 +16,9 @@ type DownloadProps = {
   theMovieDbId: number
 }
 
-function useSockets() {
+const SocketContext = createContext({} as any)
+
+function SocketProvier({ children }: { children: ReactNode }) {
   const [onDownloadItems, setOnDownloadItems] = useState<DownloadItem[]>([])
   const [isConnected, setIsConnected] = useState(socket.connected)
   const { toast } = useToast()
@@ -58,11 +60,19 @@ function useSockets() {
     }
   }, [])
 
-  return {
-    isConnected,
-    onDownloadItems,
-    startDownload,
-  }
+  return (
+    <SocketContext.Provider value={{
+      isConnected,
+      onDownloadItems,
+      startDownload,
+    }}>
+      {children}
+    </SocketContext.Provider>
+  )
 }
 
-export default useSockets
+export const useSocketContext = () => {
+  return useContext(SocketContext)
+}
+
+export default SocketProvier

@@ -7,14 +7,17 @@ import registerSw from './registerSW.ts'
 import router from './router.tsx'
 
 import './index.css'
+import SocketProvier from './context/sockets.tsx'
 
 const queryClient = new QueryClient()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <SocketProvier>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </SocketProvier>
   </React.StrictMode>,
 )
 

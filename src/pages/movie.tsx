@@ -6,6 +6,8 @@ import DownloadItem from '@/components/download-item';
 import { MovieDetails } from '@/services/useServices';
 import getAPI from '@/services/api'
 import Torrents from '@/services/torrents'
+import { Progress } from '@/components/ui/progress';
+import { useCounter } from '@/utils/counter';
 
 interface Params {
   data: MovieDetails
@@ -13,8 +15,14 @@ interface Params {
 
 function movie() {
   const { data } = useLoaderData() as Params
+  const value = useCounter()
 
-  if (!data) return null
+  if (!data) return (
+    <>
+      <Progress value={value} />
+    </>
+  )
+
   const { movies, downloads } = data
 
   return (
@@ -37,7 +45,7 @@ function movie() {
         <ul>
           {downloads && downloads.map(item => (
             <li key={item.guid} className="my-2">
-              <DownloadItem item={item} />
+              <DownloadItem theMovieDbId={movies.id} item={item} />
             </li>
           ))}
         </ul>

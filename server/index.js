@@ -15,6 +15,7 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS downloads (
       download_id TEXT PRIMARY KEY,
       info_hash TEXT NOT NULL,
+      the_movie_db_id INTEGER NOT NULL,
       downloaded INTEGER NOT NULL CHECK (downloaded IN (0, 1))
     );
   `)
@@ -51,9 +52,11 @@ const clientAdd = (info, id, cb) => {
       const stmt = db.prepare(`
         UPDATE downloads
         SET downloaded = 1
-        WHERE info_hash = ${torrent.infoHash};
+        WHERE download_id = ${id};
         `)
-      stmt.run()
+      stmt.run((_, err) => {
+        if (err) console.log(err)
+      })
       _socket.emit('done', 'Download finished')
     })
 
@@ -62,9 +65,7 @@ const clientAdd = (info, id, cb) => {
       _socket.emit('error', err)
     })
 
-    torrent.on('ready', () => {
-      if (cb) cb(torrent)
-    })
+    if (cb) cb(torrent)
   })
 
 }
@@ -76,8 +77,11 @@ const downloadEvent = (arg, callback) => {
       infoHash: torrent.infoHash,
     })
     fs.writeFileSync(path.join('metadata', `${torrent.infoHash}.torrent`), buf)
-    const stmt = db.prepare("INSERT INTO downloads VALUES (?, ?, ?);")
-    stmt.run(arg.itemId, torrent.infoHash, 0)
+    const stmt = db.prepare("INSERT INTO downloads VALUES (?, ?, ?, ?);")
+    stmt.run(arg.itemId, torrent.infoHash, arg.theMovieDbId, 0, (_, err) => {
+      if (err) console.log(err)
+    })
+    console.log('Inserting newdownload')
   })
 
 }
@@ -87,6 +91,12 @@ const connectionEvent = (arg, cb) => {
 }
 
 app.get('/', (req, res) => res.send('Hello world'))
+app.get('/downloads', (req, res) => {
+  db.all("SELECT * FROM downloads WHERE downloaded = 1", (err, rows) => {
+    if (err) res.status(500).send(err)
+    res.send(rows)
+  })
+})
 
 io.on('connection', (socket) => {
   _socket = socket
@@ -98,6 +108,7 @@ server.listen(5174, () => {
   db.each("SELECT * FROM downloads WHERE downloaded = 0", (err, row) => {
     if (err) console.log(err)
 
+    console.log('Add unfinished', row)
     clientAdd(row.info_hash, row.download_id)
   })
 

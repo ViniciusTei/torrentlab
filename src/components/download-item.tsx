@@ -2,22 +2,22 @@ import { FaDownload, FaPeopleArrows } from 'react-icons/fa';
 import { LuFileDown, LuTimerReset } from "react-icons/lu";
 import dayjs from 'dayjs'
 
-import socket from '@/services/webtorrent'
+import { useSocketContext } from '@/context/sockets';
 import { JackettItem } from '@/services/torrents'
 import { Button } from '@/components/ui/button';
 import { Progress } from './ui/progress';
-import useSockets from '@/services/useSockets';
 
 interface DownloadItemProps {
   item: JackettItem
+  theMovieDbId: number
 }
 
-function DownloadItem({ item }: DownloadItemProps) {
-  const { onDownloadItems } = useSockets()
+function DownloadItem({ item, theMovieDbId }: DownloadItemProps) {
+  const { onDownloadItems, startDownload } = useSocketContext()
   const onDownloadItem = onDownloadItems.find(i => i.itemId === item.guid)
 
   async function handleDownload(magnet: string) {
-    socket.emit('download', { magnet, itemId: item.guid })
+    startDownload({ magnet, itemId: item.guid, theMovieDbId: theMovieDbId })
   }
 
   const pending = onDownloadItem && onDownloadItem.progress > 0
