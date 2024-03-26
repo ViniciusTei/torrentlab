@@ -1,9 +1,10 @@
+import { AxiosError } from 'axios'
 import { createBrowserRouter, useRouteError } from 'react-router-dom'
 
 import Root from './pages/root'
 import App from './pages/App'
 import Movie, { loader as movieLoader } from './pages/movie'
-import { AxiosError } from 'axios'
+import SearchPage, { loader as searchLoader } from './pages/search'
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,11 @@ const router = createBrowserRouter([
         path: '/movie/:id',
         element: <Movie />,
         loader: movieLoader,
+      },
+      {
+        path: '/search',
+        element: <SearchPage />,
+        loader: searchLoader,
       }
     ]
   }

@@ -1,12 +1,27 @@
-import { AxiosError } from 'axios'
+import axios, { AxiosError } from 'axios'
 import Movies from './movies'
-import { TheMovieDbTrendingType } from './types/themoviedb'
+import { TheMovieDbDetailsType, TheMovieDbTrendingType } from './types/themoviedb'
 
 class API {
   private moviesAPI: Movies
 
   constructor() {
     this.moviesAPI = new Movies()
+  }
+
+  public async fetchDownloaded() {
+    try {
+      const result = await axios.get<{ the_movie_db_id: number }[]>('http://localhost:5174/downloads')
+      const ids = result.data.map(d => d.the_movie_db_id)
+      const downloaded = [] as TheMovieDbDetailsType[]
+      for (const id of ids) {
+        const detail = await this.fetchMovieDetails(id)
+        downloaded.push(detail)
+      }
+      return downloaded
+    } catch (error) {
+      throw error
+    }
   }
 
   public async fetchTrendingMovies(): Promise<TheMovieDbTrendingType[]> {
