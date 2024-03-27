@@ -10,20 +10,20 @@ import sqlite3 from 'sqlite3'
 const sql = sqlite3.verbose()
 const db = new sql.Database('db.sql')
 
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS downloads (
-      download_id TEXT PRIMARY KEY,
-      info_hash TEXT NOT NULL,
-      downloaded INTEGER NOT NULL CHECK (downloaded IN (0, 1))
-    );
-  `)
-  db.run(`
-    ALTER TABLE downloads 
-    ADD COLUMN the_movie_db_id INTEGER;
-    `)
-})
-
+// db.serialize(() => {
+//   db.run(`
+//     CREATE TABLE IF NOT EXISTS downloads (
+//       download_id TEXT PRIMARY KEY,
+//       info_hash TEXT NOT NULL,
+//       downloaded INTEGER NOT NULL CHECK (downloaded IN (0, 1))
+//     );
+//   `)
+//   db.run(`
+//     ALTER TABLE downloads 
+//     ADD COLUMN the_movie_db_id INTEGER;
+//     `)
+// })
+//
 const app = express()
 const server = http.createServer(app)
 const io = new Server(server, {
