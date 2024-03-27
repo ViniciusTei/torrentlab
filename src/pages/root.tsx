@@ -1,6 +1,5 @@
 import { GoHome } from 'react-icons/go'
-import { TbMovie } from 'react-icons/tb'
-import { BsFillCollectionPlayFill } from 'react-icons/bs'
+import { BsFillCollectionPlayFill, BsGear } from 'react-icons/bs'
 import { Link, Outlet, useNavigation, useNavigate } from 'react-router-dom'
 
 import SearchInput from '@/components/search-input'
@@ -21,19 +20,21 @@ export default function Root() {
       <header className="flex items-center my-1 mx-16">
         <img src="/bd-logo.svg" alt="Logo" className="p-1 mr-2" width="37px" height="41px" />
         <nav className="flex-1">
-          <ul className="flex gap-2">
+          <ul className="flex gap-4">
             <li>
               <Link to="/" className="flex gap-1 items-center cursor-pointer">
                 <GoHome /> Home
               </Link>
             </li>
             <li className="flex gap-1 items-center cursor-pointer text-gray-100">
-              <Link to="/movies" className="flex gap-1 items-center cursor-pointer">
-                <TbMovie /> Movies
+              <Link to="/" className="flex gap-1 items-center cursor-pointer">
+                <BsGear /> Configuração
               </Link>
             </li>
             <li className="flex gap-1 items-center cursor-pointer text-gray-100">
-              <BsFillCollectionPlayFill /> Tv shows
+              <Link to="/" className="flex gap-1 items-center cursor-pointer">
+                <BsFillCollectionPlayFill /> Baixados
+              </Link>
             </li>
           </ul>
         </nav>
