@@ -52,40 +52,9 @@ class TheMoviesDB {
     const subsResponse = await this.subtitleApi.searchForSubtitles(data.id)
     const subtitles = subsResponse.data
 
-    if (is_movie) {
-      const response = {
-        id: data.id,
-        title: data.title || data.original_name || data.original_title || "",
-        overview: data.overview,
-        popularity: data.popularity,
-        release_date: new Date(data.release_date || data.first_air_date || "").toLocaleDateString("pt-BR"),
-        original_title: data.original_name,
-        original_language: data.original_language,
-        images: {
-          backdrop_paths: {
-            sm: `${base_url}/${backdrop_sizes.find(s => s === 'w300') ?? 'original'}${data.backdrop_path}`,
-            md: `${base_url}/${backdrop_sizes.find(s => s === 'w700') ?? 'original'}${data.backdrop_path}`,
-            lg: `${base_url}/${backdrop_sizes.find(s => s === 'w1280') ?? 'original'}${data.backdrop_path}`,
-          },
-          poster_paths: {
-            sm: `${base_url}/${poster_sizes.find(s => s === 'w92') ?? 'original'}${data.poster_path}`,
-            md: `${base_url}/${poster_sizes.find(s => s === 'w185') ?? 'original'}${data.poster_path}`,
-            lg: `${base_url}/${poster_sizes.find(s => s === 'w780') ?? 'original'}${data.poster_path}`,
-          }
-        },
-        genres: data.genres?.map(g => g.name),
-        imdb_id: data.imdb_id,
-        is_movie,
-        is_tv_show: false,
-        subtitles: subtitles.data,
-      }
-
-      return response
-    }
-
     const response = {
       id: data.id,
-      title: data.title || data.original_name || data.original_title || "",
+      title: data.name || data.title || data.original_name || data.original_title || "",
       overview: data.overview,
       popularity: data.popularity,
       release_date: new Date(data.release_date || data.first_air_date || "").toLocaleDateString("pt-BR"),
@@ -105,9 +74,10 @@ class TheMoviesDB {
       },
       genres: data.genres?.map(g => g.name),
       imdb_id: data.imdb_id,
-      is_movie,
-      is_tv_show: true,
+      is_movie: is_movie,
+      is_tv_show: !is_movie,
       subtitles: subtitles.data,
+      seasons: (data as any).seasons,
     }
 
     return response

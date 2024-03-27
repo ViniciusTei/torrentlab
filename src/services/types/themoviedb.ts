@@ -24,8 +24,22 @@ export type TheMovieDbTrendingResponse = {
 }
 
 export interface TheMovieDbDetailResponse extends Omit<TheMovieDbResult, 'genre_ids' | 'media_type'> {
+  name: string | undefined
   genres: { id: number, name: string }[]
   imdb_id: string
+}
+
+export interface TheMovieDbShowDetailResponse extends TheMovieDbDetailsType {
+  seasons: Array<{
+    air_date: string
+    episode_count: number
+    id: number
+    name: string
+    overview: string
+    poster_path: string
+    season_number: number
+    vote_average: number
+  }>
 }
 
 export interface TheMovieDbTrendingType {
