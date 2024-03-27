@@ -15,13 +15,15 @@ interface Params {
 
 function movie() {
   const { data } = useLoaderData() as Params
-  const value = useCounter()
 
-  if (!data) return (
-    <>
-      <Progress value={value} />
-    </>
-  )
+  if (!data) {
+    const value = useCounter()
+    return (
+      <>
+        <Progress value={value} />
+      </>
+    )
+  }
 
   const { movies, downloads } = data
 

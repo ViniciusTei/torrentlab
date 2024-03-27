@@ -5,6 +5,7 @@ import Root from './pages/root'
 import App from './pages/App'
 import Movie, { loader as movieLoader } from './pages/movie'
 import SearchPage, { loader as searchLoader } from './pages/search'
+import TvShowPage, { loader as tvShowLoader } from './pages/tvshow'
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,11 @@ const router = createBrowserRouter([
         path: '/movie/:id',
         element: <Movie />,
         loader: movieLoader,
+      },
+      {
+        path: '/tvshow/:id',
+        element: <TvShowPage />,
+        loader: tvShowLoader,
       },
       {
         path: '/search',
