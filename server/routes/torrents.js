@@ -13,32 +13,6 @@ function dbGet(sql, params) {
 
 const CACHE_TTL = 24 * 60 * 60 // 24 hours in seconds
 
-async function fetchJackettCached(cacheKey, title) {
-  const now = Math.floor(Date.now() / 1000)
-  const cached = await dbGet('SELECT * FROM torrent_cache WHERE cache_key = ?', [cacheKey])
-  if (cached && (now - cached.cached_at) < CACHE_TTL) return JSON.parse(cached.results)
-  const results = await fetchJackett(title)
-  db.run(
-    'INSERT OR REPLACE INTO torrent_cache (cache_key, results, cached_at) VALUES (?, ?, ?)',
-    [cacheKey, JSON.stringify(results), now]
-  )
-  return results
-}
-
-async function omdbTitleById(imdbId) {
-  const config = await getConfig()
-  const res = await axios.get(`http://www.omdbapi.com/?apikey=${config.omdbApiKey}&i=${encodeURIComponent(imdbId)}`)
-  return res.data.Title || null
-}
-
-async function omdbTitleBySearch(searchName, type) {
-  const config = await getConfig()
-  const res = await axios.get(`http://www.omdbapi.com/?apikey=${config.omdbApiKey}&s=${encodeURIComponent(searchName)}&type=${type}`)
-  const results = res.data.Search || []
-  const match = results.find(f => f.Title === searchName)
-  return match?.Title || null
-}
-
 async function fetchJackett(title) {
   const config = await getConfig()
   const url = `${config.jackettUrl}/api/v2.0/indexers/all/results/torznab`
@@ -67,6 +41,33 @@ async function fetchJackett(title) {
     }
     return flat
   })
+}
+
+async function fetchJackettCached(cacheKey, title) {
+  const now = Math.floor(Date.now() / 1000)
+  const cached = await dbGet('SELECT * FROM torrent_cache WHERE cache_key = ?', [cacheKey])
+  if (cached && (now - cached.cached_at) < CACHE_TTL) return JSON.parse(cached.results)
+  const results = await fetchJackett(title)
+  db.run(
+    'INSERT OR REPLACE INTO torrent_cache (cache_key, results, cached_at) VALUES (?, ?, ?)',
+    [cacheKey, JSON.stringify(results), now],
+    (err) => { if (err) console.error('[torrent-cache] write error:', err.message) }
+  )
+  return results
+}
+
+async function omdbTitleById(imdbId) {
+  const config = await getConfig()
+  const res = await axios.get(`http://www.omdbapi.com/?apikey=${config.omdbApiKey}&i=${encodeURIComponent(imdbId)}`)
+  return res.data.Title || null
+}
+
+async function omdbTitleBySearch(searchName, type) {
+  const config = await getConfig()
+  const res = await axios.get(`http://www.omdbapi.com/?apikey=${config.omdbApiKey}&s=${encodeURIComponent(searchName)}&type=${type}`)
+  const results = res.data.Search || []
+  const match = results.find(f => f.Title === searchName && f.Type === type)
+  return match?.Title || null
 }
 
 // GET /api/torrents?imdb_id=tt1234567
