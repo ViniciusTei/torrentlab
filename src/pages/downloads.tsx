@@ -1,4 +1,4 @@
-import dayjs from 'dayjs'
+import { Link } from 'react-router-dom'
 import { FaPeopleArrows } from 'react-icons/fa'
 import { LuFileDown, LuTimerReset } from 'react-icons/lu'
 import { useQuery } from '@tanstack/react-query'
@@ -57,9 +57,25 @@ function ActiveTab() {
 }
 
 function ActiveDownloadCard({ item }: { item: DownloadItem }) {
+  const sec = Math.floor(item.timeRemaining / 1000)
+  const h = Math.floor(sec / 3600)
+  const m = Math.floor((sec % 3600) / 60)
+  const s = sec % 60
+  const duration = [h, m, s].map(v => String(v).padStart(2, '0')).join(':')
+
   return (
     <div className="flex flex-col gap-2 p-4 bg-slate-800 rounded-lg">
-      <p className="font-semibold">{item.title}</p>
+      <div className="flex items-center justify-between">
+        <p className="font-semibold">{item.title}</p>
+        {item.infoHash && (
+          <Link
+            to={`/player/${item.infoHash}?title=${encodeURIComponent(item.title)}`}
+            className="inline-flex items-center gap-1 bg-white text-black text-sm font-semibold px-3 py-1 rounded hover:bg-gray-200 transition-colors"
+          >
+            ▶ Assistir
+          </Link>
+        )}
+      </div>
       <div className="flex items-center gap-2">
         <Progress value={item.progress * 100} className="h-2 flex-1" />
         <span className="text-sm text-slate-400">{Math.round(item.progress * 100)}%</span>
@@ -73,7 +89,7 @@ function ActiveDownloadCard({ item }: { item: DownloadItem }) {
         </span>
         <span className="inline-flex items-center gap-1">
           <LuTimerReset />
-          {item.timeRemaining > 0 ? dayjs(item.timeRemaining).format('HH:mm:ss') : '—'}
+          {item.timeRemaining > 0 ? duration : '—'}
         </span>
       </div>
     </div>
@@ -84,6 +100,10 @@ function CompletedTab() {
   const { data, isLoading } = useQuery({
     queryKey: ['downloads'],
     queryFn: () => getAPI().fetchDownloaded(),
+  })
+  const { data: downloadIds } = useQuery({
+    queryKey: ['download-ids'],
+    queryFn: () => getAPI().fetchDownloadIds(),
   })
 
   if (isLoading) {
@@ -107,9 +127,22 @@ function CompletedTab() {
 
   return (
     <div className="flex flex-wrap gap-4">
-      {data.map(movie => (
-        <MovieItem key={movie.id} item={movie as TheMovieDbTrendingType} />
-      ))}
+      {data.map(movie => {
+        const row = downloadIds?.find(d => d.the_movie_db_id === movie.id && d.downloaded !== 0)
+        return (
+          <div key={movie.id} className="relative">
+            <MovieItem item={movie as TheMovieDbTrendingType} />
+            {row && (
+              <Link
+                to={`/player/${row.info_hash}?title=${encodeURIComponent(movie.title ?? '')}`}
+                className="absolute top-2 left-0 right-0 mx-auto w-fit inline-flex items-center gap-1 bg-white text-black text-xs font-semibold px-3 py-1 rounded hover:bg-gray-200 transition-colors z-10"
+              >
+                ▶ Assistir
+              </Link>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
