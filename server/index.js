@@ -4,14 +4,16 @@ import { Server } from 'socket.io'
 import WebTorrent from 'webtorrent'
 import fs from 'node:fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 import { toTorrentFile } from 'parse-torrent'
+
 import db from './db.js'
 import config from './config.js'
 import moviesRouter from './routes/movies.js'
 import subtitlesRouter from './routes/subtitles.js'
 import torrentsRouter from './routes/torrents.js'
 
-
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const server = http.createServer(app)
 const io = new Server(server, {
@@ -21,9 +23,9 @@ const io = new Server(server, {
 const client = new WebTorrent()
 let _socket = null
 
-const clientAdd = (info, id, cb) => {
+function clientAdd(info, id) {
   client.add(info, { path: config.downloadsPath }, (torrent) => {
-    torrent.on('download', bytes => {
+    torrent.on('download', () => {
       const downloadData = {
         itemId: id,
         peers: torrent.numPeers,
@@ -31,58 +33,22 @@ const clientAdd = (info, id, cb) => {
         timeRemaining: torrent.timeRemaining,
         progress: torrent.progress,
       }
-
-      if (downloadData.progress < 1) {
-        if (_socket) {
-          _socket.emit('downloaded', downloadData)
-        }
+      if (downloadData.progress < 1 && _socket) {
+        _socket.emit('downloaded', downloadData)
       }
     })
 
-    torrent.on('done', function() {
-      const stmt = db.prepare(`
-        UPDATE downloads
-        SET downloaded = 1
-        WHERE download_id = '${id}';
-        `)
-      stmt.run((_, err) => {
-        if (err) console.log(err)
-      })
-      if (_socket) {
-        _socket.emit('done', 'Download finished')
-      }
+    torrent.on('done', () => {
+      const stmt = db.prepare(`UPDATE downloads SET downloaded = 1 WHERE download_id = ?`)
+      stmt.run([id], (_, err) => { if (err) console.log(err) })
+      if (_socket) _socket.emit('done', 'Download finished')
     })
 
-    torrent.on('error', function(err) {
+    torrent.on('error', (err) => {
       console.log('Torrent error', err)
-      if (_socket) {
-        _socket.emit('error', err)
-      }
+      if (_socket) _socket.emit('error', err)
     })
-
-    if (cb) cb(torrent)
   })
-
-}
-
-const downloadEvent = (arg, callback) => {
-  clientAdd(arg.magnet, arg.itemId, function(torrent) {
-    // save torrent metadata to restore later
-    const buf = toTorrentFile({
-      infoHash: torrent.infoHash,
-    })
-    fs.writeFileSync(path.join(config.metadataPath, `${torrent.infoHash}.torrent`), buf)
-    const stmt = db.prepare("INSERT INTO downloads VALUES (?, ?, ?, ?);")
-    stmt.run(arg.itemId, torrent.infoHash, arg.theMovieDbId, 0, (_, err) => {
-      if (err) console.log(err)
-    })
-    console.log('Inserting newdownload')
-  })
-
-}
-
-const connectionEvent = (arg, cb) => {
-  console.log('Client ready')
 }
 
 app.use(express.json())
@@ -90,28 +56,61 @@ app.use('/api', moviesRouter)
 app.use('/api', subtitlesRouter)
 app.use('/api', torrentsRouter)
 
-app.get('/', (req, res) => res.send('Hello world'))
-app.get('/downloads', (req, res) => {
-  db.all("SELECT * FROM downloads WHERE downloaded = 1", (err, rows) => {
-    if (err) res.status(500).send(err)
+app.get('/api/downloads', (req, res) => {
+  db.all('SELECT * FROM downloads WHERE downloaded = 1', (err, rows) => {
+    if (err) return res.status(500).send(err)
     res.send(rows)
   })
 })
 
+// Serve built frontend (only when dist/ exists — i.e., in Docker)
+const distPath = path.join(__dirname, '../dist')
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath))
+  app.get('*', (req, res) => res.sendFile(path.join(distPath, 'index.html')))
+}
+
 io.on('connection', (socket) => {
   _socket = socket
-  socket.on('download', downloadEvent)
-  socket.on('ready', connectionEvent)
+  socket.on('download', (arg) => {
+    client.add(arg.magnet, { path: config.downloadsPath }, (torrent) => {
+      const buf = toTorrentFile({ infoHash: torrent.infoHash })
+      fs.mkdirSync(config.metadataPath, { recursive: true })
+      fs.writeFileSync(path.join(config.metadataPath, `${torrent.infoHash}.torrent`), buf)
+      const stmt = db.prepare('INSERT INTO downloads VALUES (?, ?, ?, ?);')
+      stmt.run(arg.itemId, torrent.infoHash, arg.theMovieDbId, 0, (_, err) => {
+        if (err) console.log(err)
+      })
+
+      torrent.on('download', () => {
+        if (torrent.progress < 1 && _socket) {
+          _socket.emit('downloaded', {
+            itemId: arg.itemId,
+            peers: torrent.numPeers,
+            downloaded: torrent.downloaded,
+            timeRemaining: torrent.timeRemaining,
+            progress: torrent.progress,
+          })
+        }
+      })
+      torrent.on('done', () => {
+        const stmt = db.prepare('UPDATE downloads SET downloaded = 1 WHERE download_id = ?')
+        stmt.run([arg.itemId], (_, err) => { if (err) console.log(err) })
+        if (_socket) _socket.emit('done', 'Download finished')
+      })
+      torrent.on('error', (err) => {
+        if (_socket) _socket.emit('error', err)
+      })
+    })
+  })
+  socket.on('ready', () => console.log('Client ready'))
 })
 
 server.listen(config.port, () => {
-  db.each("SELECT * FROM downloads WHERE downloaded = 0", (err, row) => {
+  db.each('SELECT * FROM downloads WHERE downloaded = 0', (err, row) => {
     if (err) console.log(err)
-
-    console.log('Add unfinished', row)
-    clientAdd(row.info_hash, row.download_id)
+    if (row) clientAdd(row.info_hash, row.download_id)
   })
-
   console.log(`Server running on port ${config.port}`)
 })
 
