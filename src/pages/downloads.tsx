@@ -10,6 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import MovieItem from '@/components/movie-item'
 import { useSocketContext, DownloadItem } from '@/context/sockets'
 import getAPI from '@/services/api'
+import { TheMovieDbTrendingType } from '@/services/types/themoviedb'
+import { formatBytes } from '@/utils/format'
 
 export default function DownloadsPage() {
   return (
@@ -37,7 +39,7 @@ function ActiveTab() {
   if (activeDownloads.length === 0) {
     return (
       <Alert>
-        <AlertTitle>Nenhum download em andamento</AlertTitle>
+        <AlertTitle>Nenhum download em andamento.</AlertTitle>
         <AlertDescription>Inicie um download a partir da página de um filme.</AlertDescription>
       </Alert>
     )
@@ -97,7 +99,7 @@ function CompletedTab() {
   if (!data || data.length === 0) {
     return (
       <Alert>
-        <AlertTitle>Nenhum download concluído</AlertTitle>
+        <AlertTitle>Nenhum download concluído ainda.</AlertTitle>
         <AlertDescription>Os filmes baixados aparecerão aqui.</AlertDescription>
       </Alert>
     )
@@ -106,17 +108,8 @@ function CompletedTab() {
   return (
     <div className="flex flex-wrap gap-4">
       {data.map(movie => (
-        <MovieItem key={movie.id} item={movie as any} />
+        <MovieItem key={movie.id} item={movie as TheMovieDbTrendingType} />
       ))}
     </div>
   )
-}
-
-function formatBytes(bytes: number, decimals = 2) {
-  if (!+bytes) return '0 Bytes'
-  const k = 1024
-  const dm = decimals < 0 ? 0 : decimals
-  const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
 }

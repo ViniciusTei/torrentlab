@@ -40,12 +40,7 @@ class API {
 
   async fetchDownloaded(): Promise<TheMovieDbDetailsType[]> {
     const result = await http.get<{ the_movie_db_id: number }[]>('/api/downloads')
-    const downloaded: TheMovieDbDetailsType[] = []
-    for (const d of result.data) {
-      const detail = await this.fetchMovieDetails(d.the_movie_db_id)
-      downloaded.push(detail)
-    }
-    return downloaded
+    return Promise.all(result.data.map(d => this.fetchMovieDetails(d.the_movie_db_id)))
   }
 
   async fetchTrendingMovies(): Promise<TheMovieDbTrendingType[]> {
@@ -85,6 +80,11 @@ class API {
 
   async fetchTorrents(imdb_id: string): Promise<JackettItem[]> {
     const res = await http.get<JackettItem[]>(`/api/torrents?imdb_id=${encodeURIComponent(imdb_id)}`)
+    return res.data
+  }
+
+  async searchTorrents(search: string, type: string): Promise<JackettItem[]> {
+    const res = await http.get<JackettItem[]>(`/api/torrents?search=${encodeURIComponent(search)}&type=${type}`)
     return res.data
   }
 

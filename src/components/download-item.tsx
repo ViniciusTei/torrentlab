@@ -6,6 +6,7 @@ import { useSocketContext } from '@/context/sockets';
 import { JackettItem } from '@/services/torrents'
 import { Button } from '@/components/ui/button';
 import { Progress } from './ui/progress';
+import { formatBytes } from '@/utils/format';
 
 interface DownloadItemProps {
   item: JackettItem
@@ -20,7 +21,7 @@ function DownloadItem({ item, theMovieDbId }: DownloadItemProps) {
     startDownload({ magnet, itemId: item.guid, theMovieDbId: theMovieDbId, title: item.title, size: item.size })
   }
 
-  const pending = onDownloadItem && onDownloadItem.progress > 0
+  const pending = !!onDownloadItem
   return (
     <>
       <Button
@@ -48,18 +49,6 @@ function DownloadItem({ item, theMovieDbId }: DownloadItemProps) {
       </div>
     </>
   )
-}
-
-function formatBytes(bytes: number, decimals = 2) {
-  if (!+bytes) return '0 Bytes'
-
-  const k = 1024
-  const dm = decimals < 0 ? 0 : decimals
-  const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
 }
 
 export default DownloadItem

@@ -61,9 +61,12 @@ function useDownloadSocket(): SocketContextType {
     }
 
     function onDone({ itemId }: { itemId: string }) {
-      setActiveDownloads(prev => prev.filter(i => i.itemId !== itemId))
-      queryClient.invalidateQueries({ queryKey: ['downloads'] })
-      toast({ title: 'Download finalizado', description: 'Abra na pasta para visualizar o arquivo.' })
+      setActiveDownloads(prev => {
+        const item = prev.find(i => i.itemId === itemId)
+        queryClient.invalidateQueries({ queryKey: ['downloads'] })
+        toast({ title: 'Download finalizado', description: item?.title })
+        return prev.filter(i => i.itemId !== itemId)
+      })
     }
 
     socket.on('connect', onConnect)
