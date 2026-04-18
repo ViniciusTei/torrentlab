@@ -104,7 +104,7 @@ server.listen(config.port, () => {
     clientAdd(row.info_hash, row.download_id)
   })
 
-  console.log('Server running on port 5174')
+  console.log(`Server running on port ${config.port}`)
 })
 
 server.on('close', () => {
