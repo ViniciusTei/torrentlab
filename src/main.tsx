@@ -13,11 +13,11 @@ const queryClient = new QueryClient()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <SocketProvier>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <SocketProvier>
         <RouterProvider router={router} />
-      </QueryClientProvider>
-    </SocketProvier>
+      </SocketProvier>
+    </QueryClientProvider>
   </React.StrictMode>,
 )
 
