@@ -38,7 +38,6 @@ function useDownloadSocket(): SocketContextType {
   const [isConnected, setIsConnected] = useState(socket.connected)
 
   function startDownload({ magnet, itemId, theMovieDbId, title, size }: DownloadProps) {
-    console.log('[socket] emitting download', { itemId, magnet: String(magnet).slice(0, 100), connected: socket.connected })
     socket.emit('download', { magnet, itemId, theMovieDbId })
     setActiveDownloads(prev => [
       ...prev,
@@ -67,6 +66,7 @@ function useDownloadSocket(): SocketContextType {
       setActiveDownloads(prev => {
         const item = prev.find(i => i.itemId === itemId)
         queryClient.invalidateQueries({ queryKey: ['downloads'] })
+        queryClient.invalidateQueries({ queryKey: ['download-ids'] })
         toast({ title: 'Download finalizado', description: item?.title })
         return prev.filter(i => i.itemId !== itemId)
       })
