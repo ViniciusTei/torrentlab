@@ -30,6 +30,13 @@ db.serialize(() => {
       value TEXT NOT NULL
     );
   `)
+  db.run(`
+    CREATE TABLE IF NOT EXISTS torrent_cache (
+      cache_key TEXT PRIMARY KEY,
+      results   TEXT NOT NULL,
+      cached_at INTEGER NOT NULL
+    );
+  `)
 })
 
 export default db
