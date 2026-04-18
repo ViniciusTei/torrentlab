@@ -1,18 +1,14 @@
-# Stage 1: Build frontend
-FROM node:20-alpine AS frontend
+# Stage 1: Build frontend (uses pre-installed node_modules from build context)
+FROM node:24 AS frontend
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
 COPY . .
-RUN npm run build
+RUN node_modules/.bin/vite build
 
-# Stage 2: Production runtime
-FROM node:20-alpine
+# Stage 2: Production runtime (node:24 to match host-compiled native modules)
+FROM node:24-slim
 WORKDIR /app
 
-COPY server/package*.json ./server/
-RUN cd server && npm ci --omit=dev
-
+COPY server/node_modules ./server/node_modules
 COPY server/ ./server/
 COPY --from=frontend /app/dist ./dist
 
