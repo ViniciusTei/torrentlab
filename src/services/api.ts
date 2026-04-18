@@ -1,11 +1,43 @@
-import axios, { AxiosError } from 'axios'
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
 import { TheMovieDbDetailsType, TheMovieDbTrendingType } from './types/themoviedb'
 import { JackettItem } from './torrents'
 import { SubtitleDownloadResponse } from './types/subtitles'
 
 const http = axios.create()
 
+http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+type AuthMeResponse =
+  | { firstRun: true }
+  | { authenticated: true; username: string }
+  | { authenticated: false }
+
 class API {
+  async me(): Promise<AuthMeResponse> {
+    const res = await http.get<AuthMeResponse>('/api/auth/me')
+    return res.data
+  }
+
+  async login(username: string, password: string): Promise<void> {
+    const res = await http.post<{ token: string }>('/api/auth/login', { username, password })
+    localStorage.setItem('token', res.data.token)
+  }
+
+  async setup(username: string, password: string): Promise<void> {
+    const res = await http.post<{ token: string }>('/api/auth/setup', { username, password })
+    localStorage.setItem('token', res.data.token)
+  }
+
+  logout(): void {
+    localStorage.removeItem('token')
+  }
+
   async fetchDownloaded(): Promise<TheMovieDbDetailsType[]> {
     const result = await http.get<{ the_movie_db_id: number }[]>('/api/downloads')
     const downloaded: TheMovieDbDetailsType[] = []
@@ -59,6 +91,15 @@ class API {
   async downloadSubtitles(file_id: number): Promise<SubtitleDownloadResponse> {
     const res = await http.post<SubtitleDownloadResponse>('/api/subtitles/download', { file_id })
     return res.data
+  }
+
+  async getSettings(): Promise<Record<string, string>> {
+    const res = await http.get<Record<string, string>>('/api/settings')
+    return res.data
+  }
+
+  async updateSettings(settings: Record<string, string>): Promise<void> {
+    await http.put('/api/settings', settings)
   }
 }
 

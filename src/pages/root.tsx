@@ -27,7 +27,7 @@ export default function Root() {
               </Link>
             </li>
             <li className="flex gap-1 items-center cursor-pointer text-gray-100">
-              <Link to="/" className="flex gap-1 items-center cursor-pointer">
+              <Link to="/settings" className="flex gap-1 items-center cursor-pointer">
                 <BsGear /> Configuração
               </Link>
             </li>
