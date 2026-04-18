@@ -44,7 +44,7 @@ function clientAdd(info, id) {
     torrent.on('done', () => {
       const stmt = db.prepare(`UPDATE downloads SET downloaded = 1 WHERE download_id = ?`)
       stmt.run([id], (_, err) => { if (err) console.log(err) })
-      if (_socket) _socket.emit('done', 'Download finished')
+      if (_socket) _socket.emit('done', { itemId: id })
     })
 
     torrent.on('error', (err) => {
@@ -101,7 +101,7 @@ io.on('connection', (socket) => {
       torrent.on('done', () => {
         const stmt = db.prepare('UPDATE downloads SET downloaded = 1 WHERE download_id = ?')
         stmt.run([arg.itemId], (_, err) => { if (err) console.log(err) })
-        if (_socket) _socket.emit('done', 'Download finished')
+        if (_socket) _socket.emit('done', { itemId: arg.itemId })
       })
       torrent.on('error', (err) => {
         if (_socket) _socket.emit('error', err)
