@@ -10,6 +10,7 @@ import SetupPage from './pages/setup'
 import LoginPage from './pages/login'
 import SettingsPage from './pages/settings'
 import DownloadsPage from './pages/downloads'
+import PlayerPage from './pages/player'
 import getAPI from './services/api'
 
 async function authLoader() {
@@ -27,6 +28,11 @@ const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    path: '/player/:infoHash',
+    element: <PlayerPage />,
+    loader: authLoader,
   },
   {
     path: '/',
