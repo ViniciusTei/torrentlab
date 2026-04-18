@@ -9,8 +9,6 @@ interface Props {
 function MovieItem({ item }: Props) {
   const downloadStatus = useDownloadStatus(item.id)
 
-  if (!item) return null
-
   return (
     <a
       href={item.is_movie ? `/movie/${item.id}` : `/tvshow/${item.id}`}

@@ -12,6 +12,6 @@ export function useDownloadStatus(movieId: number): DownloadStatus {
   })
 
   if (activeDownloads.some(d => d.theMovieDbId === movieId)) return 'downloading'
-  if (downloadIds?.some(d => d.the_movie_db_id === movieId && d.downloaded === 1)) return 'downloaded'
+  if (downloadIds?.some(d => d.the_movie_db_id === movieId && d.downloaded !== 0)) return 'downloaded'
   return null
 }
