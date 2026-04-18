@@ -1,6 +1,7 @@
 import tailwindAnimate from 'tailwindcss-animate'
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: false,
   content: [
     './index.html',
     './pages/**/*.{ts,tsx}',
