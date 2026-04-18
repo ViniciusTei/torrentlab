@@ -8,10 +8,13 @@ import { fileURLToPath } from 'url'
 import { toTorrentFile } from 'parse-torrent'
 
 import db from './db.js'
-import config from './config.js'
+import { staticConfig as config, seedSettings } from './config.js'
 import moviesRouter from './routes/movies.js'
 import subtitlesRouter from './routes/subtitles.js'
 import torrentsRouter from './routes/torrents.js'
+import authRouter from './routes/auth.js'
+import settingsRouter from './routes/settings.js'
+import requireAuth from './middleware/auth.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
@@ -52,11 +55,13 @@ function clientAdd(info, id) {
 }
 
 app.use(express.json())
-app.use('/api', moviesRouter)
-app.use('/api', subtitlesRouter)
-app.use('/api', torrentsRouter)
+app.use('/api', authRouter)
+app.use('/api', requireAuth, settingsRouter)
+app.use('/api', requireAuth, moviesRouter)
+app.use('/api', requireAuth, subtitlesRouter)
+app.use('/api', requireAuth, torrentsRouter)
 
-app.get('/api/downloads', (req, res) => {
+app.get('/api/downloads', requireAuth, (req, res) => {
   db.all('SELECT * FROM downloads WHERE downloaded = 1', (err, rows) => {
     if (err) return res.status(500).send(err)
     res.send(rows)
@@ -106,7 +111,8 @@ io.on('connection', (socket) => {
   socket.on('ready', () => console.log('Client ready'))
 })
 
-server.listen(config.port, () => {
+server.listen(config.port, async () => {
+  await seedSettings()
   db.each('SELECT * FROM downloads WHERE downloaded = 0', (err, row) => {
     if (err) console.log(err)
     if (row) clientAdd(row.info_hash, row.download_id)
