@@ -1,21 +1,17 @@
 import axios, { AxiosError } from 'axios'
-import Movies from './movies'
 import { TheMovieDbDetailsType, TheMovieDbTrendingType } from './types/themoviedb'
+import { JackettItem } from './torrents'
+import { SubtitleDownloadResponse } from './types/subtitles'
+
+const http = axios.create()
 
 class API {
-  private moviesAPI: Movies
-
-  constructor() {
-    this.moviesAPI = new Movies()
-  }
-
-  public async fetchDownloaded() {
+  async fetchDownloaded(): Promise<TheMovieDbDetailsType[]> {
     try {
-      const result = await axios.get<{ the_movie_db_id: number }[]>('http://localhost:5174/downloads')
-      const ids = result.data.map(d => d.the_movie_db_id)
-      const downloaded = [] as TheMovieDbDetailsType[]
-      for (const id of ids) {
-        const detail = await this.fetchMovieDetails(id)
+      const result = await http.get<{ the_movie_db_id: number }[]>('/api/downloads')
+      const downloaded: TheMovieDbDetailsType[] = []
+      for (const d of result.data) {
+        const detail = await this.fetchMovieDetails(d.the_movie_db_id)
         downloaded.push(detail)
       }
       return downloaded
@@ -24,66 +20,57 @@ class API {
     }
   }
 
-  public async fetchTrendingMovies(): Promise<TheMovieDbTrendingType[]> {
-    const data = await this.moviesAPI.fetchTheMovieDBTrending('/3/trending/movie/day?language=pt-BR')
-
-    return data
+  async fetchTrendingMovies(): Promise<TheMovieDbTrendingType[]> {
+    const res = await http.get('/api/trending?type=movie')
+    return res.data
   }
 
-  public async fetchAllTrending(): Promise<TheMovieDbTrendingType[]> {
-    const data = await this.moviesAPI.fetchTheMovieDBTrending('/3/trending/all/day?language=pt-BR')
-
-    return data
+  async fetchAllTrending(): Promise<TheMovieDbTrendingType[]> {
+    const res = await http.get('/api/trending?type=all')
+    return res.data
   }
 
-  public async fetchTrendingTvShows(): Promise<TheMovieDbTrendingType[]> {
-    const data = await this.moviesAPI.fetchTheMovieDBTrending('/3/trending/tv/day?language=pt-BR')
-
-    return data
+  async fetchTrendingTvShows(): Promise<TheMovieDbTrendingType[]> {
+    const res = await http.get('/api/trending?type=tv')
+    return res.data
   }
 
-  public async fetchMovieDetails(movie_id: number) {
+  async fetchMovieDetails(movie_id: number): Promise<TheMovieDbDetailsType> {
     try {
-      const trendingUrl = `/3/movie/${movie_id}?language=pt-BR`
-
-      const data = await this.moviesAPI.fetchTheMovieDBDetails(trendingUrl)
-
-      return data
+      const res = await http.get(`/api/movie/${movie_id}`)
+      return res.data
     } catch (error) {
-      if (error instanceof AxiosError) {
-        throw error
-      }
-
+      if (error instanceof AxiosError) throw error
       throw new Error('Algo de errado aconteceu ao tentar buscar os detalhes do filme.')
     }
   }
 
-  public async fetchTvShowsDetails(id: number) {
-    const trendingUrl = `/3/tv/${id}?language=pt-BR`
-
-    const data = await this.moviesAPI.fetchTheMovieDBDetails(trendingUrl, false)
-
-    return data
+  async fetchTvShowsDetails(id: number): Promise<TheMovieDbDetailsType> {
+    const res = await http.get(`/api/tvshow/${id}`)
+    return res.data
   }
 
-  public async searchAll(query: string) {
-    return await this.moviesAPI.fetchTheMovieDBSearch(query)
+  async searchAll(query: string): Promise<TheMovieDbTrendingType[]> {
+    const res = await http.get(`/api/search?q=${encodeURIComponent(query)}`)
+    return res.data
   }
 
-  public async downloadSubtitles(id: number) {
-    return this.moviesAPI.downloadSubs(id)
+  async fetchTorrents(imdb_id: string): Promise<JackettItem[]> {
+    const res = await http.get<JackettItem[]>(`/api/torrents?imdb_id=${encodeURIComponent(imdb_id)}`)
+    return res.data
+  }
+
+  async downloadSubtitles(file_id: number): Promise<SubtitleDownloadResponse> {
+    const res = await http.post<SubtitleDownloadResponse>('/api/subtitles/download', { file_id })
+    return res.data
   }
 }
 
 let globalAPI: API | null = null
 
 function getAPI() {
-  if (!globalAPI) {
-    globalAPI = new API()
-  }
-
+  if (!globalAPI) globalAPI = new API()
   return globalAPI
 }
 
 export default getAPI
-

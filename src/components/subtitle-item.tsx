@@ -17,7 +17,7 @@ function SubtitleItem({ subtitle }: Props) {
     try {
       const fileId = subtitle.attributes.files[0].file_id
       const response = await api.downloadSubtitles(fileId)
-      saveAs(response.data.link, response.data.file_name)
+      saveAs(response.link, response.file_name)
     } catch (error) {
       toast({
         title: 'Error',

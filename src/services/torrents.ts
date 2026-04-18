@@ -1,23 +1,4 @@
-import xml from 'xml2js'
 import axios from 'axios'
-
-type OMDBSearch = {
-  Title: string
-  Year: string
-  imdbID: string
-  Type: string
-  Poster: string
-}
-
-type OMDBResponse = {
-  Search: OMDBSearch[],
-  totalResults: number
-  Response: string
-}
-
-type JackettChannel = {
-  item: JackettItem[]
-}
 
 export type JackettItem = {
   title: string
@@ -26,106 +7,21 @@ export type JackettItem = {
   size: number
 }
 
-async function fetchOMBDApi(searchName: string): Promise<OMDBSearch[]> {
-  const apiKey = '6c3ebf7c'
-  const url = 'http://www.omdbapi.com/'
-
-  const response = await axios.get<OMDBResponse>(`${url}?apikey=${apiKey}&s=${searchName}`)
-  return response.data.Search
-}
-
-async function fetchJackettApi(imdbId: string): Promise<JackettItem[]> {
-  const url = 'http://localhost:9117/api/v2.0/indexers/all/results/torznab'
-  try {
-    const response = await axios.get(`${url}?apikey=sopqxl8kcm4j0fe7atq4tevsc4kg9kgd&imdbid=${imdbId}`, {
-      responseType: 'text'
-    })
-
-    const data = await xml.parseStringPromise(response.data)
-
-    if (data.error) {
-      throw new Error(`Fetching trackers: ${data.error['$'].description}`)
-    }
-
-    if (
-      data.rss === undefined &&
-      data.rss.channel === undefined &&
-      data.rss.channel.item === undefined) {
-      throw new Error('Missing items from trackers')
-    }
-
-    if (Array.isArray(data.rss.channel)) {
-      const channelsWithItems = data.rss.channel.filter((chan: JackettChannel) => !!chan.item) as JackettChannel[]
-
-      const items = channelsWithItems.reduce(
-        (acc: JackettItem[], chan: JackettChannel) => {
-          chan.item.forEach(i => {
-            acc.push(i)
-          })
-          return acc
-        },
-        [] as JackettItem[]
-      )
-
-      return items.map((obj: any) => {
-        const newObj = {} as any;
-        for (const key in obj) {
-          if (Array.isArray(obj[key]) && obj[key].length > 0) {
-            newObj[key] = (obj[key] as any)[0];
-          } else {
-            newObj[key] = obj[key]
-          }
-        }
-        return newObj
-      })
-    }
-
-    return data.rss.channel.item as JackettItem[]
-
-  } catch (error) {
-    throw error
-  }
-
-}
-
 interface TorrentProps {
   type: "movie" | "series"
   search?: string
   imdb_id?: string
 }
 
-async function createTorrentWithSearchTerm(search: string, type: "movie" | "series") {
-  try {
-    console.log(`[SERVER]: Quering ids for ${search}`)
-    const response = await fetchOMBDApi(search)
-    const movie = response?.find(f => f.Title === search && f.Type === type)
-
-    if (!movie) {
-      //    throw new Error("Could not find a correspondenting imdb movie");
-      return []
-    }
-
-    console.log(`[SERVER]: Quering trackers for ${movie.imdbID}:${movie.Title}`)
-    const data = await fetchJackettApi(movie.imdbID)
-
-    if (!data) {
-      //throw new Error("Could not find a torrent for your movie")
-      return []
-    }
-
-    return data
-  } catch (error) {
-    throw error
-  }
-}
-
-export default async function Torrents(params: TorrentProps) {
+export default async function Torrents(params: TorrentProps): Promise<JackettItem[]> {
   if (params.imdb_id) {
-    return await fetchJackettApi(params.imdb_id)
+    const res = await axios.get<JackettItem[]>(`/api/torrents?imdb_id=${encodeURIComponent(params.imdb_id)}`)
+    return res.data
   }
 
   if (params.search) {
-    return await createTorrentWithSearchTerm(params.search, params.type)
+    const res = await axios.get<JackettItem[]>(`/api/torrents?search=${encodeURIComponent(params.search)}&type=${params.type}`)
+    return res.data
   }
 
   return []
