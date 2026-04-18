@@ -4,33 +4,33 @@
  
 @layer base {
   :root {
-    --background: oklch(95.127% 0.007 260.731);
-    --foreground: oklch(32.437% 0.022 264.182);
+    --background: 95.127% 0.007 260.731;
+    --foreground: 32.437% 0.022 264.182;
 
-    --card: oklch(93.299% 0.01 261.788);
-    --card-foreground: oklch(32.437% 0.022 264.182);
+    --card: 93.299% 0.01 261.788;
+    --card-foreground: 32.437% 0.022 264.182;
 
-    --popover: oklch(93.299% 0.01 261.788);
-    --popover-foreground: oklch(32.437% 0.022 264.182);
+    --popover: 93.299% 0.01 261.788;
+    --popover-foreground: 32.437% 0.022 264.182;
 
-    --primary: oklch(59.435% 0.077 254.027);
-    --primary-foreground: oklch(11.887% 0.015 254.027);
+    --primary: 59.435% 0.077 254.027;
+    --primary-foreground: 11.887% 0.015 254.027;
 
-    --secondary: oklch(69.651% 0.059 248.687);
-    --secondary-foreground: oklch(13.93% 0.011 248.687);
+    --secondary: 69.651% 0.059 248.687;
+    --secondary-foreground: 13.93% 0.011 248.687;
 
-    --muted: oklch(93.299% 0.01 261.788);
-    --muted-foreground: oklch(45.229% 0.035 264.131);
+    --muted: 93.299% 0.01 261.788;
+    --muted-foreground: 45.229% 0.035 264.131;
 
-    --accent: oklch(77.464% 0.062 217.469);
-    --accent-foreground: oklch(15.492% 0.012 217.469);
+    --accent: 77.464% 0.062 217.469;
+    --accent-foreground: 15.492% 0.012 217.469;
 
-    --destructive: oklch(60.61% 0.12 15.341);
-    --destructive-foreground: oklch(12.122% 0.024 15.341);
+    --destructive: 60.61% 0.12 15.341;
+    --destructive-foreground: 12.122% 0.024 15.341;
 
-    --border: oklch(89.925% 0.016 262.749);
-    --input: oklch(89.925% 0.016 262.749);
-    --ring: oklch(59.435% 0.077 254.027);
+    --border: 89.925% 0.016 262.749;
+    --input: 89.925% 0.016 262.749;
+    --ring: 59.435% 0.077 254.027;
 
     --radius: 0.5rem;
   }
