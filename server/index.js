@@ -14,7 +14,7 @@ import subtitlesRouter from './routes/subtitles.js'
 import torrentsRouter from './routes/torrents.js'
 import authRouter from './routes/auth.js'
 import settingsRouter from './routes/settings.js'
-import streamRouter from './routes/stream.js'
+import createStreamRouter from './routes/stream.js'
 import requireAuth from './middleware/auth.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -63,7 +63,7 @@ app.use('/api', requireAuth, settingsRouter)
 app.use('/api', requireAuth, moviesRouter)
 app.use('/api', requireAuth, subtitlesRouter)
 app.use('/api', requireAuth, torrentsRouter)
-app.use('/api', streamRouter)
+app.use('/api', requireAuth, createStreamRouter(client))
 
 app.get('/api/downloads', requireAuth, (req, res) => {
   db.all('SELECT * FROM downloads WHERE downloaded = 1', (err, rows) => {
