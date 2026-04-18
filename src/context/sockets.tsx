@@ -27,7 +27,7 @@ type SocketContextType = {
   startDownload: (props: DownloadProps) => void
 }
 
-const SocketContext = createContext<SocketContextType>({} as SocketContextType)
+const SocketContext = createContext<SocketContextType | null>(null)
 
 function useDownloadSocket(): SocketContextType {
   const queryClient = useQueryClient()
@@ -87,4 +87,8 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
 }
 
-export const useSocketContext = () => useContext(SocketContext)
+export const useSocketContext = () => {
+  const ctx = useContext(SocketContext)
+  if (!ctx) throw new Error('useSocketContext must be used within SocketProvider')
+  return ctx
+}
