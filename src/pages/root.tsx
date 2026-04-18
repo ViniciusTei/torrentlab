@@ -32,7 +32,7 @@ export default function Root() {
               </Link>
             </li>
             <li className="flex gap-1 items-center cursor-pointer text-gray-100">
-              <Link to="/" className="flex gap-1 items-center cursor-pointer">
+              <Link to="/downloads" className="flex gap-1 items-center cursor-pointer">
                 <BsFillCollectionPlayFill /> Baixados
               </Link>
             </li>

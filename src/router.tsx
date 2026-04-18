@@ -9,6 +9,7 @@ import TvShowPage, { loader as tvShowLoader } from './pages/tvshow'
 import SetupPage from './pages/setup'
 import LoginPage from './pages/login'
 import SettingsPage from './pages/settings'
+import DownloadsPage from './pages/downloads'
 import getAPI from './services/api'
 
 async function authLoader() {
@@ -38,6 +39,7 @@ const router = createBrowserRouter([
       { path: '/tvshow/:id', element: <TvShowPage />, loader: tvShowLoader },
       { path: '/search', element: <SearchPage />, loader: searchLoader },
       { path: '/settings', element: <SettingsPage /> },
+      { path: '/downloads', element: <DownloadsPage /> },
     ]
   }
 ])
