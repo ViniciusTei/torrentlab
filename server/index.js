@@ -5,25 +5,9 @@ import WebTorrent from 'webtorrent'
 import fs from 'node:fs'
 import path from 'path'
 import { toTorrentFile } from 'parse-torrent'
-import sqlite3 from 'sqlite3'
+import db from './db.js'
 
-const sql = sqlite3.verbose()
-const db = new sql.Database('db.sql')
 
-// db.serialize(() => {
-//   db.run(`
-//     CREATE TABLE IF NOT EXISTS downloads (
-//       download_id TEXT PRIMARY KEY,
-//       info_hash TEXT NOT NULL,
-//       downloaded INTEGER NOT NULL CHECK (downloaded IN (0, 1))
-//     );
-//   `)
-//   db.run(`
-//     ALTER TABLE downloads 
-//     ADD COLUMN the_movie_db_id INTEGER;
-//     `)
-// })
-//
 const app = express()
 const server = http.createServer(app)
 const io = new Server(server, {
