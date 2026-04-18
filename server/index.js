@@ -26,11 +26,13 @@ const io = new Server(server, {
 const client = new WebTorrent()
 let _socket = null
 
-function clientAdd(info, id) {
+function clientAdd(info, id, theMovieDbId) {
   client.add(info, { path: config.downloadsPath }, (torrent) => {
     torrent.on('download', () => {
       const downloadData = {
         itemId: id,
+        infoHash: torrent.infoHash,
+        theMovieDbId,
         peers: torrent.numPeers,
         downloaded: torrent.downloaded,
         timeRemaining: torrent.timeRemaining,
@@ -98,6 +100,8 @@ io.on('connection', (socket) => {
         if (torrent.progress < 1 && _socket) {
           _socket.emit('downloaded', {
             itemId: arg.itemId,
+            infoHash: torrent.infoHash,
+            theMovieDbId: arg.theMovieDbId,
             peers: torrent.numPeers,
             downloaded: torrent.downloaded,
             timeRemaining: torrent.timeRemaining,
@@ -122,7 +126,7 @@ server.listen(config.port, async () => {
   await seedSettings()
   db.each('SELECT * FROM downloads WHERE downloaded = 0', (err, row) => {
     if (err) console.log(err)
-    if (row) clientAdd(row.info_hash, row.download_id)
+    if (row) clientAdd(row.info_hash, row.download_id, row.the_movie_db_id)
   })
   console.log(`Server running on port ${config.port}`)
 })

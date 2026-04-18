@@ -5,6 +5,8 @@ import socket from '@/services/webtorrent'
 
 export type DownloadItem = {
   itemId: string
+  infoHash: string
+  theMovieDbId: number
   title: string
   size: number
   peers: number
@@ -36,10 +38,11 @@ function useDownloadSocket(): SocketContextType {
   const [isConnected, setIsConnected] = useState(socket.connected)
 
   function startDownload({ magnet, itemId, theMovieDbId, title, size }: DownloadProps) {
+    console.log('[socket] emitting download', { itemId, magnet: String(magnet).slice(0, 100), connected: socket.connected })
     socket.emit('download', { magnet, itemId, theMovieDbId })
     setActiveDownloads(prev => [
       ...prev,
-      { itemId, title, size, progress: 0, peers: 0, downloaded: 0, timeRemaining: 0 },
+      { itemId, infoHash: '', theMovieDbId, title, size, progress: 0, peers: 0, downloaded: 0, timeRemaining: 0 },
     ])
     toast({ title: 'Download iniciado', description: title })
   }
