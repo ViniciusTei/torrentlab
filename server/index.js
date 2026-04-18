@@ -68,6 +68,13 @@ app.get('/api/downloads', requireAuth, (req, res) => {
   })
 })
 
+app.get('/api/downloads/ids', requireAuth, (req, res) => {
+  db.all('SELECT * FROM downloads', (err, rows) => {
+    if (err) return res.status(500).send(err)
+    res.send(rows)
+  })
+})
+
 // Serve built frontend (only when dist/ exists — i.e., in Docker)
 const distPath = path.join(__dirname, '../dist')
 if (fs.existsSync(distPath)) {
