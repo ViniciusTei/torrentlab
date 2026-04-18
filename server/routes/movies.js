@@ -1,6 +1,7 @@
 import express from 'express'
 import axios from 'axios'
 import config from '../config.js'
+import { searchSubtitles } from './subtitles.js'
 
 const router = express.Router()
 const TMDB_BASE = 'https://api.themoviedb.org'
@@ -78,9 +79,10 @@ router.get('/search', async (req, res) => {
 // GET /api/movie/:id  (subtitles added in Task 5)
 router.get('/movie/:id', async (req, res) => {
   try {
-    const [data, cfg] = await Promise.all([
-      fetchTmdb(`/3/movie/${req.params.id}?language=pt-BR`),
+    const data = await fetchTmdb(`/3/movie/${req.params.id}?language=pt-BR`)
+    const [cfg, subtitles] = await Promise.all([
       getImageConfig(),
+      searchSubtitles(data.id),
     ])
     res.json({
       id: data.id,
@@ -95,7 +97,7 @@ router.get('/movie/:id', async (req, res) => {
       imdb_id: data.imdb_id,
       is_movie: true,
       is_tv_show: false,
-      subtitles: [],
+      subtitles,
     })
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -105,9 +107,10 @@ router.get('/movie/:id', async (req, res) => {
 // GET /api/tvshow/:id  (subtitles added in Task 5)
 router.get('/tvshow/:id', async (req, res) => {
   try {
-    const [data, cfg] = await Promise.all([
-      fetchTmdb(`/3/tv/${req.params.id}?language=pt-BR`),
+    const data = await fetchTmdb(`/3/tv/${req.params.id}?language=pt-BR`)
+    const [cfg, subtitles] = await Promise.all([
       getImageConfig(),
+      searchSubtitles(data.id),
     ])
     res.json({
       id: data.id,
@@ -122,7 +125,7 @@ router.get('/tvshow/:id', async (req, res) => {
       imdb_id: null,
       is_movie: false,
       is_tv_show: true,
-      subtitles: [],
+      subtitles,
       seasons: data.seasons || [],
     })
   } catch (err) {
