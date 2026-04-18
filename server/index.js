@@ -6,21 +6,20 @@ import fs from 'node:fs'
 import path from 'path'
 import { toTorrentFile } from 'parse-torrent'
 import db from './db.js'
+import config from './config.js'
 
 
 const app = express()
 const server = http.createServer(app)
 const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:5173'
-  },
+  cors: { origin: config.corsOrigin },
 })
 
 const client = new WebTorrent()
 let _socket = null
 
 const clientAdd = (info, id, cb) => {
-  client.add(info, { path: 'downloads' }, (torrent) => {
+  client.add(info, { path: config.downloadsPath }, (torrent) => {
     torrent.on('download', bytes => {
       const downloadData = {
         itemId: id,
@@ -69,7 +68,7 @@ const downloadEvent = (arg, callback) => {
     const buf = toTorrentFile({
       infoHash: torrent.infoHash,
     })
-    fs.writeFileSync(path.join('metadata', `${torrent.infoHash}.torrent`), buf)
+    fs.writeFileSync(path.join(config.metadataPath, `${torrent.infoHash}.torrent`), buf)
     const stmt = db.prepare("INSERT INTO downloads VALUES (?, ?, ?, ?);")
     stmt.run(arg.itemId, torrent.infoHash, arg.theMovieDbId, 0, (_, err) => {
       if (err) console.log(err)
@@ -97,7 +96,7 @@ io.on('connection', (socket) => {
   socket.on('ready', connectionEvent)
 })
 
-server.listen(5174, () => {
+server.listen(config.port, () => {
   db.each("SELECT * FROM downloads WHERE downloaded = 0", (err, row) => {
     if (err) console.log(err)
 
