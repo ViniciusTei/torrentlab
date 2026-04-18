@@ -23,7 +23,7 @@ export type DownloadProps = {
 
 type SocketContextType = {
   isConnected: boolean
-  onDownloadItems: DownloadItem[]
+  activeDownloads: DownloadItem[]
   startDownload: (props: DownloadProps) => void
 }
 
@@ -32,12 +32,12 @@ const SocketContext = createContext<SocketContextType | null>(null)
 function useDownloadSocket(): SocketContextType {
   const queryClient = useQueryClient()
   const { toast } = useToast()
-  const [onDownloadItems, setOnDownloadItems] = useState<DownloadItem[]>([])
+  const [activeDownloads, setActiveDownloads] = useState<DownloadItem[]>([])
   const [isConnected, setIsConnected] = useState(socket.connected)
 
   function startDownload({ magnet, itemId, theMovieDbId, title, size }: DownloadProps) {
     socket.emit('download', { magnet, itemId, theMovieDbId })
-    setOnDownloadItems(prev => [
+    setActiveDownloads(prev => [
       ...prev,
       { itemId, title, size, progress: 0, peers: 0, downloaded: 0, timeRemaining: 0 },
     ])
@@ -55,13 +55,13 @@ function useDownloadSocket(): SocketContextType {
     }
 
     function onProgress(value: Omit<DownloadItem, 'title' | 'size'>) {
-      setOnDownloadItems(prev =>
+      setActiveDownloads(prev =>
         prev.map(i => (i.itemId === value.itemId ? { ...i, ...value } : i))
       )
     }
 
     function onDone({ itemId }: { itemId: string }) {
-      setOnDownloadItems(prev => prev.filter(i => i.itemId !== itemId))
+      setActiveDownloads(prev => prev.filter(i => i.itemId !== itemId))
       queryClient.invalidateQueries({ queryKey: ['downloads'] })
       toast({ title: 'Download finalizado', description: 'Abra na pasta para visualizar o arquivo.' })
     }
@@ -77,9 +77,9 @@ function useDownloadSocket(): SocketContextType {
       socket.off('downloaded', onProgress)
       socket.off('done', onDone)
     }
-  }, [])
+  }, [queryClient, toast])
 
-  return { isConnected, onDownloadItems, startDownload }
+  return { isConnected, activeDownloads, startDownload }
 }
 
 export function SocketProvider({ children }: { children: ReactNode }) {

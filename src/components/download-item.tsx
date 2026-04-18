@@ -13,8 +13,8 @@ interface DownloadItemProps {
 }
 
 function DownloadItem({ item, theMovieDbId }: DownloadItemProps) {
-  const { onDownloadItems, startDownload } = useSocketContext()
-  const onDownloadItem = onDownloadItems.find(i => i.itemId === item.guid)
+  const { activeDownloads, startDownload } = useSocketContext()
+  const onDownloadItem = activeDownloads.find(i => i.itemId === item.guid)
 
   async function handleDownload(magnet: string) {
     startDownload({ magnet, itemId: item.guid, theMovieDbId: theMovieDbId, title: item.title, size: item.size })
