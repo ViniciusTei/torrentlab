@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data/downloads:/app/downloads
+      - ./data/db:/app/db
+      - ./data/metadata:/app/metadata
+    environment:
+      - TMDB_TOKEN=${TMDB_TOKEN}
+      - OMDB_API_KEY=${OMDB_API_KEY:-6c3ebf7c}
+      - JACKETT_URL=http://jackett:9117
+      - JACKETT_API_KEY=${JACKETT_API_KEY}
+      - SUBTITLES_EMAIL=${SUBTITLES_EMAIL}
+      - SUBTITLES_PASS=${SUBTITLES_PASS}
+      - SUBTITLES_KEY=${SUBTITLES_KEY}
+      - CORS_ORIGIN=*
+    depends_on:
+      - jackett
+    restart: unless-stopped
+
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      - AUTO_UPDATE=true
+    volumes:
+      - ./data/jackett:/config
+      - ./data/downloads:/downloads
+    ports:
+      - "9117:9117"
+    restart: unless-stopped
