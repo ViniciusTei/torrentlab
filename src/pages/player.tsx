@@ -2,7 +2,14 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useSocketContext } from '@/context/sockets'
 import { Progress } from '@/components/ui/progress'
 import { formatBytes } from '@/utils/format'
-import dayjs from 'dayjs'
+
+function formatDuration(ms: number): string {
+  const sec = Math.floor(ms / 1000)
+  const h = Math.floor(sec / 3600)
+  const m = Math.floor((sec % 3600) / 60)
+  const s = sec % 60
+  return [h, m, s].map(v => String(v).padStart(2, '0')).join(':')
+}
 
 export default function PlayerPage() {
   const { infoHash } = useParams<{ infoHash: string }>()
@@ -11,6 +18,8 @@ export default function PlayerPage() {
   const title = searchParams.get('title') ?? 'Sem título'
   const { activeDownloads } = useSocketContext()
   const activeItem = activeDownloads.find(d => d.infoHash === infoHash)
+
+  if (!infoHash) return null
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
@@ -26,6 +35,7 @@ export default function PlayerPage() {
 
       <div className="flex-1 flex flex-col items-center justify-center p-4">
         <video
+          key={infoHash}
           src={`/api/stream/${infoHash}`}
           controls
           autoPlay
@@ -44,7 +54,7 @@ export default function PlayerPage() {
               <span>{activeItem.peers} peers</span>
               <span>{formatBytes(activeItem.downloaded)}/{formatBytes(activeItem.size)}</span>
               {activeItem.timeRemaining > 0 && (
-                <span>{dayjs(activeItem.timeRemaining).format('HH:mm:ss')}</span>
+                <span>{formatDuration(activeItem.timeRemaining)}</span>
               )}
             </div>
           </div>
