@@ -1,16 +1,18 @@
 import express from 'express'
 import axios from 'axios'
 import xml from 'xml2js'
-import config from '../config.js'
+import { getConfig } from '../config.js'
 
 const router = express.Router()
 
 async function fetchOmdb(searchName) {
+  const config = await getConfig()
   const res = await axios.get(`http://www.omdbapi.com/?apikey=${config.omdbApiKey}&s=${encodeURIComponent(searchName)}`)
   return res.data.Search || []
 }
 
 async function fetchJackett(imdbId) {
+  const config = await getConfig()
   const url = `${config.jackettUrl}/api/v2.0/indexers/all/results/torznab`
   const res = await axios.get(`${url}?apikey=${config.jackettApiKey}&imdbid=${imdbId}`, {
     responseType: 'text'

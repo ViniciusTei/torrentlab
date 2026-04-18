@@ -1,6 +1,6 @@
 import express from 'express'
 import axios from 'axios'
-import config from '../config.js'
+import { getConfig } from '../config.js'
 import { searchSubtitles } from './subtitles.js'
 
 const router = express.Router()
@@ -8,6 +8,7 @@ const TMDB_BASE = 'https://api.themoviedb.org'
 let tmdbImageConfig = null
 
 async function fetchTmdb(path) {
+  const config = await getConfig()
   const res = await axios.get(`${TMDB_BASE}${path}`, {
     headers: { accept: 'application/json', Authorization: config.tmdbToken }
   })
