@@ -13,6 +13,9 @@ export default function PlayerPage() {
 
   if (!infoHash) return null
 
+  const token = localStorage.getItem('token') ?? ''
+  const streamUrl = `/api/stream/${infoHash}?token=${encodeURIComponent(token)}`
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       <div className="flex items-center gap-4 px-6 py-4 bg-slate-900">
@@ -28,7 +31,7 @@ export default function PlayerPage() {
       <div className="flex-1 flex flex-col items-center justify-center p-4">
         <video
           key={infoHash}
-          src={`/api/stream/${infoHash}`}
+          src={streamUrl}
           controls
           autoPlay
           className="w-full max-w-5xl rounded-lg bg-slate-900"

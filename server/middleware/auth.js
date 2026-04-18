@@ -3,13 +3,14 @@ import { JWT_SECRET } from '../routes/auth.js'
 
 export default function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization
-  if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Authentication required' })
-  }
+  const raw = authHeader?.startsWith('Bearer ')
+    ? authHeader.slice(7)
+    : req.query.token
 
-  const token = authHeader.slice(7)
+  if (!raw) return res.status(401).json({ error: 'Authentication required' })
+
   try {
-    req.user = jwt.verify(token, JWT_SECRET)
+    req.user = jwt.verify(raw, JWT_SECRET)
     next()
   } catch {
     res.status(401).json({ error: 'Invalid or expired token' })
