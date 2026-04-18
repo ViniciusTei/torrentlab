@@ -11,7 +11,7 @@ import MovieItem from '@/components/movie-item'
 import { useSocketContext, DownloadItem } from '@/context/sockets'
 import getAPI from '@/services/api'
 import { TheMovieDbTrendingType } from '@/services/types/themoviedb'
-import { formatBytes } from '@/utils/format'
+import { formatBytes, formatDuration } from '@/utils/format'
 
 export default function DownloadsPage() {
   return (
@@ -57,17 +57,11 @@ function ActiveTab() {
 }
 
 function ActiveDownloadCard({ item }: { item: DownloadItem }) {
-  const sec = Math.floor(item.timeRemaining / 1000)
-  const h = Math.floor(sec / 3600)
-  const m = Math.floor((sec % 3600) / 60)
-  const s = sec % 60
-  const duration = [h, m, s].map(v => String(v).padStart(2, '0')).join(':')
-
   return (
     <div className="flex flex-col gap-2 p-4 bg-slate-800 rounded-lg">
       <div className="flex items-center justify-between">
         <p className="font-semibold">{item.title}</p>
-        {item.infoHash && (
+        {item.infoHash !== '' && (
           <Link
             to={`/player/${item.infoHash}?title=${encodeURIComponent(item.title)}`}
             className="inline-flex items-center gap-1 bg-white text-black text-sm font-semibold px-3 py-1 rounded hover:bg-gray-200 transition-colors"
@@ -89,7 +83,7 @@ function ActiveDownloadCard({ item }: { item: DownloadItem }) {
         </span>
         <span className="inline-flex items-center gap-1">
           <LuTimerReset />
-          {item.timeRemaining > 0 ? duration : '—'}
+          {item.timeRemaining > 0 ? formatDuration(item.timeRemaining) : '—'}
         </span>
       </div>
     </div>

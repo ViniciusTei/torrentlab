@@ -54,7 +54,7 @@ function movie() {
     queryFn: () => getAPI().fetchDownloadIds(),
   })
   const { activeDownloads } = useSocketContext()
-  const downloadRow = downloadIds?.find(d => d.the_movie_db_id === movies.id)
+  const downloadRow = downloadIds?.find(d => d.the_movie_db_id === movies.id && d.downloaded !== 0)
   const activeItem = activeDownloads.find(d => d.theMovieDbId === movies.id)
   const watchInfoHash = downloadRow?.info_hash ?? activeItem?.infoHash ?? null
 

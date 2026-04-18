@@ -1,15 +1,7 @@
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useSocketContext } from '@/context/sockets'
 import { Progress } from '@/components/ui/progress'
-import { formatBytes } from '@/utils/format'
-
-function formatDuration(ms: number): string {
-  const sec = Math.floor(ms / 1000)
-  const h = Math.floor(sec / 3600)
-  const m = Math.floor((sec % 3600) / 60)
-  const s = sec % 60
-  return [h, m, s].map(v => String(v).padStart(2, '0')).join(':')
-}
+import { formatBytes, formatDuration } from '@/utils/format'
 
 export default function PlayerPage() {
   const { infoHash } = useParams<{ infoHash: string }>()
