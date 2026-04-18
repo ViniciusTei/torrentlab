@@ -1,78 +1,90 @@
+import { useQueryClient } from '@tanstack/react-query'
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
 import { useToast } from '@/components/ui/use-toast'
 import socket from '@/services/webtorrent'
-import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
-type DownloadItem = {
+export type DownloadItem = {
   itemId: string
+  title: string
+  size: number
   peers: number
   downloaded: number
   timeRemaining: number
   progress: number
 }
 
-type DownloadProps = {
+export type DownloadProps = {
   magnet: string
   itemId: string
   theMovieDbId: number
+  title: string
+  size: number
 }
 
-const SocketContext = createContext({} as any)
+type SocketContextType = {
+  isConnected: boolean
+  onDownloadItems: DownloadItem[]
+  startDownload: (props: DownloadProps) => void
+}
 
-function SocketProvier({ children }: { children: ReactNode }) {
+const SocketContext = createContext<SocketContextType>({} as SocketContextType)
+
+function useDownloadSocket(): SocketContextType {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
   const [onDownloadItems, setOnDownloadItems] = useState<DownloadItem[]>([])
   const [isConnected, setIsConnected] = useState(socket.connected)
-  const { toast } = useToast()
 
-  const startDownload = ({ magnet, itemId, theMovieDbId }: DownloadProps) => {
+  function startDownload({ magnet, itemId, theMovieDbId, title, size }: DownloadProps) {
     socket.emit('download', { magnet, itemId, theMovieDbId })
+    setOnDownloadItems(prev => [
+      ...prev,
+      { itemId, title, size, progress: 0, peers: 0, downloaded: 0, timeRemaining: 0 },
+    ])
+    toast({ title: 'Download iniciado', description: title })
   }
 
   useEffect(() => {
     function onConnect() {
-      setIsConnected(true);
-      socket.emit('ready', 'Start', (res: any) => console.log(res))
+      setIsConnected(true)
+      socket.emit('ready', 'Start', (res: unknown) => console.log(res))
     }
 
     function onDisconnect() {
-      setIsConnected(false);
+      setIsConnected(false)
     }
 
-    function onEvent(value: DownloadItem) {
-      const allItems = onDownloadItems.filter(i => i.itemId !== value.itemId)
-      setOnDownloadItems([...allItems, value])
+    function onProgress(value: Omit<DownloadItem, 'title' | 'size'>) {
+      setOnDownloadItems(prev =>
+        prev.map(i => (i.itemId === value.itemId ? { ...i, ...value } : i))
+      )
+    }
+
+    function onDone({ itemId }: { itemId: string }) {
+      setOnDownloadItems(prev => prev.filter(i => i.itemId !== itemId))
+      queryClient.invalidateQueries({ queryKey: ['downloads'] })
+      toast({ title: 'Download finalizado', description: 'Abra na pasta para visualizar o arquivo.' })
     }
 
     socket.on('connect', onConnect)
     socket.on('disconnect', onDisconnect)
-    socket.on('downloaded', onEvent)
-    socket.on('done', function onDone() {
-      toast({
-        title: 'Download finalizado',
-        description: 'Abra na pasta para visualizar o arquivo.',
-        variant: 'default'
-      })
-    })
+    socket.on('downloaded', onProgress)
+    socket.on('done', onDone)
 
     return () => {
       socket.off('connect', onConnect)
       socket.off('disconnect', onDisconnect)
-      socket.off('downloaded', onEvent)
+      socket.off('downloaded', onProgress)
+      socket.off('done', onDone)
     }
   }, [])
 
-  return (
-    <SocketContext.Provider value={{
-      isConnected,
-      onDownloadItems,
-      startDownload,
-    }}>
-      {children}
-    </SocketContext.Provider>
-  )
+  return { isConnected, onDownloadItems, startDownload }
 }
 
-export const useSocketContext = () => {
-  return useContext(SocketContext)
+export function SocketProvider({ children }: { children: ReactNode }) {
+  const value = useDownloadSocket()
+  return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
 }
 
-export default SocketProvier
+export const useSocketContext = () => useContext(SocketContext)

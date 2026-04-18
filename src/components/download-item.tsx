@@ -17,7 +17,7 @@ function DownloadItem({ item, theMovieDbId }: DownloadItemProps) {
   const onDownloadItem = onDownloadItems.find(i => i.itemId === item.guid)
 
   async function handleDownload(magnet: string) {
-    startDownload({ magnet, itemId: item.guid, theMovieDbId: theMovieDbId })
+    startDownload({ magnet, itemId: item.guid, theMovieDbId: theMovieDbId, title: item.title, size: item.size })
   }
 
   const pending = onDownloadItem && onDownloadItem.progress > 0
