@@ -7,17 +7,13 @@ const http = axios.create()
 
 class API {
   async fetchDownloaded(): Promise<TheMovieDbDetailsType[]> {
-    try {
-      const result = await http.get<{ the_movie_db_id: number }[]>('/api/downloads')
-      const downloaded: TheMovieDbDetailsType[] = []
-      for (const d of result.data) {
-        const detail = await this.fetchMovieDetails(d.the_movie_db_id)
-        downloaded.push(detail)
-      }
-      return downloaded
-    } catch (error) {
-      throw error
+    const result = await http.get<{ the_movie_db_id: number }[]>('/api/downloads')
+    const downloaded: TheMovieDbDetailsType[] = []
+    for (const d of result.data) {
+      const detail = await this.fetchMovieDetails(d.the_movie_db_id)
+      downloaded.push(detail)
     }
+    return downloaded
   }
 
   async fetchTrendingMovies(): Promise<TheMovieDbTrendingType[]> {
