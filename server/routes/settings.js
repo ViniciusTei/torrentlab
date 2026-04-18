@@ -1,5 +1,6 @@
 import express from 'express'
 import db from '../db.js'
+import { resetSubtitleToken } from './subtitles.js'
 
 const router = express.Router()
 
@@ -50,6 +51,7 @@ router.put('/settings', async (req, res) => {
     const updates = req.body
     const validKeys = Object.keys(updates).filter(k => SETTINGS_KEYS.includes(k))
     await Promise.all(validKeys.map(k => upsertSetting(k, updates[k])))
+    resetSubtitleToken()
     res.json({ ok: true })
   } catch (err) {
     res.status(500).json({ error: err.message })
