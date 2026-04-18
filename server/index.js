@@ -9,6 +9,7 @@ import db from './db.js'
 import config from './config.js'
 import moviesRouter from './routes/movies.js'
 import subtitlesRouter from './routes/subtitles.js'
+import torrentsRouter from './routes/torrents.js'
 
 
 const app = express()
@@ -87,6 +88,7 @@ const connectionEvent = (arg, cb) => {
 app.use(express.json())
 app.use('/api', moviesRouter)
 app.use('/api', subtitlesRouter)
+app.use('/api', torrentsRouter)
 
 app.get('/', (req, res) => res.send('Hello world'))
 app.get('/downloads', (req, res) => {
