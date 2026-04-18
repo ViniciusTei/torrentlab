@@ -8,6 +8,7 @@ import { toTorrentFile } from 'parse-torrent'
 import db from './db.js'
 import config from './config.js'
 import moviesRouter from './routes/movies.js'
+import subtitlesRouter from './routes/subtitles.js'
 
 
 const app = express()
@@ -83,8 +84,11 @@ const connectionEvent = (arg, cb) => {
   console.log('Client ready')
 }
 
-app.get('/', (req, res) => res.send('Hello world'))
+app.use(express.json())
 app.use('/api', moviesRouter)
+app.use('/api', subtitlesRouter)
+
+app.get('/', (req, res) => res.send('Hello world'))
 app.get('/downloads', (req, res) => {
   db.all("SELECT * FROM downloads WHERE downloaded = 1", (err, rows) => {
     if (err) res.status(500).send(err)
