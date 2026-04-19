@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import WatchlistButton from "@/components/WatchlistButton";
 import { TheMovieDbDetailsType } from "@/services/types/themoviedb";
 
 interface Props {
@@ -66,13 +67,7 @@ export default function MovieHero({ movie, watchInfoHash }: Props) {
             <Button asChild>
               <a href="#torrents">Baixar Torrent</a>
             </Button>
-            <Button
-              variant="outline"
-              disabled
-              className="border-white/40 bg-transparent text-white hover:bg-white/10 disabled:opacity-60"
-            >
-              Adicionar à Lista
-            </Button>
+            <WatchlistButton the_movie_db_id={movie.id} media_type="movie" />
             {watchInfoHash && (
               <Button asChild variant="secondary">
                 <Link
