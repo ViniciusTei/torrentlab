@@ -43,9 +43,22 @@ class API {
     return Promise.all(result.data.map(d => this.fetchMovieDetails(d.the_movie_db_id)))
   }
 
-  async fetchDownloadIds(): Promise<{ download_id: string; info_hash: string; the_movie_db_id: number; downloaded: number; title: string | null }[]> {
+  async fetchDownloadIds(): Promise<{
+    download_id: string
+    info_hash: string
+    the_movie_db_id: number
+    downloaded: number
+    title: string | null
+    size: number | null
+    quality: string | null
+    torrent_name: string | null
+  }[]> {
     const res = await http.get('/api/downloads/ids')
     return res.data
+  }
+
+  async deleteDownload(infoHash: string): Promise<void> {
+    await http.delete(`/api/downloads/${infoHash}`)
   }
 
   async fetchTrendingMovies(): Promise<TheMovieDbTrendingType[]> {
