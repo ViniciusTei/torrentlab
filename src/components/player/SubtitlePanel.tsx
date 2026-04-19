@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 
@@ -19,7 +19,7 @@ export default function SubtitlePanel({ infoHash, itemId, onClose, onSelect }: P
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  function fetchSubtitles() {
+  const fetchSubtitles = useCallback(() => {
     const token = localStorage.getItem('token') ?? ''
     setLoading(true)
     setError(false)
@@ -38,11 +38,11 @@ export default function SubtitlePanel({ infoHash, itemId, onClose, onSelect }: P
         setError(true)
         setLoading(false)
       })
-  }
+  }, [infoHash])
 
   useEffect(() => {
     fetchSubtitles()
-  }, [infoHash])
+  }, [fetchSubtitles])
 
   return (
     <div
@@ -98,6 +98,7 @@ export default function SubtitlePanel({ infoHash, itemId, onClose, onSelect }: P
                 onClick={() => {
                   const token = localStorage.getItem('token') ?? ''
                   onSelect(`${sub.url}?token=${encodeURIComponent(token)}`)
+                  onClose()
                 }}
               >
                 {sub.filename}
