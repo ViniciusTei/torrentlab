@@ -18,28 +18,32 @@ export default function Root() {
 
       <header className="flex items-center h-14 px-16 border-b">
         <div className="flex items-center gap-2 mr-8">
-          <img
-            src="/bd-logo.svg"
-            alt="Logo"
-            width="28px"
-            height="32px"
-          />
+          <img src="/bd-logo.svg" alt="Logo" width="28px" height="32px" />
           <span className="font-bold text-lg">TorrentLab</span>
         </div>
         <nav className="flex-1">
           <ul className="flex gap-6">
             <li>
-              <Link to="/" className="text-sm hover:text-primary transition-colors">
+              <Link
+                to="/"
+                className="text-sm hover:text-primary transition-colors"
+              >
                 Home
               </Link>
             </li>
             <li>
-              <Link to="/downloads" className="text-sm hover:text-primary transition-colors">
+              <Link
+                to="/downloads"
+                className="text-sm hover:text-primary transition-colors"
+              >
                 Baixados
               </Link>
             </li>
             <li>
-              <Link to="/settings" className="text-sm hover:text-primary transition-colors">
+              <Link
+                to="/settings"
+                className="text-sm hover:text-primary transition-colors"
+              >
                 Configurações
               </Link>
             </li>
@@ -54,9 +58,8 @@ export default function Root() {
         <Outlet />
         {["loading", "submiting"].includes(navigation.state) && <Loading />}
         <Toaster />
+        <Footer />
       </main>
-
-      <Footer />
     </>
   );
 }

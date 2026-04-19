@@ -1,17 +1,17 @@
-import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
-import { TheMovieDbDetailsType } from '@/services/types/themoviedb'
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { TheMovieDbDetailsType } from "@/services/types/themoviedb";
 
 interface Props {
-  movie: TheMovieDbDetailsType
-  watchInfoHash: string | null
+  movie: TheMovieDbDetailsType;
+  watchInfoHash: string | null;
 }
 
 function formatRuntime(minutes: number | null): string {
-  if (!minutes) return ''
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  return h > 0 ? `${h}h ${m}m` : `${m}m`
+  if (!minutes) return "";
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
 export default function MovieHero({ movie, watchInfoHash }: Props) {
@@ -28,7 +28,7 @@ export default function MovieHero({ movie, watchInfoHash }: Props) {
       </div>
 
       {/* Content */}
-      <div className="relative flex gap-8 px-16 py-10 items-end min-h-[420px]">
+      <div className="relative flex gap-8 px-16 py-10 items-end min-h-[420px] max-w-screen-lg mx-auto">
         <img
           src={movie.images.poster_paths.lg}
           alt={`${movie.title} poster`}
@@ -48,13 +48,15 @@ export default function MovieHero({ movie, watchInfoHash }: Props) {
               </span>
             )}
             {movie.runtime != null && movie.runtime > 0 && (
-              <span className="text-white/70 text-sm">{formatRuntime(movie.runtime)}</span>
+              <span className="text-white/70 text-sm">
+                {formatRuntime(movie.runtime)}
+              </span>
             )}
           </div>
 
           <h1 className="text-3xl font-bold mb-1">{movie.title}</h1>
           <p className="text-white/70 text-sm mb-3">
-            {movie.genres?.join(', ')} • {movie.release_date}
+            {movie.genres?.join(", ")} • {movie.release_date}
           </p>
           <p className="text-white/80 text-sm leading-relaxed mb-6 line-clamp-3">
             {movie.overview}
@@ -74,7 +76,7 @@ export default function MovieHero({ movie, watchInfoHash }: Props) {
             {watchInfoHash && (
               <Button asChild variant="secondary">
                 <Link
-                  to={`/player/${watchInfoHash}?title=${encodeURIComponent(movie.title ?? '')}`}
+                  to={`/player/${watchInfoHash}?title=${encodeURIComponent(movie.title ?? "")}`}
                 >
                   ▶ Assistir
                 </Link>
@@ -84,5 +86,5 @@ export default function MovieHero({ movie, watchInfoHash }: Props) {
         </div>
       </div>
     </div>
-  )
+  );
 }

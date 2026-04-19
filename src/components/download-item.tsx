@@ -31,7 +31,7 @@ function DownloadItem({ item, theMovieDbId }: DownloadItemProps) {
         loading={pending}
         disabled={pending}
         aria-disabled={pending}
-        onClick={() => handleDownload(Array.isArray(item.link) ? item.link[0] : item.link)}
+        onClick={() => handleDownload(item.magneturl ?? (Array.isArray(item.link) ? item.link[0] : item.link))}
       >
         <FaDownload /> <p> {item.title} </p>
       </Button>

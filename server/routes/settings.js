@@ -9,6 +9,7 @@ const SETTINGS_KEYS = [
   'omdb_api_key',
   'jackett_url',
   'jackett_api_key',
+  'subtitles_username',
   'subtitles_email',
   'subtitles_pass',
   'subtitles_key',
