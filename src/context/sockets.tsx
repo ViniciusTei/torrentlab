@@ -27,6 +27,7 @@ type SocketContextType = {
   isConnected: boolean
   activeDownloads: DownloadItem[]
   startDownload: (props: DownloadProps) => void
+  cancelDownload: (itemId: string) => void
 }
 
 const SocketContext = createContext<SocketContextType | null>(null)
@@ -44,6 +45,11 @@ function useDownloadSocket(): SocketContextType {
       { itemId, infoHash: '', theMovieDbId, title, size, progress: 0, peers: 0, downloaded: 0, timeRemaining: 0 },
     ])
     toast({ title: 'Download iniciado', description: title })
+  }
+
+  function cancelDownload(itemId: string) {
+    socket.emit('cancel', { itemId })
+    setActiveDownloads(prev => prev.filter(i => i.itemId !== itemId))
   }
 
   useEffect(() => {
@@ -85,7 +91,7 @@ function useDownloadSocket(): SocketContextType {
     }
   }, [queryClient, toast])
 
-  return { isConnected, activeDownloads, startDownload }
+  return { isConnected, activeDownloads, startDownload, cancelDownload }
 }
 
 export function SocketProvider({ children }: { children: ReactNode }) {
