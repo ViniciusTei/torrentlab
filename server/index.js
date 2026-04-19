@@ -101,7 +101,7 @@ io.on('connection', (socket) => {
         arg.theMovieDbId,
         0,
         arg.title ?? null,
-        torrent.length,
+        torrent.length || null,
         extractQuality(torrent.name),
         torrent.name,
         (_, err) => { if (err) console.log(err) }
@@ -135,12 +135,23 @@ io.on('connection', (socket) => {
       if (err) return console.log(err)
       if (row) {
         const torrent = client.get(row.info_hash)
-        if (torrent) torrent.destroy()
-        db.run('DELETE FROM downloads WHERE download_id = ?', [itemId], (err) => {
-          if (err) console.log(err)
-        })
+        if (torrent) {
+          torrent.destroy((destroyErr) => {
+            if (destroyErr) console.log('torrent destroy error', destroyErr)
+            db.run('DELETE FROM downloads WHERE download_id = ?', [itemId], (err) => {
+              if (err) console.log(err)
+            })
+            if (_socket) _socket.emit('done', { itemId })
+          })
+        } else {
+          db.run('DELETE FROM downloads WHERE download_id = ?', [itemId], (err) => {
+            if (err) console.log(err)
+          })
+          if (_socket) _socket.emit('done', { itemId })
+        }
+      } else {
+        if (_socket) _socket.emit('done', { itemId })
       }
-      if (_socket) _socket.emit('done', { itemId })
     })
   })
 
