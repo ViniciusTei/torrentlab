@@ -86,20 +86,25 @@ app.delete('/api/downloads/:infoHash', requireAuth, (req, res) => {
     if (err) return res.status(500).send(err)
     if (!row) return res.status(404).json({ error: 'Not found' })
 
+    function deleteRecord() {
+      db.run('DELETE FROM downloads WHERE info_hash = ?', [infoHash], (err) => {
+        if (err) return res.status(500).send(err)
+        res.sendStatus(204)
+      })
+    }
+
     const torrent = client.get(infoHash)
     if (torrent) {
-      torrent.destroy({ destroyStore: true })
+      torrent.destroy({ destroyStore: true }, deleteRecord)
     } else if (row.torrent_name) {
       const folderPath = path.join(config.downloadsPath, row.torrent_name)
       fs.rm(folderPath, { recursive: true, force: true }, (err) => {
         if (err) console.log('Failed to delete files:', err)
+        deleteRecord()
       })
+    } else {
+      deleteRecord()
     }
-
-    db.run('DELETE FROM downloads WHERE info_hash = ?', [infoHash], (err) => {
-      if (err) return res.status(500).send(err)
-      res.sendStatus(204)
-    })
   })
 })
 
