@@ -19,6 +19,9 @@ db.serialize(() => {
   `)
   // Migration: add title column if it doesn't exist yet
   db.run(`ALTER TABLE downloads ADD COLUMN title TEXT`, () => {})
+  db.run(`ALTER TABLE downloads ADD COLUMN size INTEGER`, () => {})
+  db.run(`ALTER TABLE downloads ADD COLUMN quality TEXT`, () => {})
+  db.run(`ALTER TABLE downloads ADD COLUMN torrent_name TEXT`, () => {})
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
