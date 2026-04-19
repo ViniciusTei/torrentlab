@@ -24,9 +24,11 @@ function HomePageList({ title, data, browseType }: Props) {
         </Link>
       </div>
       <ScrollArea className="w-full whitespace-nowrap py-4" >
-        <div className="flex items-center gap-2 w-full">
+        <div className="flex items-start gap-4 w-full">
           {data.length > 0 && data.map(movie => (
-            <MovieItem key={movie.id} item={movie} />
+            <div key={movie.id} className="w-[160px] shrink-0">
+              <MovieItem item={movie} />
+            </div>
           ))}
         </div>
         <ScrollBar orientation="horizontal" />
