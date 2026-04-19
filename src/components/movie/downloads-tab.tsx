@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Play, X, Trash2 } from "lucide-react";
@@ -97,10 +98,18 @@ function CompletedDownloadRow({
   title: string;
 }) {
   const queryClient = useQueryClient();
+  const [deleting, setDeleting] = useState(false);
 
   async function handleDelete() {
-    await getAPI().deleteDownload(row.info_hash);
-    queryClient.invalidateQueries({ queryKey: ["download-ids"] });
+    setDeleting(true);
+    try {
+      await getAPI().deleteDownload(row.info_hash);
+      queryClient.invalidateQueries({ queryKey: ["download-ids"] });
+    } catch (err) {
+      console.error("Failed to delete download:", err);
+    } finally {
+      setDeleting(false);
+    }
   }
 
   const displayName = row.title ?? row.torrent_name ?? row.info_hash;
@@ -136,6 +145,7 @@ function CompletedDownloadRow({
             variant="ghost"
             className="text-destructive hover:text-destructive"
             onClick={handleDelete}
+            disabled={deleting}
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
