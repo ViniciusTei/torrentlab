@@ -49,6 +49,15 @@ db.serialize(() => {
       cached_at INTEGER NOT NULL
     );
   `)
+  db.run(`
+    CREATE TABLE IF NOT EXISTS watchlist (
+      username        TEXT    NOT NULL,
+      the_movie_db_id INTEGER NOT NULL,
+      media_type      TEXT    NOT NULL CHECK (media_type IN ('movie', 'tv')),
+      added_at        TEXT    NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (username, the_movie_db_id)
+    );
+  `)
 })
 
 export default db
