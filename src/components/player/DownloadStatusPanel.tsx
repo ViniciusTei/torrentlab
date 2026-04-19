@@ -24,6 +24,7 @@ export default function DownloadStatusPanel({ infoHash, onClose }: Props) {
         </span>
         <button
           onClick={onClose}
+          aria-label="Close"
           className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-black/10 transition-colors"
           style={{ color: '#444651' }}
         >
@@ -47,12 +48,12 @@ export default function DownloadStatusPanel({ infoHash, onClose }: Props) {
         <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: '#e0e2e7' }}>
           <div
             className="h-full rounded-full transition-all"
-            style={{ width: `${item.progress * 100}%`, background: '#3e56aa' }}
+            style={{ width: `${Math.min(item.progress * 100, 100)}%`, background: '#3e56aa' }}
           />
         </div>
 
         <div className="grid grid-cols-2 gap-y-4 pt-2">
-          {item.downloadSpeed > 0 && (
+          {item.downloadSpeed > 0 ? (
             <div className="flex flex-col">
               <span className="text-[10px] uppercase tracking-tighter font-semibold" style={{ fontFamily: 'Inter, sans-serif', color: '#757683' }}>
                 Speed
@@ -61,8 +62,8 @@ export default function DownloadStatusPanel({ infoHash, onClose }: Props) {
                 {formatBytes(item.downloadSpeed)}/s
               </span>
             </div>
-          )}
-          {item.timeRemaining > 0 && (
+          ) : <div />}
+          {item.timeRemaining > 0 ? (
             <div className="flex flex-col items-end text-right">
               <span className="text-[10px] uppercase tracking-tighter font-semibold" style={{ fontFamily: 'Inter, sans-serif', color: '#757683' }}>
                 ETA
@@ -71,7 +72,7 @@ export default function DownloadStatusPanel({ infoHash, onClose }: Props) {
                 {formatDuration(item.timeRemaining)}
               </span>
             </div>
-          )}
+          ) : <div />}
           <div className="flex flex-col">
             <span className="text-[10px] uppercase tracking-tighter font-semibold" style={{ fontFamily: 'Inter, sans-serif', color: '#757683' }}>
               Peers
