@@ -76,7 +76,7 @@ export default function MovieHero({ movie, watchInfoHash }: Props) {
             {watchInfoHash && (
               <Button asChild variant="secondary">
                 <Link
-                  to={`/player/${watchInfoHash}?title=${encodeURIComponent(movie.title ?? "")}`}
+                  to={`/player/${watchInfoHash}?title=${encodeURIComponent(movie.title ?? "")}&itemId=${movie.id}`}
                 >
                   ▶ Assistir
                 </Link>

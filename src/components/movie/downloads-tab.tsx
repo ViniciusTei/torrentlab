@@ -74,7 +74,7 @@ function ActiveDownloadRow({ item }: { item: DownloadItem }) {
           {item.infoHash ? (
             <Button asChild size="sm" variant="secondary">
               <Link
-                to={`/player/${item.infoHash}?title=${encodeURIComponent(item.title)}`}
+                to={`/player/${item.infoHash}?title=${encodeURIComponent(item.title)}&itemId=${item.theMovieDbId}`}
               >
                 <Play className="h-3.5 w-3.5 mr-1" />
                 Assistir
@@ -101,9 +101,11 @@ function ActiveDownloadRow({ item }: { item: DownloadItem }) {
 function CompletedDownloadRow({
   row,
   title,
+  theMovieDbId,
 }: {
   row: CompletedRow;
   title: string;
+  theMovieDbId: number;
 }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -144,7 +146,7 @@ function CompletedDownloadRow({
         <div className="flex items-center gap-2">
           <Button asChild size="sm">
             <Link
-              to={`/player/${row.info_hash}?title=${encodeURIComponent(row.title ?? title)}`}
+              to={`/player/${row.info_hash}?title=${encodeURIComponent(row.title ?? title)}&itemId=${theMovieDbId}`}
             >
               <Play className="h-3.5 w-3.5 mr-1" />
               Assistir
@@ -233,6 +235,7 @@ export default function DownloadsTab({ movieId, title }: Props) {
                   key={row.info_hash}
                   row={row}
                   title={title}
+                  theMovieDbId={movieId}
                 />
               ))}
             </tbody>

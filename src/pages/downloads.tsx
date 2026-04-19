@@ -65,7 +65,7 @@ function ActiveDownloadCard({ item }: { item: DownloadItem }) {
         <p className="font-semibold">{item.title}</p>
         {item.infoHash !== "" && (
           <Link
-            to={`/player/${item.infoHash}?title=${encodeURIComponent(item.title)}`}
+            to={`/player/${item.infoHash}?title=${encodeURIComponent(item.title)}&itemId=${item.theMovieDbId}`}
             className="inline-flex items-center gap-1 bg-white text-black text-sm font-semibold px-3 py-1 rounded hover:bg-gray-200 transition-colors"
           >
             ▶ Assistir
@@ -134,7 +134,7 @@ function CompletedTab() {
             <MovieItem item={movie as TheMovieDbTrendingType} />
             {row && (
               <Link
-                to={`/player/${row.info_hash}?title=${encodeURIComponent(movie.title ?? "")}`}
+                to={`/player/${row.info_hash}?title=${encodeURIComponent(movie.title ?? "")}&itemId=${movie.id}`}
                 className="absolute top-2 left-0 right-0 mx-auto w-fit inline-flex items-center gap-1 bg-white text-black text-xs font-semibold px-3 py-1 rounded hover:bg-gray-200 transition-colors z-10"
               >
                 ▶ Assistir
