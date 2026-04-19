@@ -2,10 +2,19 @@ import express from 'express'
 import axios from 'axios'
 import { getConfig } from '../config.js'
 import { searchSubtitles } from './subtitles.js'
+import { withCache } from '../cache.js'
 
 const router = express.Router()
 const TMDB_BASE = 'https://api.themoviedb.org'
 let tmdbImageConfig = null
+
+const TTL = {
+  MOVIE:    7 * 24 * 60 * 60, // 7 days
+  TRENDING: 6 * 60 * 60,      // 6 hours
+  SEARCH:   1 * 60 * 60,      // 1 hour
+  CONFIG:   24 * 60 * 60,     // 24 hours
+  SUBS:     24 * 60 * 60,     // 24 hours
+}
 
 async function fetchTmdb(path) {
   const config = await getConfig()
@@ -17,31 +26,37 @@ async function fetchTmdb(path) {
 
 async function getImageConfig() {
   if (tmdbImageConfig) return tmdbImageConfig
-  const data = await fetchTmdb('/3/configuration')
-  const { base_url, backdrop_sizes, poster_sizes } = data.images
-  tmdbImageConfig = { base_url, backdrop_sizes, poster_sizes }
+  const data = await withCache('tmdb:configuration', TTL.CONFIG, () => fetchTmdb('/3/configuration'))
+  const { base_url, backdrop_sizes, poster_sizes, profile_sizes } = data.images
+  tmdbImageConfig = { base_url, backdrop_sizes, poster_sizes, profile_sizes }
   return tmdbImageConfig
 }
 
 function buildImages(cfg, backdrop_path, poster_path) {
   return {
     backdrop_paths: {
-      sm: `${cfg.base_url}/${cfg.backdrop_sizes.find(s => s === 'w300') ?? 'original'}${backdrop_path}`,
-      md: `${cfg.base_url}/${cfg.backdrop_sizes.find(s => s === 'w700') ?? 'original'}${backdrop_path}`,
-      lg: `${cfg.base_url}/${cfg.backdrop_sizes.find(s => s === 'w1280') ?? 'original'}${backdrop_path}`,
+      sm: `${cfg.base_url}${cfg.backdrop_sizes.find(s => s === 'w300') ?? 'original'}${backdrop_path}`,
+      md: `${cfg.base_url}${cfg.backdrop_sizes.find(s => s === 'w700') ?? 'original'}${backdrop_path}`,
+      lg: `${cfg.base_url}${cfg.backdrop_sizes.find(s => s === 'w1280') ?? 'original'}${backdrop_path}`,
     },
     poster_paths: {
-      sm: `${cfg.base_url}/${cfg.poster_sizes.find(s => s === 'w92') ?? 'original'}${poster_path}`,
-      md: `${cfg.base_url}/${cfg.poster_sizes.find(s => s === 'w185') ?? 'original'}${poster_path}`,
-      lg: `${cfg.base_url}/${cfg.poster_sizes.find(s => s === 'w780') ?? 'original'}${poster_path}`,
+      sm: `${cfg.base_url}${cfg.poster_sizes.find(s => s === 'w92') ?? 'original'}${poster_path}`,
+      md: `${cfg.base_url}${cfg.poster_sizes.find(s => s === 'w185') ?? 'original'}${poster_path}`,
+      lg: `${cfg.base_url}${cfg.poster_sizes.find(s => s === 'w780') ?? 'original'}${poster_path}`,
     }
   }
+}
+
+function buildProfileUrl(cfg, profile_path) {
+  if (!profile_path) return null
+  const size = cfg.profile_sizes?.find(s => s === 'w185') ?? 'original'
+  return `${cfg.base_url}${size}${profile_path}`
 }
 
 async function buildTrendingList(results) {
   const [cfg, genresData] = await Promise.all([
     getImageConfig(),
-    fetchTmdb('/3/genre/movie/list'),
+    withCache('tmdb:genres:movie', TTL.CONFIG, () => fetchTmdb('/3/genre/movie/list')),
   ])
   return results.map(entry => ({
     id: entry.id,
@@ -59,7 +74,11 @@ async function buildTrendingList(results) {
 router.get('/trending', async (req, res) => {
   try {
     const type = req.query.type || 'all'
-    const data = await fetchTmdb(`/3/trending/${type}/day?language=pt-BR`)
+    const data = await withCache(
+      `tmdb:trending:${type}`,
+      TTL.TRENDING,
+      () => fetchTmdb(`/3/trending/${type}/day?language=pt-BR`)
+    )
     res.json(await buildTrendingList(data.results))
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -70,32 +89,55 @@ router.get('/trending', async (req, res) => {
 router.get('/search', async (req, res) => {
   try {
     const q = encodeURIComponent(req.query.q || '')
-    const data = await fetchTmdb(`/3/search/multi?query=${q}&include_adult=false&language=pt-BR&page=1`)
+    const data = await withCache(
+      `tmdb:search:${q}`,
+      TTL.SEARCH,
+      () => fetchTmdb(`/3/search/multi?query=${q}&include_adult=false&language=pt-BR&page=1`)
+    )
     res.json(await buildTrendingList(data.results))
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
 })
 
-// GET /api/movie/:id  (subtitles added in Task 5)
+// GET /api/movie/:id
 router.get('/movie/:id', async (req, res) => {
   try {
-    const data = await fetchTmdb(`/3/movie/${req.params.id}?language=pt-BR`)
-    const [cfg, subtitles] = await Promise.all([
+    const id = req.params.id
+    const [data, cfg, credits, releaseDates, subtitles] = await Promise.all([
+      withCache(`tmdb:movie:${id}`, TTL.MOVIE, () => fetchTmdb(`/3/movie/${id}?language=pt-BR`)),
       getImageConfig(),
-      searchSubtitles(data.id),
+      withCache(`tmdb:movie:${id}:credits`, TTL.MOVIE, () => fetchTmdb(`/3/movie/${id}/credits`)),
+      withCache(`tmdb:movie:${id}:release_dates`, TTL.MOVIE, () => fetchTmdb(`/3/movie/${id}/release_dates`)),
+      withCache(`subs:tmdb:${id}`, TTL.SUBS, () => searchSubtitles(id)),
     ])
+
+    const usRelease = releaseDates.results?.find(r => r.iso_3166_1 === 'US')
+    const content_rating = usRelease?.release_dates?.[0]?.certification || null
+
+    const cast = (credits.cast || []).slice(0, 6).map(c => ({
+      name: c.name,
+      character: c.character,
+      profile_path: buildProfileUrl(cfg, c.profile_path),
+    }))
+
     res.json({
       id: data.id,
       title: data.title || data.original_title || '',
       overview: data.overview,
       popularity: data.popularity,
+      vote_average: data.vote_average ?? 0,
+      runtime: data.runtime ?? null,
       release_date: new Date(data.release_date || '').toLocaleDateString('pt-BR'),
       original_title: data.original_title,
       original_language: data.original_language,
       images: buildImages(cfg, data.backdrop_path, data.poster_path),
       genres: data.genres?.map(g => g.name),
       imdb_id: data.imdb_id,
+      content_rating,
+      production_companies: data.production_companies?.map(c => c.name) ?? [],
+      production_countries: data.production_countries?.map(c => c.name) ?? [],
+      cast,
       is_movie: true,
       is_tv_show: false,
       subtitles,
@@ -105,25 +147,32 @@ router.get('/movie/:id', async (req, res) => {
   }
 })
 
-// GET /api/tvshow/:id  (subtitles added in Task 5)
+// GET /api/tvshow/:id
 router.get('/tvshow/:id', async (req, res) => {
   try {
-    const data = await fetchTmdb(`/3/tv/${req.params.id}?language=pt-BR`)
-    const [cfg, subtitles] = await Promise.all([
+    const id = req.params.id
+    const [data, cfg, subtitles] = await Promise.all([
+      withCache(`tmdb:tvshow:${id}`, TTL.MOVIE, () => fetchTmdb(`/3/tv/${id}?language=pt-BR`)),
       getImageConfig(),
-      searchSubtitles(data.id),
+      withCache(`subs:tmdb:${id}`, TTL.SUBS, () => searchSubtitles(id)),
     ])
     res.json({
       id: data.id,
       title: data.name || data.original_name || '',
       overview: data.overview,
       popularity: data.popularity,
+      vote_average: data.vote_average ?? 0,
+      runtime: null,
       release_date: new Date(data.first_air_date || '').toLocaleDateString('pt-BR'),
       original_title: data.original_name,
       original_language: data.original_language,
       images: buildImages(cfg, data.backdrop_path, data.poster_path),
       genres: data.genres?.map(g => g.name),
       imdb_id: null,
+      content_rating: null,
+      production_companies: data.production_companies?.map(c => c.name) ?? [],
+      production_countries: data.production_countries?.map(c => c.name) ?? [],
+      cast: [],
       is_movie: false,
       is_tv_show: true,
       subtitles,
