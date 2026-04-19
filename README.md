@@ -9,6 +9,10 @@ Welcome to the Torrent Aggregator, a versatile tool for searching and downloadin
 - **Download Capability:** Download movies and TV shows directly through the application.
 - **Subtitles Support:** Automatically download missing subtitles using OpenSubtitles.
 
+## Self-Hosting
+
+For a full step-by-step guide to deploying TorrentLab on your own server — including Docker Compose setup, API key configuration, Jackett integration, and reverse proxy examples — see **[INSTRUCTIONS.md](INSTRUCTIONS.md)**.
+
 ## Installation
 
 To use the Torrent Aggregator, follow these steps:

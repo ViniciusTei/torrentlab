@@ -11,7 +11,7 @@ services:
       - ./data/metadata:/app/metadata
     environment:
       - TMDB_TOKEN=${TMDB_TOKEN}
-      - OMDB_API_KEY=${OMDB_API_KEY:-6c3ebf7c}
+      - OMDB_API_KEY=${OMDB_API_KEY}
       - JACKETT_URL=http://jackett:9117
       - JACKETT_API_KEY=${JACKETT_API_KEY}
       - SUBTITLES_USERNAME=${SUBTITLES_USERNAME}
