@@ -140,10 +140,8 @@ export default function PlayerControls({
 
       {/* Back button */}
       <button
-        className="absolute top-6 left-6 p-3 rounded-full text-white transition-all pointer-events-auto"
-        style={{ background: 'rgba(0,0,0,0.2)' }}
-        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.4)')}
-        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.2)')}
+        aria-label="Go back"
+        className="absolute top-6 left-6 p-3 rounded-full text-white bg-black/20 hover:bg-black/40 backdrop-blur-md transition-all pointer-events-auto"
         onClick={() => navigate(-1)}
       >
         <ArrowLeft size={20} />
@@ -255,7 +253,7 @@ export default function PlayerControls({
               </span>
             </button>
 
-            <button className="text-white/80 hover:text-white transition-colors">
+            <button aria-label="Settings" className="text-white/80 hover:text-white transition-colors">
               <Settings size={18} />
             </button>
 
