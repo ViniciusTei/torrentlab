@@ -1,4 +1,5 @@
 import { TheMovieDbDetailsType } from "@/services/types/themoviedb";
+import WatchlistButton from '@/components/WatchlistButton'
 
 interface Props {
   show: TheMovieDbDetailsType & { seasons?: { season_number: number }[] };
@@ -55,6 +56,10 @@ export default function TvShowHero({ show }: Props) {
           <p className="text-white/80 text-sm leading-relaxed mb-6 line-clamp-3">
             {show.overview}
           </p>
+
+          <div className="flex items-center gap-3 flex-wrap mb-4">
+            <WatchlistButton the_movie_db_id={show.id} media_type="tv" />
+          </div>
 
           {/* Lead Cast */}
           {show.cast && show.cast.length > 0 && (
