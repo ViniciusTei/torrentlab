@@ -28,7 +28,6 @@ function formatTime(seconds: number): string {
 type Props = {
   videoRef: React.RefObject<HTMLVideoElement>
   infoHash: string
-  title: string
   itemId: string
   showDownloadPanel: boolean
   onToggleDownloadPanel: () => void
@@ -38,13 +37,11 @@ type Props = {
 export default function PlayerControls({
   videoRef,
   infoHash,
-  title,
   itemId,
   showDownloadPanel,
   onToggleDownloadPanel,
   onSubtitleSelect,
 }: Props) {
-  void title
   const navigate = useNavigate()
   const [playing, setPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)

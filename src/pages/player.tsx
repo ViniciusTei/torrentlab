@@ -6,7 +6,6 @@ import DownloadStatusPanel from '@/components/player/DownloadStatusPanel'
 export default function PlayerPage() {
   const { infoHash } = useParams<{ infoHash: string }>()
   const [searchParams] = useSearchParams()
-  const title = searchParams.get('title') ?? 'Sem título'
   const itemId = searchParams.get('itemId') ?? ''
 
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -39,7 +38,6 @@ export default function PlayerPage() {
         <PlayerControls
           videoRef={videoRef}
           infoHash={infoHash}
-          title={title}
           itemId={itemId}
           showDownloadPanel={showDownloadPanel}
           onToggleDownloadPanel={() => setShowDownloadPanel(v => !v)}

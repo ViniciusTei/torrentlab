@@ -55,7 +55,10 @@ router.get('/subtitle-file/:infoHash/:filename', (req, res) => {
   }
 
   const ext = path.extname(decoded).toLowerCase()
-  res.setHeader('Content-Type', SUBTITLE_MIME[ext] ?? 'text/plain; charset=utf-8')
+  if (!SUBTITLE_EXTENSIONS.has(ext)) {
+    return res.status(400).json({ error: 'Invalid file type' })
+  }
+  res.setHeader('Content-Type', SUBTITLE_MIME[ext])
   res.sendFile(filePath, err => {
     if (err && !res.headersSent) res.status(404).json({ error: 'File not found' })
   })
