@@ -27,8 +27,8 @@ async function fetchTmdb(path) {
 async function getImageConfig() {
   if (tmdbImageConfig) return tmdbImageConfig
   const data = await withCache('tmdb:configuration', TTL.CONFIG, () => fetchTmdb('/3/configuration'))
-  const { base_url, backdrop_sizes, poster_sizes, profile_sizes } = data.images
-  tmdbImageConfig = { base_url, backdrop_sizes, poster_sizes, profile_sizes }
+  const { base_url, backdrop_sizes, poster_sizes, profile_sizes, still_sizes } = data.images
+  tmdbImageConfig = { base_url, backdrop_sizes, poster_sizes, profile_sizes, still_sizes }
   return tmdbImageConfig
 }
 
@@ -51,6 +51,12 @@ function buildProfileUrl(cfg, profile_path) {
   if (!profile_path) return null
   const size = cfg.profile_sizes?.find(s => s === 'w185') ?? 'original'
   return `${cfg.base_url}${size}${profile_path}`
+}
+
+function buildStillUrl(cfg, still_path) {
+  if (!still_path) return null
+  const size = cfg.still_sizes?.find(s => s === 'w300') ?? 'original'
+  return `${cfg.base_url}${size}${still_path}`
 }
 
 async function buildTrendingList(results) {
@@ -151,11 +157,19 @@ router.get('/movie/:id', async (req, res) => {
 router.get('/tvshow/:id', async (req, res) => {
   try {
     const id = req.params.id
-    const [data, cfg, subtitles] = await Promise.all([
+    const [data, cfg, credits, subtitles] = await Promise.all([
       withCache(`tmdb:tvshow:${id}`, TTL.MOVIE, () => fetchTmdb(`/3/tv/${id}?language=pt-BR`)),
       getImageConfig(),
+      withCache(`tmdb:tvshow:${id}:credits`, TTL.MOVIE, () => fetchTmdb(`/3/tv/${id}/credits`)),
       withCache(`subs:tmdb:${id}`, TTL.SUBS, () => searchSubtitles(id)),
     ])
+
+    const cast = (credits.cast || []).slice(0, 6).map(c => ({
+      name: c.name,
+      character: c.character,
+      profile_path: buildProfileUrl(cfg, c.profile_path),
+    }))
+
     res.json({
       id: data.id,
       title: data.name || data.original_name || '',
@@ -172,11 +186,49 @@ router.get('/tvshow/:id', async (req, res) => {
       content_rating: null,
       production_companies: data.production_companies?.map(c => c.name) ?? [],
       production_countries: data.production_countries?.map(c => c.name) ?? [],
-      cast: [],
+      cast,
       is_movie: false,
       is_tv_show: true,
       subtitles,
       seasons: data.seasons || [],
+    })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// GET /api/tvshow/:id/season/:season_number
+router.get('/tvshow/:id/season/:season_number', async (req, res) => {
+  try {
+    const { id, season_number } = req.params
+    const [data, cfg] = await Promise.all([
+      withCache(
+        `tmdb:tvshow:${id}:season:${season_number}`,
+        TTL.MOVIE,
+        () => fetchTmdb(`/3/tv/${id}/season/${season_number}?language=pt-BR`)
+      ),
+      getImageConfig(),
+    ])
+
+    const episodes = (data.episodes || []).map(ep => ({
+      id: ep.id,
+      episode_number: ep.episode_number,
+      season_number: ep.season_number,
+      name: ep.name,
+      overview: ep.overview,
+      air_date: ep.air_date,
+      runtime: ep.runtime ?? null,
+      vote_average: ep.vote_average ?? 0,
+      still_url: buildStillUrl(cfg, ep.still_path),
+    }))
+
+    res.json({
+      id: data.id,
+      name: data.name,
+      overview: data.overview,
+      season_number: data.season_number,
+      air_date: data.air_date,
+      episodes,
     })
   } catch (err) {
     res.status(500).json({ error: err.message })

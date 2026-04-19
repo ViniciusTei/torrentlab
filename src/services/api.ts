@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
-import { TheMovieDbDetailsType, TheMovieDbTrendingType } from './types/themoviedb'
+import { TheMovieDbDetailsType, TheMovieDbTrendingType, TvShowSeasonDetail } from './types/themoviedb'
 import { JackettItem } from './torrents'
 import { SubtitleDownloadResponse } from './types/subtitles'
 
@@ -75,6 +75,11 @@ class API {
 
   async fetchTvShowsDetails(id: number): Promise<TheMovieDbDetailsType> {
     const res = await http.get(`/api/tvshow/${id}`)
+    return res.data
+  }
+
+  async fetchTvShowSeasonEpisodes(id: number, season_number: number): Promise<TvShowSeasonDetail> {
+    const res = await http.get(`/api/tvshow/${id}/season/${season_number}`)
     return res.data
   }
 

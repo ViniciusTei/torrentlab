@@ -1,118 +1,61 @@
-import React from "react";
-import dayjs from "dayjs";
+import { useState } from "react";
+import { useLoaderData } from "react-router-dom";
 
 import getAPI from "@/services/api";
-import { useLoaderData } from "react-router-dom";
-import { useCounter } from "@/utils/counter";
-import { Progress } from "@/components/ui/progress";
-import SubtitleItem from "@/components/subtitle-item";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { TheMovieDbShowDetailResponse } from "@/services/types/themoviedb";
-import { LuCalendar, LuFilm, LuThumbsUp } from "react-icons/lu";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-type Params = {
-  item: TheMovieDbShowDetailResponse;
-};
+import TvShowHero from "@/components/tvshow/tvshow-hero";
+import SeasonSidebar from "@/components/tvshow/season-sidebar";
+import EpisodeList from "@/components/tvshow/episode-list";
+import MovieCast from "@/components/movie/movie-cast";
+import SubtitlesGrid from "@/components/movie/subtitles-grid";
 
 function TvShowPage() {
-  const data = useLoaderData() as Params;
-  const value = useCounter();
+  const show = useLoaderData() as TheMovieDbShowDetailResponse;
 
-  if (!data) {
-    return (
-      <>
-        <Progress value={value} />
-      </>
-    );
-  }
+  const regularSeasons = show.seasons?.filter((s) => s.season_number > 0) ?? [];
+  const defaultSeason = regularSeasons[0]?.season_number ?? 1;
+  const [selectedSeason, setSelectedSeason] = useState(defaultSeason);
 
-  const { item } = data;
+  const currentSeason = show.seasons?.find((s) => s.season_number === selectedSeason);
+
   return (
-    <div className="text-white">
-      <div className="flex gap-1 items-end relative min-w-[800px] w-fit mx-auto">
-        <img
-          src={item.images.poster_paths.lg}
-          alt="Poster detail image"
-          className="w-52 h-72"
-        />
-        <div>
-          <p className="font-semibold text-3xl">{item.title}</p>
-          <div className="my-1 text-lg font-semibold">
-            {item.genres?.join(", ")} • {item.release_date}
-          </div>
-        </div>
+    <div className="-mx-16">
+      <TvShowHero show={show} />
+
+      <div className="grid grid-cols-[220px_1fr] gap-8 px-16 py-8 max-w-screen-lg mx-auto">
+        {/* Sidebar */}
+        <aside className="flex flex-col gap-8">
+          {show.seasons && show.seasons.length > 0 && (
+            <SeasonSidebar
+              seasons={show.seasons}
+              selectedSeason={selectedSeason}
+              onSelect={setSelectedSeason}
+            />
+          )}
+          <MovieCast cast={show.cast} />
+        </aside>
+
+        {/* Main content */}
+        <main className="flex flex-col gap-10">
+          {currentSeason && (
+            <EpisodeList
+              showId={show.id}
+              showTitle={show.title}
+              theMovieDbId={show.id}
+              seasonNumber={selectedSeason}
+              seasonName={currentSeason.name}
+            />
+          )}
+          <SubtitlesGrid subtitles={show.subtitles} />
+        </main>
       </div>
-      <section className="px-40">
-        <h2 className="text-xl font-bold my-4">Descrição</h2>
-        <p>{item.overview}</p>
-      </section>
-      <section className="px-40">
-        <h2 className="text-xl font-bold my-4">Temporadas</h2>
-        <ul>
-          {item.seasons &&
-            item.seasons.map((d) => (
-              <li key={d.id} className="my-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{d.name}</CardTitle>
-                    <CardDescription>
-                      <LuThumbsUp /> {d.vote_average}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>{d.overview}</CardContent>
-                  <CardFooter className="gap-2">
-                    <p className="inline-flex items-center gap-1 justify-center">
-                      <LuFilm size="1rem" />
-                      {d.episode_count} episodios
-                    </p>
-                    <p className="inline-flex items-center gap-1 justify-center">
-                      <LuCalendar size="1rem" />{" "}
-                      {dayjs(d.air_date).format("DD/MM/YYYY")}
-                    </p>
-                  </CardFooter>
-                </Card>
-              </li>
-            ))}
-        </ul>
-      </section>
-      <section className="px-40">
-        <h2 className="text-xl font-bold my-4">Legendas</h2>
-        <ul>
-          {item.subtitles &&
-            item.subtitles.map((item) => (
-              <SubtitleItem key={item.id} subtitle={item} />
-            ))}
-        </ul>
-        {!item.subtitles ||
-          (item.subtitles.length === 0 && (
-            <Alert variant="destructive">
-              <AlertTitle>Sem legendas</AlertTitle>
-              <AlertDescription>
-                Ainda não foram encontrados legendas disponíveis para essa
-                mídia.
-              </AlertDescription>
-            </Alert>
-          ))}
-      </section>
     </div>
   );
 }
 
 export async function loader({ params }: any) {
   const api = getAPI();
-  const item = await api.fetchTvShowsDetails(Number(params.id));
-
-  return {
-    item,
-  };
+  return api.fetchTvShowsDetails(Number(params.id));
 }
 
 export default TvShowPage;

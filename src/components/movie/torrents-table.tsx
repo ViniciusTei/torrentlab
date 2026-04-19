@@ -10,8 +10,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { formatBytes } from "@/utils/format";
 
 interface Props {
-  imdb_id: string;
+  imdb_id: string | undefined;
   movieId: number;
+  searchQuery?: string;
 }
 
 function parseQuality(title: string): string {
@@ -89,10 +90,14 @@ function TorrentRow({ item, movieId }: { item: JackettItem; movieId: number }) {
   );
 }
 
-export default function TorrentsTable({ imdb_id, movieId }: Props) {
+export default function TorrentsTable({ imdb_id, movieId, searchQuery }: Props) {
   const { data, isLoading } = useQuery({
-    queryKey: ["torrents", imdb_id],
-    queryFn: () => Torrents({ type: "movie", imdb_id }),
+    queryKey: ["torrents", imdb_id ?? searchQuery],
+    queryFn: () => {
+      if (imdb_id) return Torrents({ type: "movie", imdb_id });
+      if (searchQuery) return Torrents({ type: "series", search: searchQuery });
+      return Promise.resolve([]);
+    },
   });
 
   return (

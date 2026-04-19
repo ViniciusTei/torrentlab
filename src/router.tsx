@@ -6,6 +6,7 @@ import App from './pages/App'
 import Movie, { loader as movieLoader } from './pages/movie'
 import SearchPage, { loader as searchLoader } from './pages/search'
 import TvShowPage, { loader as tvShowLoader } from './pages/tvshow'
+import EpisodePage, { loader as episodeLoader } from './pages/episode'
 import SetupPage from './pages/setup'
 import LoginPage from './pages/login'
 import SettingsPage from './pages/settings'
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
       { path: '', element: <App /> },
       { path: '/movie/:id', element: <Movie />, loader: movieLoader },
       { path: '/tvshow/:id', element: <TvShowPage />, loader: tvShowLoader },
+      { path: '/tvshow/:showId/season/:season/episode/:episode', element: <EpisodePage />, loader: episodeLoader },
       { path: '/search', element: <SearchPage />, loader: searchLoader },
       { path: '/settings', element: <SettingsPage /> },
       { path: '/downloads', element: <DownloadsPage /> },

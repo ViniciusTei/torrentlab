@@ -1,5 +1,26 @@
 import { Subtitle } from "./subtitles"
 
+export type TvShowEpisode = {
+  id: number
+  episode_number: number
+  season_number: number
+  name: string
+  overview: string
+  air_date: string
+  runtime: number | null
+  vote_average: number
+  still_url: string | null
+}
+
+export type TvShowSeasonDetail = {
+  id: number
+  name: string
+  overview: string
+  season_number: number
+  air_date: string
+  episodes: TvShowEpisode[]
+}
+
 export type TheMovieDbResult = {
   id: number
   backdrop_path: string
