@@ -1,15 +1,17 @@
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
-import { useSocketContext } from '@/context/sockets'
-import { Progress } from '@/components/ui/progress'
-import { formatBytes, formatDuration } from '@/utils/format'
+import { useRef, useState } from 'react'
+import { useParams, useSearchParams } from 'react-router-dom'
+import PlayerControls from '@/components/player/PlayerControls'
+import DownloadStatusPanel from '@/components/player/DownloadStatusPanel'
 
 export default function PlayerPage() {
   const { infoHash } = useParams<{ infoHash: string }>()
   const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
   const title = searchParams.get('title') ?? 'Sem título'
-  const { activeDownloads } = useSocketContext()
-  const activeItem = activeDownloads.find(d => d.infoHash === infoHash)
+  const itemId = searchParams.get('itemId') ?? ''
+
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [showDownloadPanel, setShowDownloadPanel] = useState(true)
+  const [activeSubtitleUrl, setActiveSubtitleUrl] = useState<string | null>(null)
 
   if (!infoHash) return null
 
@@ -17,42 +19,38 @@ export default function PlayerPage() {
   const streamUrl = `/api/stream/${infoHash}?token=${encodeURIComponent(token)}`
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
-      <div className="flex items-center gap-4 px-6 py-4 bg-slate-900">
-        <button
-          onClick={() => navigate(-1)}
-          className="text-sm text-slate-400 hover:text-white transition-colors"
-        >
-          ← Voltar
-        </button>
-        <h1 className="font-semibold text-lg truncate">{title}</h1>
-      </div>
-
-      <div className="flex-1 flex flex-col items-center justify-center p-4">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center"
+      style={{ background: '#f7f9fe', padding: '4rem 1rem 2rem' }}
+    >
+      <div className="relative w-full max-w-screen-2xl aspect-video rounded-xl overflow-hidden bg-black shadow-2xl">
         <video
+          ref={videoRef}
           key={infoHash}
           src={streamUrl}
-          controls
           autoPlay
-          className="w-full max-w-5xl rounded-lg bg-slate-900"
+          className="w-full h-full object-contain"
+        >
+          {activeSubtitleUrl && (
+            <track kind="subtitles" src={activeSubtitleUrl} default />
+          )}
+        </video>
+
+        <PlayerControls
+          videoRef={videoRef}
+          infoHash={infoHash}
+          title={title}
+          itemId={itemId}
+          showDownloadPanel={showDownloadPanel}
+          onToggleDownloadPanel={() => setShowDownloadPanel(v => !v)}
+          onSubtitleSelect={setActiveSubtitleUrl}
         />
 
-        {activeItem && (
-          <div className="w-full max-w-5xl mt-4 bg-slate-800 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Progress value={activeItem.progress * 100} className="h-2 flex-1" />
-              <span className="text-sm text-slate-400 min-w-fit">
-                {Math.round(activeItem.progress * 100)}%
-              </span>
-            </div>
-            <div className="flex gap-4 text-sm text-slate-400">
-              <span>{activeItem.peers} peers</span>
-              <span>{formatBytes(activeItem.downloaded)}/{formatBytes(activeItem.size)}</span>
-              {activeItem.timeRemaining > 0 && (
-                <span>{formatDuration(activeItem.timeRemaining)}</span>
-              )}
-            </div>
-          </div>
+        {showDownloadPanel && (
+          <DownloadStatusPanel
+            infoHash={infoHash}
+            onClose={() => setShowDownloadPanel(false)}
+          />
         )}
       </div>
     </div>
