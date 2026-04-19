@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, type LoaderFunctionArgs } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import { TheMovieDbDetailsType } from "@/services/types/themoviedb";
@@ -86,7 +86,7 @@ function Movie() {
   );
 }
 
-export async function loader({ params }: { params: { id: string } }) {
+export async function loader({ params }: LoaderFunctionArgs) {
   const api = getAPI();
   return api.fetchMovieDetails(Number(params.id));
 }
