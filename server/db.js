@@ -37,6 +37,13 @@ db.serialize(() => {
       cached_at INTEGER NOT NULL
     );
   `)
+  db.run(`
+    CREATE TABLE IF NOT EXISTS api_cache (
+      cache_key TEXT PRIMARY KEY,
+      response  TEXT NOT NULL,
+      cached_at INTEGER NOT NULL
+    );
+  `)
 })
 
 export default db
