@@ -75,7 +75,7 @@ async function buildTrendingList(results) {
       fetchTmdb("/3/genre/movie/list"),
     ),
   ]);
-  return results.map((entry) => ({
+  return results.filter(e => e.media_type !== 'person').map((entry) => ({
     id: entry.id,
     title: entry.title || entry.original_name || entry.original_title || "",
     overview: entry.overview,
