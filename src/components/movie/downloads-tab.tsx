@@ -74,7 +74,7 @@ function ActiveDownloadRow({ item }: { item: DownloadItem }) {
           {item.infoHash ? (
             <Button asChild size="sm" variant="secondary">
               <Link
-                to={`/player/${item.infoHash}?title=${encodeURIComponent(item.title)}&itemId=${item.theMovieDbId}`}
+                to={`/player/${item.infoHash}?title=${encodeURIComponent(item.title)}${item.theMovieDbId ? `&itemId=${item.theMovieDbId}` : ''}`}
               >
                 <Play className="h-3.5 w-3.5 mr-1" />
                 Assistir

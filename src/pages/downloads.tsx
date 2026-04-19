@@ -65,7 +65,7 @@ function ActiveDownloadCard({ item }: { item: DownloadItem }) {
         <p className="font-semibold">{item.title}</p>
         {item.infoHash !== "" && (
           <Link
-            to={`/player/${item.infoHash}?title=${encodeURIComponent(item.title)}&itemId=${item.theMovieDbId}`}
+            to={`/player/${item.infoHash}?title=${encodeURIComponent(item.title)}${item.theMovieDbId ? `&itemId=${item.theMovieDbId}` : ''}`}
             className="inline-flex items-center gap-1 bg-white text-black text-sm font-semibold px-3 py-1 rounded hover:bg-gray-200 transition-colors"
           >
             ▶ Assistir
