@@ -16,6 +16,7 @@ import torrentsRouter from './routes/torrents.js'
 import authRouter from './routes/auth.js'
 import settingsRouter from './routes/settings.js'
 import createStreamRouter from './routes/stream.js'
+import localSubtitlesRouter from './routes/local-subtitles.js'
 import requireAuth from './middleware/auth.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -80,6 +81,7 @@ app.use('/api', authRouter)
 app.use('/api', requireAuth, settingsRouter)
 app.use('/api', requireAuth, moviesRouter)
 app.use('/api', requireAuth, subtitlesRouter)
+app.use('/api', requireAuth, localSubtitlesRouter)
 app.use('/api', requireAuth, torrentsRouter)
 app.use('/api', requireAuth, createStreamRouter(client))
 
