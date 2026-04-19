@@ -93,8 +93,8 @@ io.on('connection', (socket) => {
       const buf = toTorrentFile({ infoHash: torrent.infoHash })
       fs.mkdirSync(config.metadataPath, { recursive: true })
       fs.writeFileSync(path.join(config.metadataPath, `${torrent.infoHash}.torrent`), buf)
-      const stmt = db.prepare('INSERT INTO downloads VALUES (?, ?, ?, ?);')
-      stmt.run(arg.itemId, torrent.infoHash, arg.theMovieDbId, 0, (_, err) => {
+      const stmt = db.prepare('INSERT INTO downloads VALUES (?, ?, ?, ?, ?);')
+      stmt.run(arg.itemId, torrent.infoHash, arg.theMovieDbId, 0, arg.title ?? null, (_, err) => {
         if (err) console.log(err)
       })
 

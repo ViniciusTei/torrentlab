@@ -17,6 +17,8 @@ db.serialize(() => {
       downloaded INTEGER NOT NULL CHECK (downloaded IN (0, 1))
     );
   `)
+  // Migration: add title column if it doesn't exist yet
+  db.run(`ALTER TABLE downloads ADD COLUMN title TEXT`, () => {})
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

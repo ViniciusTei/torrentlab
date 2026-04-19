@@ -43,23 +43,28 @@ class API {
     return Promise.all(result.data.map(d => this.fetchMovieDetails(d.the_movie_db_id)))
   }
 
-  async fetchDownloadIds(): Promise<{ download_id: string; info_hash: string; the_movie_db_id: number; downloaded: number }[]> {
+  async fetchDownloadIds(): Promise<{ download_id: string; info_hash: string; the_movie_db_id: number; downloaded: number; title: string | null }[]> {
     const res = await http.get('/api/downloads/ids')
     return res.data
   }
 
   async fetchTrendingMovies(): Promise<TheMovieDbTrendingType[]> {
     const res = await http.get('/api/trending?type=movie')
-    return res.data
+    return res.data.results
   }
 
   async fetchAllTrending(): Promise<TheMovieDbTrendingType[]> {
     const res = await http.get('/api/trending?type=all')
-    return res.data
+    return res.data.results
   }
 
   async fetchTrendingTvShows(): Promise<TheMovieDbTrendingType[]> {
     const res = await http.get('/api/trending?type=tv')
+    return res.data.results
+  }
+
+  async fetchTrendingPaginated(type: 'all' | 'movie' | 'tv', page: number): Promise<{ results: TheMovieDbTrendingType[]; total_pages: number; total_results: number; page: number }> {
+    const res = await http.get(`/api/trending?type=${type}&page=${page}`)
     return res.data
   }
 

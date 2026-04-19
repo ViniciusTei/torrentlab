@@ -76,16 +76,22 @@ async function buildTrendingList(results) {
   }))
 }
 
-// GET /api/trending?type=all|movie|tv
+// GET /api/trending?type=all|movie|tv&page=1
 router.get('/trending', async (req, res) => {
   try {
     const type = req.query.type || 'all'
+    const page = parseInt(req.query.page) || 1
     const data = await withCache(
-      `tmdb:trending:${type}`,
+      `tmdb:trending:${type}:${page}`,
       TTL.TRENDING,
-      () => fetchTmdb(`/3/trending/${type}/day?language=pt-BR`)
+      () => fetchTmdb(`/3/trending/${type}/day?language=pt-BR&page=${page}`)
     )
-    res.json(await buildTrendingList(data.results))
+    res.json({
+      results: await buildTrendingList(data.results),
+      total_pages: data.total_pages,
+      total_results: data.total_results,
+      page: data.page,
+    })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
