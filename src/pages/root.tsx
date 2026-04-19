@@ -1,39 +1,46 @@
-import { GoHome } from 'react-icons/go'
-import { BsFillCollectionPlayFill, BsGear } from 'react-icons/bs'
-import { Link, Outlet, useNavigation, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useNavigation, useNavigate } from "react-router-dom";
 
-import SearchInput from '@/components/search-input'
-import { Toaster } from '@/components/ui/toaster'
-import { Progress } from '@/components/ui/progress'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useCounter } from '@/utils/counter'
+import SearchInput from "@/components/search-input";
+import { Toaster } from "@/components/ui/toaster";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useCounter } from "@/utils/counter";
+import Footer from "@/components/footer";
 
 export default function Root() {
-  const value = useCounter()
-  const navigation = useNavigation()
-  const navigate = useNavigate()
+  const value = useCounter();
+  const navigation = useNavigation();
+  const navigate = useNavigate();
 
   return (
     <>
-      {navigation.state === 'loading' && <Progress value={value} />}
+      {navigation.state === "loading" && <Progress value={value} />}
 
-      <header className="flex items-center my-1 mx-16">
-        <img src="/bd-logo.svg" alt="Logo" className="p-1 mr-2" width="37px" height="41px" />
+      <header className="flex items-center h-14 px-16 border-b">
+        <div className="flex items-center gap-2 mr-8">
+          <img
+            src="/bd-logo.svg"
+            alt="Logo"
+            width="28px"
+            height="32px"
+          />
+          <span className="font-bold text-lg">TorrentLab</span>
+        </div>
         <nav className="flex-1">
-          <ul className="flex gap-4">
+          <ul className="flex gap-6">
             <li>
-              <Link to="/" className="flex gap-1 items-center cursor-pointer">
-                <GoHome /> Home
+              <Link to="/" className="text-sm hover:text-primary transition-colors">
+                Home
               </Link>
             </li>
-            <li className="flex gap-1 items-center cursor-pointer text-gray-100">
-              <Link to="/settings" className="flex gap-1 items-center cursor-pointer">
-                <BsGear /> Configuração
+            <li>
+              <Link to="/downloads" className="text-sm hover:text-primary transition-colors">
+                Baixados
               </Link>
             </li>
-            <li className="flex gap-1 items-center cursor-pointer text-gray-100">
-              <Link to="/downloads" className="flex gap-1 items-center cursor-pointer">
-                <BsFillCollectionPlayFill /> Baixados
+            <li>
+              <Link to="/settings" className="text-sm hover:text-primary transition-colors">
+                Configurações
               </Link>
             </li>
           </ul>
@@ -42,26 +49,27 @@ export default function Root() {
           <SearchInput onSearch={(ev) => navigate(`/search?query=${ev}`)} />
         </div>
       </header>
+
       <main className="flex-1 mx-16">
         <Outlet />
-        {['loading', 'submiting'].includes(navigation.state) && <Loading />}
+        {["loading", "submiting"].includes(navigation.state) && <Loading />}
         <Toaster />
       </main>
+
+      <Footer />
     </>
-  )
+  );
 }
 
 function Loading() {
   return (
     <div className="px-12 py-4 inline-flex gap-6 w-full">
       <Skeleton className="h-[180px] w-[240px]" />
-
       <div className="flex-1 h-full w-full">
-        {[0, 1, 2].map(item => (
+        {[0, 1, 2].map((item) => (
           <Skeleton key={item} className="h-[180px] w-full rounded-lg mb-4" />
         ))}
       </div>
-
     </div>
-  )
+  );
 }
