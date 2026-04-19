@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Play, X, Trash2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 import getAPI from "@/services/api";
 import { useSocketContext } from "@/context/sockets";
@@ -39,6 +40,12 @@ function QualityBadge({ quality }: { quality: string | null }) {
 
 function ActiveDownloadRow({ item }: { item: DownloadItem }) {
   const { cancelDownload } = useSocketContext();
+  const [cancelling, setCancelling] = useState(false);
+
+  function handleCancel() {
+    setCancelling(true);
+    cancelDownload(item.itemId);
+  }
 
   return (
     <tr className="border-b last:border-0 hover:bg-muted/30 transition-colors">
@@ -80,7 +87,8 @@ function ActiveDownloadRow({ item }: { item: DownloadItem }) {
             size="sm"
             variant="ghost"
             className="text-destructive hover:text-destructive"
-            onClick={() => cancelDownload(item.itemId)}
+            onClick={handleCancel}
+            disabled={cancelling}
           >
             <X className="h-3.5 w-3.5" />
           </Button>
@@ -98,6 +106,7 @@ function CompletedDownloadRow({
   title: string;
 }) {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [deleting, setDeleting] = useState(false);
 
   async function handleDelete() {
@@ -107,6 +116,7 @@ function CompletedDownloadRow({
       queryClient.invalidateQueries({ queryKey: ["download-ids"] });
     } catch (err) {
       console.error("Failed to delete download:", err);
+      toast({ title: "Erro ao deletar", description: "Não foi possível remover o download.", variant: "destructive" });
     } finally {
       setDeleting(false);
     }

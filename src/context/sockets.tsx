@@ -73,7 +73,9 @@ function useDownloadSocket(): SocketContextType {
         const item = prev.find(i => i.itemId === itemId)
         queryClient.invalidateQueries({ queryKey: ['downloads'] })
         queryClient.invalidateQueries({ queryKey: ['download-ids'] })
-        toast({ title: 'Download finalizado', description: item?.title })
+        if (item) {
+          toast({ title: 'Download finalizado', description: item.title })
+        }
         return prev.filter(i => i.itemId !== itemId)
       })
     }
