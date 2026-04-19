@@ -71,3 +71,15 @@ Special thanks to the developers of the libraries and tools used in this project
 ---
 
 Thank you for using the Torrent Lab! Happy downloading! 
+
+## TODO
+
+### Lista de Favoritos (Watchlist)
+
+Permitir que os usuários salvem filmes e séries em uma lista pessoal de favoritos. O botão "Adicionar à Lista" já está presente na página de detalhes do filme como placeholder visual.
+
+Implementação necessária:
+- Tabela `watchlist` no SQLite (`user_id`, `the_movie_db_id`, `media_type`, `added_at`)
+- Endpoints `POST /api/watchlist` e `GET /api/watchlist` no servidor
+- Página frontend listando os itens salvos com opção de remoção
+- Integração do botão "Adicionar à Lista" na `MovieHero` com feedback visual de estado (adicionado/não adicionado)
