@@ -80,6 +80,29 @@ app.get('/api/downloads/ids', requireAuth, (req, res) => {
   })
 })
 
+app.delete('/api/downloads/:infoHash', requireAuth, (req, res) => {
+  const { infoHash } = req.params
+  db.get('SELECT torrent_name FROM downloads WHERE info_hash = ?', [infoHash], (err, row) => {
+    if (err) return res.status(500).send(err)
+    if (!row) return res.status(404).json({ error: 'Not found' })
+
+    const torrent = client.get(infoHash)
+    if (torrent) {
+      torrent.destroy({ destroyStore: true })
+    } else if (row.torrent_name) {
+      const folderPath = path.join(config.downloadsPath, row.torrent_name)
+      fs.rm(folderPath, { recursive: true, force: true }, (err) => {
+        if (err) console.log('Failed to delete files:', err)
+      })
+    }
+
+    db.run('DELETE FROM downloads WHERE info_hash = ?', [infoHash], (err) => {
+      if (err) return res.status(500).send(err)
+      res.sendStatus(204)
+    })
+  })
+})
+
 // Serve built frontend (only when dist/ exists — i.e., in Docker)
 const distPath = path.join(__dirname, '../dist')
 if (fs.existsSync(distPath)) {
