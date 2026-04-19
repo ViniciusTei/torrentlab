@@ -1,10 +1,19 @@
 import express from 'express'
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 import { staticConfig } from '../config.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const DOWNLOADS_PATH = path.resolve(__dirname, '..', staticConfig.downloadsPath)
 
 const router = express.Router()
 const SUBTITLE_EXTENSIONS = new Set(['.srt', '.vtt', '.ass'])
+const SUBTITLE_MIME = {
+  '.srt': 'text/plain; charset=utf-8',
+  '.vtt': 'text/vtt; charset=utf-8',
+  '.ass': 'text/plain; charset=utf-8',
+}
 
 router.get('/local-subtitles/:infoHash', (req, res) => {
   const { infoHash } = req.params
@@ -12,11 +21,11 @@ router.get('/local-subtitles/:infoHash', (req, res) => {
     return res.status(400).json({ error: 'Invalid infoHash' })
   }
 
-  const dir = path.join(staticConfig.downloadsPath, infoHash)
-  if (!fs.existsSync(dir)) return res.json([])
+  const dir = path.join(DOWNLOADS_PATH, infoHash)
 
   try {
-    const files = fs.readdirSync(dir)
+    const entries = fs.readdirSync(dir, { withFileTypes: true })
+    const files = entries.filter(e => e.isFile()).map(e => e.name)
     const subtitles = files
       .filter(f => SUBTITLE_EXTENSIONS.has(path.extname(f).toLowerCase()))
       .map(filename => ({
@@ -40,12 +49,16 @@ router.get('/subtitle-file/:infoHash/:filename', (req, res) => {
     return res.status(400).json({ error: 'Invalid filename' })
   }
 
-  const filePath = path.resolve(staticConfig.downloadsPath, infoHash, decoded)
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: 'File not found' })
+  const filePath = path.resolve(DOWNLOADS_PATH, infoHash, decoded)
+  if (!filePath.startsWith(DOWNLOADS_PATH + path.sep)) {
+    return res.status(400).json({ error: 'Invalid filename' })
   }
 
-  res.sendFile(filePath)
+  const ext = path.extname(decoded).toLowerCase()
+  res.setHeader('Content-Type', SUBTITLE_MIME[ext] ?? 'text/plain; charset=utf-8')
+  res.sendFile(filePath, err => {
+    if (err && !res.headersSent) res.status(404).json({ error: 'File not found' })
+  })
 })
 
 export default router
