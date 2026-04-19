@@ -1,11 +1,11 @@
 import express from 'express'
 import http from 'http'
+import https from 'https'
 import { Server } from 'socket.io'
 import WebTorrent from 'webtorrent'
 import fs from 'node:fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { toTorrentFile } from 'parse-torrent'
 
 import db from './db.js'
 import { extractQuality } from './utils.js'
@@ -26,7 +26,23 @@ const io = new Server(server, {
 })
 
 export const client = new WebTorrent()
+client.on('error', (err) => console.error('[webtorrent] client error:', err.message))
 let _socket = null
+
+function fetchTorrentBuffer(url) {
+  return new Promise((resolve, reject) => {
+    const get = url.startsWith('https') ? https.get : http.get
+    const req = get(url, (res) => {
+      if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode}`))
+      const chunks = []
+      res.on('data', (c) => chunks.push(c))
+      res.on('end', () => resolve(Buffer.concat(chunks)))
+      res.on('error', reject)
+    })
+    req.on('error', reject)
+    req.setTimeout(15000, () => { req.destroy(); reject(new Error('timeout')) })
+  })
+}
 
 function clientAdd(info, id, theMovieDbId) {
   client.add(info, { path: config.downloadsPath }, (torrent) => {
@@ -119,7 +135,7 @@ io.on('connection', (socket) => {
   _socket = socket
   socket.on('download', (arg) => {
     client.add(arg.magnet, { path: config.downloadsPath }, (torrent) => {
-      const buf = toTorrentFile({ infoHash: torrent.infoHash })
+      const buf = torrent.torrentFile
       fs.mkdirSync(config.metadataPath, { recursive: true })
       fs.writeFileSync(path.join(config.metadataPath, `${torrent.infoHash}.torrent`), buf)
       const stmt = db.prepare('INSERT INTO downloads VALUES (?, ?, ?, ?, ?, ?, ?, ?);')
@@ -149,8 +165,8 @@ io.on('connection', (socket) => {
         }
       })
       torrent.on('done', () => {
-        const stmt = db.prepare('UPDATE downloads SET downloaded = 1 WHERE download_id = ?')
-        stmt.run([arg.itemId], (_, err) => { if (err) console.log(err) })
+        const stmt = db.prepare('UPDATE downloads SET downloaded = 1, torrent_name = COALESCE(torrent_name, ?) WHERE download_id = ?')
+        stmt.run([torrent.name ?? null, arg.itemId], (_, err) => { if (err) console.log(err) })
         if (_socket) _socket.emit('done', { itemId: arg.itemId })
       })
       torrent.on('error', (err) => {
@@ -188,10 +204,54 @@ io.on('connection', (socket) => {
 
 server.listen(config.port, async () => {
   await seedSettings()
+
+  // Resume in-progress downloads
   db.each('SELECT * FROM downloads WHERE downloaded = 0', (err, row) => {
     if (err) console.log(err)
     if (row) clientAdd(row.info_hash, row.download_id, row.the_movie_db_id)
   })
+
+  // Re-add completed torrents so they can be streamed and torrent_name gets populated
+  db.all('SELECT * FROM downloads WHERE downloaded = 1', async (err, rows) => {
+    if (err) return console.log(err)
+    if (!rows) return
+
+    for (const row of rows) {
+      const torrentFilePath = path.join(config.metadataPath, `${row.info_hash}.torrent`)
+
+      // If torrent_name is null and download_id is a URL, fetch the .torrent file to repair the record
+      if (!row.torrent_name && row.download_id && row.download_id.startsWith('http')) {
+        console.log(`[startup] Fetching .torrent for ${row.info_hash} from ${row.download_id}`)
+        try {
+          const buf = await fetchTorrentBuffer(row.download_id)
+          if (buf.length > 100 && buf[0] === 0x64) {
+            fs.writeFileSync(torrentFilePath, buf)
+            console.log(`[startup] Saved .torrent for ${row.info_hash} (${buf.length} bytes)`)
+          }
+        } catch (e) {
+          console.log(`[startup] Failed to fetch .torrent: ${e.message}`)
+        }
+      }
+
+      let source = row.info_hash
+      if (fs.existsSync(torrentFilePath)) {
+        try {
+          const buf = fs.readFileSync(torrentFilePath)
+          if (buf.length > 100 && buf[0] === 0x64) source = torrentFilePath
+        } catch { /* keep infoHash fallback */ }
+      }
+
+      client.add(source, { path: config.downloadsPath }, (torrent) => {
+        if (!row.torrent_name && torrent.name) {
+          db.run('UPDATE downloads SET torrent_name = ? WHERE info_hash = ?', [torrent.name, row.info_hash],
+            (err) => { if (err) console.log('[startup] torrent_name update error:', err) })
+          console.log(`[startup] Updated torrent_name="${torrent.name}" for ${row.info_hash}`)
+        }
+        torrent.on('error', (err) => console.log('[completed torrent] error:', err.message))
+      })
+    }
+  })
+
   console.log(`Server running on port ${config.port}`)
 })
 

@@ -53,6 +53,9 @@ function TorrentRow({ item, movieId }: { item: JackettItem; movieId: number }) {
 
   return (
     <tr className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+      <td className="py-3 pr-4 text-sm font-medium truncate max-w-[300px]">
+        {item.title}
+      </td>
       <td className="py-3 pr-4 text-sm font-medium">
         {parseQuality(item.title)}
       </td>
@@ -90,7 +93,11 @@ function TorrentRow({ item, movieId }: { item: JackettItem; movieId: number }) {
   );
 }
 
-export default function TorrentsTable({ imdb_id, movieId, searchQuery }: Props) {
+export default function TorrentsTable({
+  imdb_id,
+  movieId,
+  searchQuery,
+}: Props) {
   const { data, isLoading } = useQuery({
     queryKey: ["torrents", imdb_id ?? searchQuery],
     queryFn: () => {
@@ -126,6 +133,9 @@ export default function TorrentsTable({ imdb_id, movieId, searchQuery }: Props) 
           <table className="w-full">
             <thead>
               <tr className="border-b text-left">
+                <th className="pb-2 pr-4 text-xs text-muted-foreground uppercase tracking-wide">
+                  Nome
+                </th>
                 <th className="pb-2 pr-4 text-xs text-muted-foreground uppercase tracking-wide">
                   Qualidade
                 </th>

@@ -80,9 +80,12 @@ async function buildTrendingList(results) {
     title: entry.title || entry.original_name || entry.original_title || "",
     overview: entry.overview,
     popularity: entry.popularity,
-    release_date: new Date(
-      entry.release_date || entry.first_air_date || "",
-    ).toISOString(),
+    release_date: (() => {
+      const raw = entry.release_date || entry.first_air_date
+      if (!raw) return null
+      const d = new Date(raw)
+      return isNaN(d.getTime()) ? null : d.toISOString()
+    })(),
     images: buildImages(cfg, entry.backdrop_path, entry.poster_path),
     genres: entry.genre_ids?.map(
       (id) => genresData.genres.find((x) => x.id === id)?.name ?? "Outros",
