@@ -55,6 +55,7 @@ function clientAdd(info, id, theMovieDbId) {
         downloaded: torrent.downloaded,
         timeRemaining: torrent.timeRemaining,
         progress: torrent.progress,
+        downloadSpeed: torrent.downloadSpeed,
       }
       if (downloadData.progress < 1 && _socket) {
         _socket.emit('downloaded', downloadData)
@@ -161,6 +162,7 @@ io.on('connection', (socket) => {
             downloaded: torrent.downloaded,
             timeRemaining: torrent.timeRemaining,
             progress: torrent.progress,
+            downloadSpeed: torrent.downloadSpeed,
           })
         }
       })

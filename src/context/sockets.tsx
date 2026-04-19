@@ -13,6 +13,7 @@ export type DownloadItem = {
   downloaded: number
   timeRemaining: number
   progress: number
+  downloadSpeed: number
 }
 
 export type DownloadProps = {
@@ -42,7 +43,7 @@ function useDownloadSocket(): SocketContextType {
     socket.emit('download', { magnet, itemId, theMovieDbId })
     setActiveDownloads(prev => [
       ...prev,
-      { itemId, infoHash: '', theMovieDbId, title, size, progress: 0, peers: 0, downloaded: 0, timeRemaining: 0 },
+      { itemId, infoHash: '', theMovieDbId, title, size, progress: 0, peers: 0, downloaded: 0, timeRemaining: 0, downloadSpeed: 0 },
     ])
     toast({ title: 'Download iniciado', description: title })
   }
