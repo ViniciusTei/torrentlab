@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import db from '../db.js'
-import { staticConfig } from '../config.js'
+import { getConfig } from '../config.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -175,7 +175,8 @@ export default function createStreamRouter(client) {
 
     // Torrent not in memory — try adding by infoHash (DHT) or fall back to disk
     try {
-      const downloadsPath = path.resolve(__dirname, '..', staticConfig.downloadsPath)
+      const { downloadsPath: rawDownloadsPath } = await getConfig()
+      const downloadsPath = path.isAbsolute(rawDownloadsPath) ? rawDownloadsPath : path.resolve(__dirname, '..', rawDownloadsPath)
       const row = await new Promise((resolve, reject) =>
         db.get(
           'SELECT torrent_name FROM downloads WHERE LOWER(info_hash) = LOWER(?) AND downloaded = 1',

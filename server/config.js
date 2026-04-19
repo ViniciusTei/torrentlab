@@ -9,6 +9,8 @@ const ENV_DEFAULTS = {
   subtitles_email: process.env.SUBTITLES_EMAIL || '',
   subtitles_pass: process.env.SUBTITLES_PASS || '',
   subtitles_key: process.env.SUBTITLES_KEY || '',
+  downloads_path: process.env.DOWNLOADS_PATH || 'downloads',
+  metadata_path: process.env.METADATA_PATH || 'metadata',
 }
 
 export async function seedSettings() {
@@ -43,8 +45,8 @@ export async function getConfig() {
     subtitlesKey: dbSettings.subtitles_key || ENV_DEFAULTS.subtitles_key,
     corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
     port: parseInt(process.env.PORT || '5174'),
-    downloadsPath: process.env.DOWNLOADS_PATH || 'downloads',
-    metadataPath: process.env.METADATA_PATH || 'metadata',
+    downloadsPath: dbSettings.downloads_path || ENV_DEFAULTS.downloads_path,
+    metadataPath: dbSettings.metadata_path || ENV_DEFAULTS.metadata_path,
   }
 }
 

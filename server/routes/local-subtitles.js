@@ -2,10 +2,14 @@ import express from 'express'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { staticConfig } from '../config.js'
+import { getConfig } from '../config.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const DOWNLOADS_PATH = path.resolve(__dirname, '..', staticConfig.downloadsPath)
+
+async function resolveDownloadsPath() {
+  const { downloadsPath } = await getConfig()
+  return path.isAbsolute(downloadsPath) ? downloadsPath : path.resolve(__dirname, '..', downloadsPath)
+}
 
 const router = express.Router()
 const SUBTITLE_EXTENSIONS = new Set(['.srt', '.vtt', '.ass'])
@@ -15,12 +19,13 @@ const SUBTITLE_MIME = {
   '.ass': 'text/plain; charset=utf-8',
 }
 
-router.get('/local-subtitles/:infoHash', (req, res) => {
+router.get('/local-subtitles/:infoHash', async (req, res) => {
   const { infoHash } = req.params
   if (!/^[a-f0-9]{40}$/i.test(infoHash)) {
     return res.status(400).json({ error: 'Invalid infoHash' })
   }
 
+  const DOWNLOADS_PATH = await resolveDownloadsPath()
   const dir = path.join(DOWNLOADS_PATH, infoHash)
 
   try {
@@ -38,7 +43,7 @@ router.get('/local-subtitles/:infoHash', (req, res) => {
   }
 })
 
-router.get('/subtitle-file/:infoHash/:filename', (req, res) => {
+router.get('/subtitle-file/:infoHash/:filename', async (req, res) => {
   const { infoHash, filename } = req.params
   if (!/^[a-f0-9]{40}$/i.test(infoHash)) {
     return res.status(400).json({ error: 'Invalid infoHash' })
@@ -49,6 +54,7 @@ router.get('/subtitle-file/:infoHash/:filename', (req, res) => {
     return res.status(400).json({ error: 'Invalid filename' })
   }
 
+  const DOWNLOADS_PATH = await resolveDownloadsPath()
   const filePath = path.resolve(DOWNLOADS_PATH, infoHash, decoded)
   if (!filePath.startsWith(DOWNLOADS_PATH + path.sep)) {
     return res.status(400).json({ error: 'Invalid filename' })

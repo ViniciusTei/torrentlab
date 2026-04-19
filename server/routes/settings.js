@@ -13,6 +13,8 @@ const SETTINGS_KEYS = [
   'subtitles_email',
   'subtitles_pass',
   'subtitles_key',
+  'downloads_path',
+  'metadata_path',
 ]
 
 function getAllSettings() {

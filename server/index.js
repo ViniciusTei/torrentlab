@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url'
 
 import db from './db.js'
 import { extractQuality } from './utils.js'
-import { staticConfig as config, seedSettings } from './config.js'
+import { staticConfig as config, getConfig, seedSettings } from './config.js'
 import moviesRouter from './routes/movies.js'
 import subtitlesRouter from './routes/subtitles.js'
 import torrentsRouter from './routes/torrents.js'
@@ -45,8 +45,9 @@ function fetchTorrentBuffer(url) {
   })
 }
 
-function clientAdd(info, id, theMovieDbId) {
-  client.add(info, { path: config.downloadsPath }, (torrent) => {
+async function clientAdd(info, id, theMovieDbId) {
+  const cfg = await getConfig()
+  client.add(info, { path: cfg.downloadsPath }, (torrent) => {
     torrent.on('download', () => {
       const downloadData = {
         itemId: id,
@@ -99,8 +100,9 @@ app.get('/api/downloads/ids', requireAuth, (req, res) => {
   })
 })
 
-app.delete('/api/downloads/:infoHash', requireAuth, (req, res) => {
+app.delete('/api/downloads/:infoHash', requireAuth, async (req, res) => {
   const { infoHash } = req.params
+  const cfg = await getConfig()
   db.get('SELECT torrent_name FROM downloads WHERE info_hash = ?', [infoHash], (err, row) => {
     if (err) return res.status(500).send(err)
     if (!row) return res.status(404).json({ error: 'Not found' })
@@ -116,7 +118,7 @@ app.delete('/api/downloads/:infoHash', requireAuth, (req, res) => {
     if (torrent) {
       torrent.destroy({ destroyStore: true }, deleteRecord)
     } else if (row.torrent_name) {
-      const folderPath = path.join(config.downloadsPath, row.torrent_name)
+      const folderPath = path.join(cfg.downloadsPath, row.torrent_name)
       fs.rm(folderPath, { recursive: true, force: true }, (err) => {
         if (err) console.log('Failed to delete files:', err)
         deleteRecord()
@@ -136,11 +138,12 @@ if (fs.existsSync(distPath)) {
 
 io.on('connection', (socket) => {
   _socket = socket
-  socket.on('download', (arg) => {
-    client.add(arg.magnet, { path: config.downloadsPath }, (torrent) => {
+  socket.on('download', async (arg) => {
+    const cfg = await getConfig()
+    client.add(arg.magnet, { path: cfg.downloadsPath }, (torrent) => {
       const buf = torrent.torrentFile
-      fs.mkdirSync(config.metadataPath, { recursive: true })
-      fs.writeFileSync(path.join(config.metadataPath, `${torrent.infoHash}.torrent`), buf)
+      fs.mkdirSync(cfg.metadataPath, { recursive: true })
+      fs.writeFileSync(path.join(cfg.metadataPath, `${torrent.infoHash}.torrent`), buf)
       const stmt = db.prepare('INSERT INTO downloads VALUES (?, ?, ?, ?, ?, ?, ?, ?);')
       stmt.run(
         arg.itemId,
@@ -220,8 +223,9 @@ server.listen(config.port, async () => {
     if (err) return console.log(err)
     if (!rows) return
 
+    const cfg = await getConfig()
     for (const row of rows) {
-      const torrentFilePath = path.join(config.metadataPath, `${row.info_hash}.torrent`)
+      const torrentFilePath = path.join(cfg.metadataPath, `${row.info_hash}.torrent`)
 
       // If torrent_name is null and download_id is a URL, fetch the .torrent file to repair the record
       if (!row.torrent_name && row.download_id && row.download_id.startsWith('http')) {
@@ -245,7 +249,7 @@ server.listen(config.port, async () => {
         } catch { /* keep infoHash fallback */ }
       }
 
-      client.add(source, { path: config.downloadsPath }, (torrent) => {
+      client.add(source, { path: cfg.downloadsPath }, (torrent) => {
         if (!row.torrent_name && torrent.name) {
           db.run('UPDATE downloads SET torrent_name = ? WHERE info_hash = ?', [torrent.name, row.info_hash],
             (err) => { if (err) console.log('[startup] torrent_name update error:', err) })
