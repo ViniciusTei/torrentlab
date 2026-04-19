@@ -1,6 +1,7 @@
 import express from 'express'
 import axios from 'axios'
 import { getConfig } from '../config.js'
+import { withCache } from '../cache.js'
 
 const router = express.Router()
 let subtitleToken = null
@@ -21,7 +22,7 @@ export async function getSubtitleToken() {
   if (subtitleToken) return subtitleToken
   const { subsApi, config } = await getSubsApi()
   const auth = await subsApi.post('/login', {
-    username: config.subtitlesEmail,
+    username: config.subtitlesUsername || config.subtitlesEmail,
     password: config.subtitlesPass,
   })
   subtitleToken = auth.data.token
@@ -51,7 +52,12 @@ export async function searchSubtitles(tmdb_id) {
 // GET /api/subtitles?tmdb_id=12345
 router.get('/subtitles', async (req, res) => {
   try {
-    const subtitles = await searchSubtitles(req.query.tmdb_id)
+    const tmdb_id = req.query.tmdb_id
+    const subtitles = await withCache(
+      `subs:tmdb:${tmdb_id}`,
+      24 * 60 * 60,
+      () => searchSubtitles(tmdb_id)
+    )
     res.json({ data: subtitles })
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -70,7 +76,9 @@ router.post('/subtitles/download', async (req, res) => {
     res.json(result.data)
   } catch (err) {
     subtitleToken = null
-    res.status(500).json({ error: err.message })
+    const detail = err.response?.data ?? err.message
+    console.log('subtitle download error:', JSON.stringify(detail))
+    res.status(500).json({ error: detail })
   }
 })
 

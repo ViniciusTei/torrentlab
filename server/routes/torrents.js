@@ -3,6 +3,7 @@ import axios from 'axios'
 import xml from 'xml2js'
 import { getConfig } from '../config.js'
 import db from '../db.js'
+import { withCache } from '../cache.js'
 
 const router = express.Router()
 
@@ -57,17 +58,21 @@ async function fetchJackettCached(cacheKey, title) {
 }
 
 async function omdbTitleById(imdbId) {
-  const config = await getConfig()
-  const res = await axios.get(`http://www.omdbapi.com/?apikey=${config.omdbApiKey}&i=${encodeURIComponent(imdbId)}`)
-  return res.data.Title || null
+  return withCache(`omdb:id:${imdbId}`, 7 * 24 * 60 * 60, async () => {
+    const config = await getConfig()
+    const res = await axios.get(`http://www.omdbapi.com/?apikey=${config.omdbApiKey}&i=${encodeURIComponent(imdbId)}`)
+    return res.data.Title || null
+  })
 }
 
 async function omdbTitleBySearch(searchName, type) {
-  const config = await getConfig()
-  const res = await axios.get(`http://www.omdbapi.com/?apikey=${config.omdbApiKey}&s=${encodeURIComponent(searchName)}&type=${type}`)
-  const results = res.data.Search || []
-  const match = results.find(f => f.Title === searchName && f.Type === type)
-  return match?.Title || null
+  return withCache(`omdb:search:${type}:${encodeURIComponent(searchName)}`, 7 * 24 * 60 * 60, async () => {
+    const config = await getConfig()
+    const res = await axios.get(`http://www.omdbapi.com/?apikey=${config.omdbApiKey}&s=${encodeURIComponent(searchName)}&type=${type}`)
+    const results = res.data.Search || []
+    const match = results.find(f => f.Title === searchName && f.Type === type)
+    return match?.Title || null
+  })
 }
 
 // GET /api/torrents?imdb_id=tt1234567
