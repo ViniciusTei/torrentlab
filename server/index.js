@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 import { toTorrentFile } from 'parse-torrent'
 
 import db from './db.js'
+import { extractQuality } from './utils.js'
 import { staticConfig as config, seedSettings } from './config.js'
 import moviesRouter from './routes/movies.js'
 import subtitlesRouter from './routes/subtitles.js'
@@ -93,10 +94,18 @@ io.on('connection', (socket) => {
       const buf = toTorrentFile({ infoHash: torrent.infoHash })
       fs.mkdirSync(config.metadataPath, { recursive: true })
       fs.writeFileSync(path.join(config.metadataPath, `${torrent.infoHash}.torrent`), buf)
-      const stmt = db.prepare('INSERT INTO downloads VALUES (?, ?, ?, ?, ?);')
-      stmt.run(arg.itemId, torrent.infoHash, arg.theMovieDbId, 0, arg.title ?? null, (_, err) => {
-        if (err) console.log(err)
-      })
+      const stmt = db.prepare('INSERT INTO downloads VALUES (?, ?, ?, ?, ?, ?, ?, ?);')
+      stmt.run(
+        arg.itemId,
+        torrent.infoHash,
+        arg.theMovieDbId,
+        0,
+        arg.title ?? null,
+        torrent.length,
+        extractQuality(torrent.name),
+        torrent.name,
+        (_, err) => { if (err) console.log(err) }
+      )
 
       torrent.on('download', () => {
         if (torrent.progress < 1 && _socket) {
@@ -121,6 +130,20 @@ io.on('connection', (socket) => {
       })
     })
   })
+  socket.on('cancel', ({ itemId }) => {
+    db.get('SELECT info_hash FROM downloads WHERE download_id = ?', [itemId], (err, row) => {
+      if (err) return console.log(err)
+      if (row) {
+        const torrent = client.get(row.info_hash)
+        if (torrent) torrent.destroy()
+        db.run('DELETE FROM downloads WHERE download_id = ?', [itemId], (err) => {
+          if (err) console.log(err)
+        })
+      }
+      if (_socket) _socket.emit('done', { itemId })
+    })
+  })
+
   socket.on('ready', () => console.log('Client ready'))
 })
 
