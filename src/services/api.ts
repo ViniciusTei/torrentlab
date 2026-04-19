@@ -18,6 +18,12 @@ type AuthMeResponse =
   | { authenticated: true; username: string }
   | { authenticated: false }
 
+export type WatchlistItem = {
+  the_movie_db_id: number
+  media_type: 'movie' | 'tv'
+  added_at: string
+}
+
 class API {
   async me(): Promise<AuthMeResponse> {
     const res = await http.get<AuthMeResponse>('/api/auth/me')
@@ -128,6 +134,19 @@ class API {
 
   async updateSettings(settings: Record<string, string>): Promise<void> {
     await http.put('/api/settings', settings)
+  }
+
+  async fetchWatchlist(): Promise<WatchlistItem[]> {
+    const res = await http.get<WatchlistItem[]>('/api/watchlist')
+    return res.data
+  }
+
+  async addToWatchlist(the_movie_db_id: number, media_type: 'movie' | 'tv'): Promise<void> {
+    await http.post('/api/watchlist', { the_movie_db_id, media_type })
+  }
+
+  async removeFromWatchlist(the_movie_db_id: number): Promise<void> {
+    await http.delete(`/api/watchlist/${the_movie_db_id}`)
   }
 }
 
