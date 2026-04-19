@@ -70,6 +70,16 @@ export interface TheMovieDbDetailsType {
   overview: string
   release_date: string
   popularity: number
+  vote_average: number
+  runtime: number | null
+  content_rating: string | null
+  production_companies: string[]
+  production_countries: string[]
+  cast: Array<{
+    name: string
+    character: string
+    profile_path: string | null
+  }>
   is_movie: boolean
   images: {
     backdrop_paths: {
