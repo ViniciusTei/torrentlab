@@ -11,6 +11,7 @@ import SetupPage from './pages/setup'
 import LoginPage from './pages/login'
 import SettingsPage from './pages/settings'
 import DownloadsPage from './pages/downloads'
+import WatchlistPage from './pages/watchlist'
 import PlayerPage from './pages/player'
 import BrowsePage, { loader as browseLoader } from './pages/browse'
 import getAPI from './services/api'
@@ -50,6 +51,7 @@ const router = createBrowserRouter([
       { path: '/browse/:type', element: <BrowsePage />, loader: browseLoader },
       { path: '/settings', element: <SettingsPage /> },
       { path: '/downloads', element: <DownloadsPage /> },
+      { path: '/watchlist', element: <WatchlistPage /> },
     ]
   }
 ])

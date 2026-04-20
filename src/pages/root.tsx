@@ -33,6 +33,14 @@ export default function Root() {
             </li>
             <li>
               <Link
+                to="/watchlist"
+                className="text-sm hover:text-primary transition-colors"
+              >
+                Minha Lista
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/downloads"
                 className="text-sm hover:text-primary transition-colors"
               >
