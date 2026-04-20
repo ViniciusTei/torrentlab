@@ -1,7 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
 import { TheMovieDbDetailsType, TheMovieDbTrendingType, TvShowSeasonDetail } from './types/themoviedb'
 import { JackettItem } from './torrents'
-import { SubtitleDownloadResponse } from './types/subtitles'
+import { Subtitle, SubtitleDownloadResponse } from './types/subtitles'
 
 const http = axios.create()
 
@@ -125,6 +125,13 @@ class API {
   async downloadSubtitles(file_id: number): Promise<SubtitleDownloadResponse> {
     const res = await http.post<SubtitleDownloadResponse>('/api/subtitles/download', { file_id })
     return res.data
+  }
+
+  async fetchEpisodeSubtitles(tmdb_id: number, season_number: number, episode_number: number): Promise<Subtitle[]> {
+    const res = await http.get<{ data: Subtitle[] }>(
+      `/api/subtitles?tmdb_id=${tmdb_id}&season_number=${season_number}&episode_number=${episode_number}`
+    )
+    return res.data.data
   }
 
   async getSettings(): Promise<Record<string, string>> {
