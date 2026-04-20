@@ -110,11 +110,21 @@ export default function PlayerControls({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [showSettingsPanel])
 
-  // Apply cursor: none to the video container when controls are hidden in fullscreen
+  // Apply cursor: none and attach activity listeners on the video container
   useEffect(() => {
     const container = videoRef.current?.parentElement
     if (!container) return
     container.style.cursor = isFullscreen && !controlsVisible ? 'none' : ''
+    if (!isFullscreen) return
+    container.addEventListener('mousemove', showControls)
+    container.addEventListener('mousedown', showControls)
+    container.addEventListener('keydown', showControls)
+    return () => {
+      container.removeEventListener('mousemove', showControls)
+      container.removeEventListener('mousedown', showControls)
+      container.removeEventListener('keydown', showControls)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFullscreen, controlsVisible, videoRef])
 
   // Auto-hide controls in fullscreen after 3s of inactivity
@@ -192,12 +202,7 @@ export default function PlayerControls({
   }
 
   return (
-    <div
-      className="absolute inset-0 flex flex-col justify-end pointer-events-none"
-      onMouseMove={showControls}
-      onMouseDown={showControls}
-      onKeyDown={showControls}
-    >
+    <div className="absolute inset-0 flex flex-col justify-end pointer-events-none">
       {/* Gradient overlay */}
       <div
         className="absolute inset-0 transition-opacity duration-300"
