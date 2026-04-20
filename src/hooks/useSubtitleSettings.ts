@@ -47,15 +47,18 @@ export function useSubtitleSettings(): [SubtitleSettings, (patch: Partial<Subtit
     setSettings(prev => {
       const merged = { ...prev, ...patch }
       const next: SubtitleSettings = {
-        ...merged,
-        bgOpacity:
-          typeof merged.bgOpacity === 'number' && merged.bgOpacity >= 0 && merged.bgOpacity <= 1
-            ? merged.bgOpacity
-            : prev.bgOpacity,
+        fontSize:
+          VALID_FONT_SIZES.has(merged.fontSize) ? merged.fontSize : prev.fontSize,
         color:
           typeof merged.color === 'string' && HEX_COLOR_RE.test(merged.color)
             ? merged.color
             : prev.color,
+        bgOpacity:
+          typeof merged.bgOpacity === 'number' && merged.bgOpacity >= 0 && merged.bgOpacity <= 1
+            ? merged.bgOpacity
+            : prev.bgOpacity,
+        position:
+          VALID_POSITIONS.has(merged.position) ? merged.position : prev.position,
       }
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
