@@ -63,6 +63,8 @@ export default function PlayerControls({
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showSubtitlePanel, setShowSubtitlePanel] = useState(false)
   const [showSettingsPanel, setShowSettingsPanel] = useState(false)
+  const [controlsVisible, setControlsVisible] = useState(true)
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const video = videoRef.current
@@ -107,6 +109,28 @@ export default function PlayerControls({
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [showSettingsPanel])
+
+  // Auto-hide controls in fullscreen after 3s of inactivity
+  function showControls() {
+    setControlsVisible(true)
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+    if (isFullscreen) {
+      hideTimerRef.current = setTimeout(() => setControlsVisible(false), 3000)
+    }
+  }
+
+  useEffect(() => {
+    if (!isFullscreen) {
+      setControlsVisible(true)
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+    } else {
+      // Start hide timer immediately on entering fullscreen
+      hideTimerRef.current = setTimeout(() => setControlsVisible(false), 3000)
+    }
+    return () => {
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+    }
+  }, [isFullscreen])
 
   function togglePlay() {
     const video = videoRef.current
@@ -161,13 +185,21 @@ export default function PlayerControls({
   }
 
   return (
-    <div className="absolute inset-0 flex flex-col justify-end pointer-events-none">
+    <div
+      className="absolute inset-0 flex flex-col justify-end pointer-events-none"
+      onMouseMove={showControls}
+      onMouseDown={showControls}
+      onKeyDown={showControls}
+      style={{ cursor: isFullscreen && !controlsVisible ? 'none' : undefined }}
+    >
       {/* Gradient overlay */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 transition-opacity duration-300"
         style={{
           background:
             'linear-gradient(0deg, rgba(24,28,32,0.9) 0%, rgba(24,28,32,0.4) 30%, rgba(24,28,32,0) 100%)',
+          opacity: !isFullscreen || controlsVisible ? 1 : 0,
+          pointerEvents: 'none',
         }}
       />
 
@@ -178,6 +210,7 @@ export default function PlayerControls({
       <button
         aria-label="Go back"
         className="absolute top-6 left-6 p-3 rounded-full text-white bg-black/20 hover:bg-black/40 backdrop-blur-md transition-all pointer-events-auto"
+        style={{ opacity: !isFullscreen || controlsVisible ? 1 : 0, pointerEvents: !isFullscreen || controlsVisible ? 'auto' : 'none', transition: 'opacity 0.3s' }}
         onClick={() => navigate(-1)}
       >
         <ArrowLeft size={20} />
@@ -208,7 +241,10 @@ export default function PlayerControls({
       )}
 
       {/* Controls bar */}
-      <div className="relative z-10 flex flex-col gap-4 p-6 md:p-10 pointer-events-auto">
+      <div
+        className="relative z-10 flex flex-col gap-4 p-6 md:p-10 pointer-events-auto transition-opacity duration-300"
+        style={{ opacity: !isFullscreen || controlsVisible ? 1 : 0, pointerEvents: !isFullscreen || controlsVisible ? 'auto' : 'none' }}
+      >
         {/* Scrubber */}
         <div className="relative w-full h-1.5 group cursor-pointer">
           <div className="absolute inset-0 rounded-full" style={{ background: 'rgba(255,255,255,0.2)' }} />
