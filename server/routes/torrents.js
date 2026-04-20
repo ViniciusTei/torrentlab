@@ -70,8 +70,9 @@ async function omdbTitleBySearch(searchName, type) {
     const config = await getConfig()
     const res = await axios.get(`http://www.omdbapi.com/?apikey=${config.omdbApiKey}&s=${encodeURIComponent(searchName)}&type=${type}`)
     const results = res.data.Search || []
-    const match = results.find(f => f.Title === searchName && f.Type === type)
-    return match?.Title || null
+    const exact = results.find(f => f.Title.toLowerCase() === searchName.toLowerCase() && f.Type === type)
+    const first = results.find(f => f.Type === type)
+    return (exact || first)?.Title || null
   })
 }
 
@@ -89,9 +90,13 @@ router.get('/torrents', async (req, res) => {
 
     if (search) {
       const omdbType = type === 'series' ? 'series' : 'movie'
-      const title = await omdbTitleBySearch(search, omdbType)
+      const episodeMatch = search.match(/\s+(S\d{2}E\d{2}(?:E\d{2})?)\s*$/i)
+      const episodeCode = episodeMatch ? episodeMatch[1].toUpperCase() : null
+      const baseName = episodeCode ? search.slice(0, episodeMatch.index).trim() : search
+      const title = await omdbTitleBySearch(baseName, omdbType)
       if (!title) return res.json([])
-      return res.json(await fetchJackettCached(`search:${omdbType}:${search}`, title))
+      const jackettQuery = episodeCode ? `${title} ${episodeCode}` : title
+      return res.json(await fetchJackettCached(`search:${omdbType}:${search}`, jackettQuery))
     }
 
     res.json([])
