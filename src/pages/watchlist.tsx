@@ -2,8 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import MovieItem from '@/components/movie-item'
-import { TheMovieDbTrendingType } from '@/services/types/themoviedb'
+import { TheMovieDbDetailsType } from '@/services/types/themoviedb'
 import getAPI from '@/services/api'
+import { useToast } from '@/components/ui/use-toast'
 
 export default function WatchlistPage() {
   const { data: saved = [], isLoading: isLoadingList } = useQuery({
@@ -12,7 +13,7 @@ export default function WatchlistPage() {
   })
 
   const { data: items, isLoading: isLoadingDetails } = useQuery({
-    queryKey: ['watchlist-details', saved.map(s => s.the_movie_db_id)],
+    queryKey: ['watchlist-details', saved.map(s => s.the_movie_db_id).join(',')],
     queryFn: () =>
       Promise.all(
         saved.map(s =>
@@ -31,7 +32,7 @@ export default function WatchlistPage() {
       <h1 className="text-2xl font-bold mb-6">Minha Lista</h1>
       <Content
         isLoading={isLoading}
-        items={items as TheMovieDbTrendingType[] | undefined}
+        items={items}
         savedCount={saved.length}
       />
     </div>
@@ -40,7 +41,7 @@ export default function WatchlistPage() {
 
 interface ContentProps {
   isLoading: boolean
-  items: TheMovieDbTrendingType[] | undefined
+  items: TheMovieDbDetailsType[] | undefined
   savedCount: number
 }
 
@@ -75,12 +76,14 @@ function Content({ isLoading, items, savedCount }: ContentProps) {
   )
 }
 
-function WatchlistCard({ item }: { item: TheMovieDbTrendingType }) {
+function WatchlistCard({ item }: { item: TheMovieDbDetailsType }) {
   const queryClient = useQueryClient()
+  const { toast } = useToast()
 
-  const { mutate: remove } = useMutation({
+  const { mutate: remove, isPending } = useMutation({
     mutationFn: () => getAPI().removeFromWatchlist(item.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['watchlist'] }),
+    onError: () => toast({ title: 'Não foi possível remover o item.', variant: 'destructive' }),
   })
 
   return (
@@ -88,10 +91,11 @@ function WatchlistCard({ item }: { item: TheMovieDbTrendingType }) {
       <MovieItem item={item} />
       <button
         type="button"
+        disabled={isPending}
         onClick={() => remove()}
-        className="absolute top-2 left-0 right-0 mx-auto w-fit inline-flex items-center gap-1 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded hover:bg-red-700 transition-colors z-10"
+        className="absolute top-2 left-0 right-0 mx-auto w-fit inline-flex items-center gap-1 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded hover:bg-red-700 transition-colors z-10 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        ✕ Remover
+        {isPending ? 'Removendo…' : '✕ Remover'}
       </button>
     </div>
   )
