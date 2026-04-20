@@ -19,8 +19,8 @@ const DEFAULTS: SubtitleSettings = Object.freeze({
   position: 'bottom',
 }) as SubtitleSettings
 
-const VALID_FONT_SIZES = new Set<string>(['small', 'medium', 'large', 'xlarge'])
-const VALID_POSITIONS = new Set<string>(['bottom', 'middle', 'top'])
+const VALID_FONT_SIZES = new Set<FontSize>(['small', 'medium', 'large', 'xlarge'])
+const VALID_POSITIONS = new Set<SubtitlePosition>(['bottom', 'middle', 'top'])
 
 function loadFromStorage(): SubtitleSettings {
   try {
@@ -29,10 +29,10 @@ function loadFromStorage(): SubtitleSettings {
     const parsed = JSON.parse(raw) as Partial<Record<string, unknown>>
     return {
       ...DEFAULTS,
-      ...(VALID_FONT_SIZES.has(parsed.fontSize as string) ? { fontSize: parsed.fontSize as FontSize } : {}),
+      ...(typeof parsed.fontSize === 'string' && VALID_FONT_SIZES.has(parsed.fontSize as FontSize) ? { fontSize: parsed.fontSize as FontSize } : {}),
       ...(typeof parsed.color === 'string' ? { color: parsed.color } : {}),
-      ...(typeof parsed.bgOpacity === 'number' ? { bgOpacity: parsed.bgOpacity } : {}),
-      ...(VALID_POSITIONS.has(parsed.position as string) ? { position: parsed.position as SubtitlePosition } : {}),
+      ...(typeof parsed.bgOpacity === 'number' && parsed.bgOpacity >= 0 && parsed.bgOpacity <= 1 ? { bgOpacity: parsed.bgOpacity } : {}),
+      ...(typeof parsed.position === 'string' && VALID_POSITIONS.has(parsed.position as SubtitlePosition) ? { position: parsed.position as SubtitlePosition } : {}),
     }
   } catch {
     return DEFAULTS
