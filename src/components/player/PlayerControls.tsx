@@ -110,6 +110,13 @@ export default function PlayerControls({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [showSettingsPanel])
 
+  // Apply cursor: none to the video container when controls are hidden in fullscreen
+  useEffect(() => {
+    const container = videoRef.current?.parentElement
+    if (!container) return
+    container.style.cursor = isFullscreen && !controlsVisible ? 'none' : ''
+  }, [isFullscreen, controlsVisible, videoRef])
+
   // Auto-hide controls in fullscreen after 3s of inactivity
   function showControls() {
     setControlsVisible(true)
@@ -190,7 +197,6 @@ export default function PlayerControls({
       onMouseMove={showControls}
       onMouseDown={showControls}
       onKeyDown={showControls}
-      style={{ cursor: isFullscreen && !controlsVisible ? 'none' : undefined }}
     >
       {/* Gradient overlay */}
       <div
