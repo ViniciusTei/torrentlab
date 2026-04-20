@@ -34,12 +34,15 @@ export function resetSubtitleToken() {
   subsApiInstance = null
 }
 
-export async function searchSubtitles(tmdb_id) {
+export async function searchSubtitles(tmdb_id, season_number, episode_number) {
   try {
     const bearer = await getSubtitleToken()
     const { subsApi } = await getSubsApi()
+    const params = { tmdb_id, languages: 'pt-br' }
+    if (season_number != null) params.season_number = season_number
+    if (episode_number != null) params.episode_number = episode_number
     const result = await subsApi.get('/subtitles', {
-      params: { tmdb_id, languages: 'pt-br' },
+      params,
       headers: { Authorization: `Bearer ${bearer}` }
     })
     return result.data.data || []
@@ -52,11 +55,18 @@ export async function searchSubtitles(tmdb_id) {
 // GET /api/subtitles?tmdb_id=12345
 router.get('/subtitles', async (req, res) => {
   try {
-    const tmdb_id = req.query.tmdb_id
+    const { tmdb_id, season_number, episode_number } = req.query
+    const cacheKey = season_number != null
+      ? `subs:tmdb:${tmdb_id}:s${season_number}:e${episode_number}`
+      : `subs:tmdb:${tmdb_id}`
     const subtitles = await withCache(
-      `subs:tmdb:${tmdb_id}`,
+      cacheKey,
       24 * 60 * 60,
-      () => searchSubtitles(tmdb_id)
+      () => searchSubtitles(
+        tmdb_id,
+        season_number != null ? Number(season_number) : undefined,
+        episode_number != null ? Number(episode_number) : undefined
+      )
     )
     res.json({ data: subtitles })
   } catch (err) {
