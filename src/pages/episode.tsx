@@ -9,6 +9,8 @@ import {
 import { useSocketContext } from "@/context/sockets";
 import SubtitlesGrid from "@/components/movie/subtitles-grid";
 import TorrentsTable from "@/components/movie/torrents-table";
+import DownloadsTab from "@/components/movie/downloads-tab";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { LuClock, LuStar } from "react-icons/lu";
 
@@ -32,13 +34,24 @@ function EpisodePage() {
     queryFn: () => getAPI().fetchDownloadIds(),
   });
   const { activeDownloads } = useSocketContext();
-  const activeItem = activeDownloads.find(
+
+  const { data: episodeSubtitles } = useQuery({
+    queryKey: ["episode-subtitles", show.id, episode.season_number, episode.episode_number],
+    queryFn: () => getAPI().fetchEpisodeSubtitles(show.id, episode.season_number, episode.episode_number),
+  });
+
+  const activeForEpisode = activeDownloads.filter(
     (d) => d.itemId === String(episode.id),
   );
-  const downloadRow = downloadIds?.find(
+  const completedForEpisode = (downloadIds ?? []).filter(
     (d) => d.the_movie_db_id === episode.id && d.downloaded !== 0,
   );
-  const watchInfoHash = downloadRow?.info_hash ?? activeItem?.infoHash ?? null;
+  const downloadCount = activeForEpisode.length + completedForEpisode.length;
+
+  const firstCompleted = completedForEpisode[0];
+  const firstActive = activeForEpisode[0];
+  const watchInfoHash =
+    firstCompleted?.info_hash ?? firstActive?.infoHash ?? null;
 
   return (
     <div className="-mx-16">
@@ -89,9 +102,7 @@ function EpisodePage() {
             </p>
 
             <div className="flex items-center gap-3 flex-wrap">
-              <Button asChild>
-                <a href="#torrents">Baixar Torrent</a>
-              </Button>
+              <Button variant="default">Baixar Torrent</Button>
               {watchInfoHash && (
                 <Button asChild variant="secondary">
                   <Link
@@ -106,14 +117,38 @@ function EpisodePage() {
         </div>
       </div>
 
-      {/* Main content */}
-      <div id="torrents" className="px-16 py-8 max-w-screen-lg mx-auto">
-        <TorrentsTable
-          imdb_id={undefined}
-          movieId={episode.id}
-          searchQuery={searchQuery}
-        />
-        <SubtitlesGrid subtitles={show.subtitles} />
+      {/* Tabs */}
+      <div className="px-16 py-8 max-w-screen-lg mx-auto">
+        <Tabs defaultValue="torrents" className="mb-8">
+          <TabsList>
+            <TabsTrigger value="torrents">Torrents</TabsTrigger>
+            <TabsTrigger value="downloads" className="relative">
+              Meus Downloads
+              {downloadCount > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold w-4 h-4">
+                  {downloadCount}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="subtitles">Legendas</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="torrents" className="mt-4">
+            <TorrentsTable
+              imdb_id={undefined}
+              movieId={episode.id}
+              searchQuery={searchQuery}
+            />
+          </TabsContent>
+
+          <TabsContent value="downloads" className="mt-4">
+            <DownloadsTab movieId={episode.id} title={episode.name} />
+          </TabsContent>
+
+          <TabsContent value="subtitles" className="mt-4">
+            <SubtitlesGrid subtitles={episodeSubtitles} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
