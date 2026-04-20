@@ -17,6 +17,20 @@ async function getSubsApi() {
         "User-Agent": "torrentlab",
       },
     });
+    subsApiInstance.interceptors.request.use((cfg) => {
+      console.log("[subtitles] →", cfg.method?.toUpperCase(), (cfg.baseURL ?? "") + (cfg.url ?? ""));
+      return cfg;
+    });
+    subsApiInstance.interceptors.response.use(
+      (res) => {
+        console.log("[subtitles] ←", res.status, (res.config.baseURL ?? "") + (res.config.url ?? ""));
+        return res;
+      },
+      (err) => {
+        console.log("[subtitles] ← ERR", err.response?.status, (err.config?.baseURL ?? "") + (err.config?.url ?? ""));
+        return Promise.reject(err);
+      }
+    );
   }
   return { subsApi: subsApiInstance, config };
 }
@@ -93,7 +107,8 @@ router.post("/subtitles/download", async (req, res) => {
     subtitleToken = null;
     const detail = err.response?.data ?? err.message;
     const status = err.response?.status ?? 500;
-    console.log("subtitle download error:", JSON.stringify(detail));
+    console.log("subtitle download error — url:", err.config?.url, "status:", status);
+    console.log("subtitle download error — body:", JSON.stringify(detail));
     res.status(status).json({ error: detail });
   }
 });

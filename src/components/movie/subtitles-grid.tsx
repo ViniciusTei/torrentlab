@@ -33,14 +33,23 @@ function SubtitleRow({
         {subtitle.attributes.download_count.toLocaleString()} downloads
       </td>
       <td className="py-3">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => onDownload(subtitle)}
-        >
-          <FaDownload className="mr-1.5" />
-          Baixar
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onDownload(subtitle)}
+          >
+            <FaDownload className="mr-1.5" />
+            Baixar
+          </Button>
+          {subtitle.attributes.url && (
+            <Button size="sm" variant="ghost" asChild>
+              <a href={subtitle.attributes.url} target="_blank" rel="noopener noreferrer">
+                OpenSubtitles ↗
+              </a>
+            </Button>
+          )}
+        </div>
       </td>
     </tr>
   );
