@@ -21,6 +21,7 @@ const DEFAULTS: SubtitleSettings = Object.freeze({
 
 const VALID_FONT_SIZES = new Set<FontSize>(['small', 'medium', 'large', 'xlarge'])
 const VALID_POSITIONS = new Set<SubtitlePosition>(['bottom', 'middle', 'top'])
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/
 
 function loadFromStorage(): SubtitleSettings {
   try {
@@ -30,7 +31,7 @@ function loadFromStorage(): SubtitleSettings {
     return {
       ...DEFAULTS,
       ...(typeof parsed.fontSize === 'string' && VALID_FONT_SIZES.has(parsed.fontSize as FontSize) ? { fontSize: parsed.fontSize as FontSize } : {}),
-      ...(typeof parsed.color === 'string' ? { color: parsed.color } : {}),
+      ...(typeof parsed.color === 'string' && HEX_COLOR_RE.test(parsed.color) ? { color: parsed.color } : {}),
       ...(typeof parsed.bgOpacity === 'number' && parsed.bgOpacity >= 0 && parsed.bgOpacity <= 1 ? { bgOpacity: parsed.bgOpacity } : {}),
       ...(typeof parsed.position === 'string' && VALID_POSITIONS.has(parsed.position as SubtitlePosition) ? { position: parsed.position as SubtitlePosition } : {}),
     }
@@ -44,7 +45,18 @@ export function useSubtitleSettings(): [SubtitleSettings, (patch: Partial<Subtit
 
   const updateSettings = useCallback((patch: Partial<SubtitleSettings>) => {
     setSettings(prev => {
-      const next = { ...prev, ...patch }
+      const merged = { ...prev, ...patch }
+      const next: SubtitleSettings = {
+        ...merged,
+        bgOpacity:
+          typeof merged.bgOpacity === 'number' && merged.bgOpacity >= 0 && merged.bgOpacity <= 1
+            ? merged.bgOpacity
+            : prev.bgOpacity,
+        color:
+          typeof merged.color === 'string' && HEX_COLOR_RE.test(merged.color)
+            ? merged.color
+            : prev.color,
+      }
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
       } catch {
