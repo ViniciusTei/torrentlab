@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -14,6 +14,10 @@ import {
   VolumeX,
 } from 'lucide-react'
 import SubtitlePanel from './SubtitlePanel'
+import SubtitleOverlay from './SubtitleOverlay'
+import SettingsPanel from './SettingsPanel'
+import type { CueEntry } from '@/lib/parseSrt'
+import type { SubtitleSettings } from '@/hooks/useSubtitleSettings'
 
 function formatTime(seconds: number): string {
   const h = Math.floor(seconds / 3600)
@@ -32,6 +36,9 @@ type Props = {
   showDownloadPanel: boolean
   onToggleDownloadPanel: () => void
   onSubtitleSelect: (url: string) => void
+  cues: CueEntry[]
+  settings: SubtitleSettings
+  onUpdateSettings: (patch: Partial<SubtitleSettings>) => void
 }
 
 export default function PlayerControls({
@@ -41,8 +48,13 @@ export default function PlayerControls({
   showDownloadPanel,
   onToggleDownloadPanel,
   onSubtitleSelect,
+  cues,
+  settings,
+  onUpdateSettings,
 }: Props) {
   const navigate = useNavigate()
+  const settingsPanelRef = useRef<HTMLDivElement>(null)
+  const settingsButtonRef = useRef<HTMLButtonElement>(null)
   const [playing, setPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -50,6 +62,7 @@ export default function PlayerControls({
   const [muted, setMuted] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showSubtitlePanel, setShowSubtitlePanel] = useState(false)
+  const [showSettingsPanel, setShowSettingsPanel] = useState(false)
 
   useEffect(() => {
     const video = videoRef.current
@@ -81,6 +94,19 @@ export default function PlayerControls({
       document.removeEventListener('fullscreenchange', onFullscreenChange)
     }
   }, [videoRef])
+
+  // Close settings panel on outside click (but not when clicking the settings button itself)
+  useEffect(() => {
+    if (!showSettingsPanel) return
+    function handleClick(e: MouseEvent) {
+      if (settingsButtonRef.current?.contains(e.target as Node)) return
+      if (settingsPanelRef.current && !settingsPanelRef.current.contains(e.target as Node)) {
+        setShowSettingsPanel(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showSettingsPanel])
 
   function togglePlay() {
     const video = videoRef.current
@@ -124,6 +150,16 @@ export default function PlayerControls({
     }
   }
 
+  function handleSubtitleButtonClick() {
+    setShowSubtitlePanel(v => !v)
+    setShowSettingsPanel(false)
+  }
+
+  function handleSettingsButtonClick() {
+    setShowSettingsPanel(v => !v)
+    setShowSubtitlePanel(false)
+  }
+
   return (
     <div className="absolute inset-0 flex flex-col justify-end pointer-events-none">
       {/* Gradient overlay */}
@@ -134,6 +170,9 @@ export default function PlayerControls({
             'linear-gradient(0deg, rgba(24,28,32,0.9) 0%, rgba(24,28,32,0.4) 30%, rgba(24,28,32,0) 100%)',
         }}
       />
+
+      {/* Subtitle overlay */}
+      <SubtitleOverlay cues={cues} currentTime={currentTime} settings={settings} />
 
       {/* Back button */}
       <button
@@ -156,6 +195,13 @@ export default function PlayerControls({
               setShowSubtitlePanel(false)
             }}
           />
+        </div>
+      )}
+
+      {/* Settings panel */}
+      {showSettingsPanel && (
+        <div ref={settingsPanelRef} className="pointer-events-auto">
+          <SettingsPanel settings={settings} onUpdate={onUpdateSettings} />
         </div>
       )}
 
@@ -237,7 +283,7 @@ export default function PlayerControls({
             </button>
 
             <button
-              onClick={() => setShowSubtitlePanel(v => !v)}
+              onClick={handleSubtitleButtonClick}
               className="flex items-center gap-2 transition-colors"
               style={{ color: showSubtitlePanel ? 'white' : 'rgba(255,255,255,0.8)' }}
             >
@@ -250,7 +296,13 @@ export default function PlayerControls({
               </span>
             </button>
 
-            <button aria-label="Settings" className="text-white/80 hover:text-white transition-colors">
+            <button
+              ref={settingsButtonRef}
+              aria-label="Settings"
+              onClick={handleSettingsButtonClick}
+              className="transition-colors"
+              style={{ color: showSettingsPanel ? 'white' : 'rgba(255,255,255,0.8)' }}
+            >
               <Settings size={18} />
             </button>
 
