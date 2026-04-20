@@ -12,18 +12,28 @@ export type SubtitleSettings = {
 
 const STORAGE_KEY = 'subtitle-settings'
 
-const DEFAULTS: SubtitleSettings = {
+const DEFAULTS: SubtitleSettings = Object.freeze({
   fontSize: 'medium',
   color: '#ffffff',
   bgOpacity: 0.6,
   position: 'bottom',
-}
+}) as SubtitleSettings
+
+const VALID_FONT_SIZES = new Set<string>(['small', 'medium', 'large', 'xlarge'])
+const VALID_POSITIONS = new Set<string>(['bottom', 'middle', 'top'])
 
 function loadFromStorage(): SubtitleSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return DEFAULTS
-    return { ...DEFAULTS, ...JSON.parse(raw) }
+    const parsed = JSON.parse(raw) as Partial<Record<string, unknown>>
+    return {
+      ...DEFAULTS,
+      ...(VALID_FONT_SIZES.has(parsed.fontSize as string) ? { fontSize: parsed.fontSize as FontSize } : {}),
+      ...(typeof parsed.color === 'string' ? { color: parsed.color } : {}),
+      ...(typeof parsed.bgOpacity === 'number' ? { bgOpacity: parsed.bgOpacity } : {}),
+      ...(VALID_POSITIONS.has(parsed.position as string) ? { position: parsed.position as SubtitlePosition } : {}),
+    }
   } catch {
     return DEFAULTS
   }
