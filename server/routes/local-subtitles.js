@@ -2,6 +2,7 @@ import express from 'express'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import multer from 'multer'
 import { getConfig } from '../config.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -67,6 +68,43 @@ router.get('/subtitle-file/:infoHash/:filename', async (req, res) => {
   res.setHeader('Content-Type', SUBTITLE_MIME[ext])
   res.sendFile(filePath, err => {
     if (err && !res.headersSent) res.status(404).json({ error: 'File not found' })
+  })
+})
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: async (_req, _file, cb) => {
+      const DOWNLOADS_PATH = await resolveDownloadsPath()
+      const infoHash = _req.params.infoHash
+      const dir = path.join(DOWNLOADS_PATH, infoHash)
+      fs.mkdirSync(dir, { recursive: true })
+      cb(null, dir)
+    },
+    filename: (_req, file, cb) => {
+      cb(null, file.originalname)
+    },
+  }),
+  fileFilter: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase()
+    if (ext === '.srt') cb(null, true)
+    else cb(new Error('Only .srt files are allowed'))
+  },
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB
+})
+
+router.post('/subtitle-upload/:infoHash', (req, res) => {
+  const { infoHash } = req.params
+  if (!/^[a-f0-9]{40}$/i.test(infoHash)) {
+    return res.status(400).json({ error: 'Invalid infoHash' })
+  }
+
+  upload.single('subtitle')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message })
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' })
+    res.json({
+      filename: req.file.filename,
+      url: `/api/subtitle-file/${infoHash}/${encodeURIComponent(req.file.filename)}`,
+    })
   })
 })
 

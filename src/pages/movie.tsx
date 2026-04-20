@@ -77,7 +77,21 @@ function Movie() {
             </TabsContent>
 
             <TabsContent value="subtitles" className="mt-4">
-              <SubtitlesGrid subtitles={movie.subtitles} />
+              <SubtitlesGrid
+                subtitles={movie.subtitles}
+                downloads={[
+                  ...completedForMovie.map((d) => ({
+                    infoHash: d.info_hash,
+                    name: d.title ?? d.torrent_name ?? d.info_hash,
+                  })),
+                  ...activeForMovie
+                    .filter((d) => d.infoHash)
+                    .map((d) => ({
+                      infoHash: d.infoHash!,
+                      name: d.title,
+                    })),
+                ]}
+              />
             </TabsContent>
           </Tabs>
         </main>

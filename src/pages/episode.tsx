@@ -156,7 +156,21 @@ function EpisodePage() {
                 ))}
               </div>
             ) : (
-              <SubtitlesGrid subtitles={episodeSubtitles} />
+              <SubtitlesGrid
+                subtitles={episodeSubtitles}
+                downloads={[
+                  ...completedForEpisode.map((d) => ({
+                    infoHash: d.info_hash,
+                    name: d.title ?? d.torrent_name ?? d.info_hash,
+                  })),
+                  ...activeForEpisode
+                    .filter((d) => d.infoHash)
+                    .map((d) => ({
+                      infoHash: d.infoHash!,
+                      name: d.title,
+                    })),
+                ]}
+              />
             )}
           </TabsContent>
         </Tabs>
