@@ -1,7 +1,9 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import PlayerControls from '@/components/player/PlayerControls'
 import DownloadStatusPanel from '@/components/player/DownloadStatusPanel'
+import { parseSrt, type CueEntry } from '@/lib/parseSrt'
+import { useSubtitleSettings } from '@/hooks/useSubtitleSettings'
 
 export default function PlayerPage() {
   const { infoHash } = useParams<{ infoHash: string }>()
@@ -11,6 +13,22 @@ export default function PlayerPage() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [showDownloadPanel, setShowDownloadPanel] = useState(true)
   const [activeSubtitleUrl, setActiveSubtitleUrl] = useState<string | null>(null)
+  const [cues, setCues] = useState<CueEntry[]>([])
+  const [settings, updateSettings] = useSubtitleSettings()
+
+  useEffect(() => {
+    if (!activeSubtitleUrl) {
+      setCues([])
+      return
+    }
+    fetch(activeSubtitleUrl)
+      .then(r => {
+        if (!r.ok) throw new Error()
+        return r.text()
+      })
+      .then(text => setCues(parseSrt(text)))
+      .catch(() => setCues([]))
+  }, [activeSubtitleUrl])
 
   if (!infoHash) return null
 
@@ -29,11 +47,7 @@ export default function PlayerPage() {
           src={streamUrl}
           autoPlay
           className="w-full h-full object-contain"
-        >
-          {activeSubtitleUrl && (
-            <track kind="subtitles" src={activeSubtitleUrl} default />
-          )}
-        </video>
+        />
 
         <PlayerControls
           videoRef={videoRef}
@@ -42,6 +56,9 @@ export default function PlayerPage() {
           showDownloadPanel={showDownloadPanel}
           onToggleDownloadPanel={() => setShowDownloadPanel(v => !v)}
           onSubtitleSelect={setActiveSubtitleUrl}
+          cues={cues}
+          settings={settings}
+          onUpdateSettings={updateSettings}
         />
 
         {showDownloadPanel && (
