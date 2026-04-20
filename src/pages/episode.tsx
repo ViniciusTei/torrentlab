@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLoaderData, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
@@ -25,6 +26,7 @@ function zeroPad(n: number, digits = 2) {
 
 function EpisodePage() {
   const { show, episode } = useLoaderData() as EpisodeLoaderData;
+  const [activeTab, setActiveTab] = useState("torrents");
 
   const episodeCode = `S${zeroPad(episode.season_number)}E${zeroPad(episode.episode_number)}`;
   const searchQuery = `${show.original_title} ${episodeCode}`;
@@ -102,7 +104,7 @@ function EpisodePage() {
             </p>
 
             <div className="flex items-center gap-3 flex-wrap">
-              <Button variant="default">Baixar Torrent</Button>
+              <Button variant="default" onClick={() => setActiveTab("torrents")}>Baixar Torrent</Button>
               {watchInfoHash && (
                 <Button asChild variant="secondary">
                   <Link
@@ -119,7 +121,7 @@ function EpisodePage() {
 
       {/* Tabs */}
       <div className="px-16 py-8 max-w-screen-lg mx-auto">
-        <Tabs defaultValue="torrents" className="mb-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList>
             <TabsTrigger value="torrents">Torrents</TabsTrigger>
             <TabsTrigger value="downloads" className="relative">
