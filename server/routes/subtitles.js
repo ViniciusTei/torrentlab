@@ -56,9 +56,9 @@ export async function searchSubtitles(tmdb_id, season_number, episode_number) {
 router.get('/subtitles', async (req, res) => {
   try {
     const { tmdb_id, season_number, episode_number } = req.query
-    const cacheKey = season_number != null
-      ? `subs:tmdb:${tmdb_id}:s${season_number}:e${episode_number}`
-      : `subs:tmdb:${tmdb_id}`
+    let cacheKey = `subs:tmdb:${tmdb_id}`
+    if (season_number != null) cacheKey += `:s${season_number}`
+    if (episode_number != null) cacheKey += `:e${episode_number}`
     const subtitles = await withCache(
       cacheKey,
       24 * 60 * 60,
