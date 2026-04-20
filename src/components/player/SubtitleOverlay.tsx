@@ -28,7 +28,9 @@ export default function SubtitleOverlay({ cues, currentTime, settings }: Props) 
 
   return (
     <div
-      className="absolute pointer-events-none flex justify-center px-4"
+      aria-live="polite"
+      aria-atomic="true"
+      className="absolute pointer-events-none flex justify-center px-4 z-10"
       style={positionStyle}
     >
       <span

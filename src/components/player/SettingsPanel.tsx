@@ -51,6 +51,7 @@ export default function SettingsPanel({ settings, onUpdate }: Props) {
           <div className="flex gap-1">
             {FONT_SIZES.map(({ label, value }) => (
               <button
+                type="button"
                 key={value}
                 onClick={() => onUpdate({ fontSize: value })}
                 className="flex-1 py-1 rounded text-xs font-semibold transition-colors"
@@ -74,6 +75,7 @@ export default function SettingsPanel({ settings, onUpdate }: Props) {
           <div className="flex items-center gap-2">
             {COLOR_SWATCHES.map(({ label, value }) => (
               <button
+                type="button"
                 key={value}
                 title={label}
                 onClick={() => onUpdate({ color: value })}
@@ -97,7 +99,7 @@ export default function SettingsPanel({ settings, onUpdate }: Props) {
                 type="color"
                 value={settings.color}
                 onChange={e => onUpdate({ color: e.target.value })}
-                className="opacity-0 absolute w-0 h-0"
+                className="sr-only"
               />
               {COLOR_SWATCHES.some(s => s.value === settings.color) && (
                 <span className="text-[10px] text-black/40 select-none">+</span>
@@ -130,6 +132,7 @@ export default function SettingsPanel({ settings, onUpdate }: Props) {
           <div className="flex gap-1">
             {POSITIONS.map(({ label, value }) => (
               <button
+                type="button"
                 key={value}
                 onClick={() => onUpdate({ position: value })}
                 className="flex-1 py-1 rounded text-xs font-semibold transition-colors"
