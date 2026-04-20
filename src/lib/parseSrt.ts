@@ -6,7 +6,7 @@ export type CueEntry = {
 
 function timeToSeconds(time: string): number {
   // Accepts HH:MM:SS,mmm or HH:MM:SS.mmm
-  const [hms, ms] = time.replace('.', ',').split(',')
+  const [hms, ms] = time.replace(/\./, ',').split(',')
   const [h, m, s] = hms.split(':').map(Number)
   return h * 3600 + m * 60 + s + Number(ms ?? 0) / 1000
 }
@@ -29,7 +29,7 @@ export function parseSrt(raw: string): CueEntry[] {
     const textLines = lines.slice(2)
 
     const timeMatch = timeLine.match(
-      /(\d{2}:\d{2}:\d{2}[,\.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,\.]\d{3})/
+      /(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})/
     )
     if (!timeMatch) continue
 
