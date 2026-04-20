@@ -199,6 +199,8 @@ export default function PlayerControls({
       )}
 
       {/* Settings panel */}
+      {/* settingsPanelRef is only read inside the useEffect that
+          only runs when showSettingsPanel is true — safe to conditionally mount */}
       {showSettingsPanel && (
         <div ref={settingsPanelRef} className="pointer-events-auto">
           <SettingsPanel settings={settings} onUpdate={onUpdateSettings} />

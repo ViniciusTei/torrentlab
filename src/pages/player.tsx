@@ -21,13 +21,17 @@ export default function PlayerPage() {
       setCues([])
       return
     }
-    fetch(activeSubtitleUrl)
+    const controller = new AbortController()
+    fetch(activeSubtitleUrl, { signal: controller.signal })
       .then(r => {
-        if (!r.ok) throw new Error()
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
         return r.text()
       })
       .then(text => setCues(parseSrt(text)))
-      .catch(() => setCues([]))
+      .catch(err => {
+        if (err.name !== 'AbortError') setCues([])
+      })
+    return () => controller.abort()
   }, [activeSubtitleUrl])
 
   if (!infoHash) return null
