@@ -7,7 +7,6 @@ import TvShowHero from "@/components/tvshow/tvshow-hero";
 import SeasonSidebar from "@/components/tvshow/season-sidebar";
 import EpisodeList from "@/components/tvshow/episode-list";
 import MovieCast from "@/components/movie/movie-cast";
-import SubtitlesGrid from "@/components/movie/subtitles-grid";
 
 function TvShowPage() {
   const show = useLoaderData() as TheMovieDbShowDetailResponse;
@@ -46,7 +45,6 @@ function TvShowPage() {
               seasonName={currentSeason.name}
             />
           )}
-          <SubtitlesGrid subtitles={show.subtitles} />
         </main>
       </div>
     </div>
