@@ -2,7 +2,10 @@ import { useLoaderData, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import getAPI from "@/services/api";
-import { TheMovieDbDetailsType, TvShowEpisode } from "@/services/types/themoviedb";
+import {
+  TheMovieDbDetailsType,
+  TvShowEpisode,
+} from "@/services/types/themoviedb";
 import { useSocketContext } from "@/context/sockets";
 import SubtitlesGrid from "@/components/movie/subtitles-grid";
 import TorrentsTable from "@/components/movie/torrents-table";
@@ -22,14 +25,16 @@ function EpisodePage() {
   const { show, episode } = useLoaderData() as EpisodeLoaderData;
 
   const episodeCode = `S${zeroPad(episode.season_number)}E${zeroPad(episode.episode_number)}`;
-  const searchQuery = `${show.title} ${episodeCode}`;
+  const searchQuery = `${show.original_title} ${episodeCode}`;
 
   const { data: downloadIds } = useQuery({
     queryKey: ["download-ids"],
     queryFn: () => getAPI().fetchDownloadIds(),
   });
   const { activeDownloads } = useSocketContext();
-  const activeItem = activeDownloads.find((d) => d.itemId === String(episode.id));
+  const activeItem = activeDownloads.find(
+    (d) => d.itemId === String(episode.id),
+  );
   const downloadRow = downloadIds?.find(
     (d) => d.the_movie_db_id === episode.id && d.downloaded !== 0,
   );
@@ -76,8 +81,12 @@ function EpisodePage() {
             </div>
 
             <p className="text-sm text-white/60 mb-1">{show.title}</p>
-            <h1 className="text-3xl font-bold mb-3 tracking-tight">{episode.name}</h1>
-            <p className="text-white/80 text-sm leading-relaxed line-clamp-3 mb-5">{episode.overview}</p>
+            <h1 className="text-3xl font-bold mb-3 tracking-tight">
+              {episode.name}
+            </h1>
+            <p className="text-white/80 text-sm leading-relaxed line-clamp-3 mb-5">
+              {episode.overview}
+            </p>
 
             <div className="flex items-center gap-3 flex-wrap">
               <Button asChild>
@@ -99,7 +108,11 @@ function EpisodePage() {
 
       {/* Main content */}
       <div id="torrents" className="px-16 py-8 max-w-screen-lg mx-auto">
-        <TorrentsTable imdb_id={undefined} movieId={episode.id} searchQuery={searchQuery} />
+        <TorrentsTable
+          imdb_id={undefined}
+          movieId={episode.id}
+          searchQuery={searchQuery}
+        />
         <SubtitlesGrid subtitles={show.subtitles} />
       </div>
     </div>

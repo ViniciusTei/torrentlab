@@ -1,19 +1,34 @@
-import React from 'react'
-import { Link, useLoaderData } from 'react-router-dom'
+import React from "react";
+import { Link, useLoaderData } from "react-router-dom";
 
-import getAPI from '@/services/api'
-import { TheMovieDbTrendingType } from '@/services/types/themoviedb'
-import { Badge } from '@/components/ui/badge'
+import getAPI from "@/services/api";
+import { TheMovieDbTrendingType } from "@/services/types/themoviedb";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Props {
-  query: string
-  moviesCount: number
-  seriesCount: number
-  searchResults: TheMovieDbTrendingType[]
+  query: string;
+  moviesCount: number;
+  seriesCount: number;
+  searchResults: TheMovieDbTrendingType[];
 }
 
 function SearchPage() {
-  const { moviesCount, seriesCount, searchResults, query } = useLoaderData() as Props
+  const { moviesCount, seriesCount, searchResults, query } =
+    useLoaderData() as Props;
+
+  if (searchResults.length === 0) {
+    return (
+      <div className="px-12 py-4 inline-flex gap-6 w-full">
+        <Skeleton className="h-[180px] w-[240px]" />
+        <div className="flex-1 h-full w-full">
+          {[0, 1, 2].map((item) => (
+            <Skeleton key={item} className="h-[180px] w-full rounded-lg mb-4" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-12 py-4 inline-flex gap-6">
@@ -37,27 +52,36 @@ function SearchPage() {
       </div>
 
       <div className="flex-1 h-full">
-        {searchResults.map(item => (
+        {searchResults.map((item) => (
           <div className="bg-slate-500 w-full rounded-lg p-4 flex gap-2 mb-4">
-            <img className="rounded-md" alt="Poster image" src={item.images.poster_paths.md} width={99} height={140} />
+            <img
+              className="rounded-md"
+              alt="Poster image"
+              src={item.images.poster_paths.md}
+              width={99}
+              height={140}
+            />
             <div>
               <ItemLink item={item}>
-                <h2 className="text-slate-900 text-base font-semibold">{item.title}</h2>
+                <h2 className="text-slate-900 text-base font-semibold">
+                  {item.title}
+                </h2>
               </ItemLink>
-              <p className="text-slate-200 text-xs my-2">{item.release_date ?? 'N/A'} - {item.genres?.join(',')}</p>
+              <p className="text-slate-200 text-xs my-2">
+                {item.release_date ?? "N/A"} - {item.genres?.join(",")}
+              </p>
               <p>{item.overview}</p>
             </div>
           </div>
         ))}
       </div>
-
     </div>
-  )
+  );
 }
 
 interface ItemLinkProps {
-  item: TheMovieDbTrendingType
-  children: React.ReactElement
+  item: TheMovieDbTrendingType;
+  children: React.ReactElement;
 }
 
 function ItemLink({ item, children }: ItemLinkProps) {
@@ -65,40 +89,43 @@ function ItemLink({ item, children }: ItemLinkProps) {
     <Link to={item.is_movie ? `/movie/${item.id}` : `/tvshow/${item.id}`}>
       {children}
     </Link>
-  )
+  );
 }
 
 function parseQueryToString(query: string) {
-  return new URLSearchParams(`?query=${query}`).get('query')
+  return new URLSearchParams(`?query=${query}`).get("query");
 }
 
 export async function loader({ request }: any) {
-  const api = getAPI()
-  const url = new URL(request.url)
-  const searchTerm = url.searchParams.get("query")
+  const api = getAPI();
+  const url = new URL(request.url);
+  const searchTerm = url.searchParams.get("query");
 
-  if (!searchTerm) throw new Error('Faltando argumentos para a pesquisa')
+  if (!searchTerm) throw new Error("Faltando argumentos para a pesquisa");
 
-  const searchResults = await api.searchAll(searchTerm)
-  const { moviesCount, seriesCount } = searchResults.reduce((acc: { moviesCount: number, seriesCount: number }, item) => {
-    if (item.is_movie) {
+  const searchResults = await api.searchAll(searchTerm);
+  const { moviesCount, seriesCount } = searchResults.reduce(
+    (acc: { moviesCount: number; seriesCount: number }, item) => {
+      if (item.is_movie) {
+        return {
+          ...acc,
+          moviesCount: acc.moviesCount + 1,
+        };
+      }
       return {
         ...acc,
-        moviesCount: acc.moviesCount + 1,
-      }
-    }
-    return {
-      ...acc,
-      seriesCount: acc.seriesCount + 1,
-    }
-  }, { moviesCount: 0, seriesCount: 0 } as any)
+        seriesCount: acc.seriesCount + 1,
+      };
+    },
+    { moviesCount: 0, seriesCount: 0 } as any,
+  );
 
   return {
     moviesCount,
     seriesCount,
     searchResults,
-    query: searchTerm
-  }
+    query: searchTerm,
+  };
 }
 
-export default SearchPage
+export default SearchPage;

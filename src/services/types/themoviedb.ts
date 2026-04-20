@@ -1,122 +1,123 @@
-import { Subtitle } from "./subtitles"
+import { Subtitle } from "./subtitles";
 
 export type TvShowEpisode = {
-  id: number
-  episode_number: number
-  season_number: number
-  name: string
-  overview: string
-  air_date: string
-  runtime: number | null
-  vote_average: number
-  still_url: string | null
-}
+  id: number;
+  episode_number: number;
+  season_number: number;
+  name: string;
+  overview: string;
+  air_date: string;
+  runtime: number | null;
+  vote_average: number;
+  still_url: string | null;
+};
 
 export type TvShowSeasonDetail = {
-  id: number
-  name: string
-  overview: string
-  season_number: number
-  air_date: string
-  episodes: TvShowEpisode[]
-}
+  id: number;
+  name: string;
+  overview: string;
+  season_number: number;
+  air_date: string;
+  episodes: TvShowEpisode[];
+};
 
 export type TheMovieDbResult = {
-  id: number
-  backdrop_path: string
-  title: string
-  original_language: string
-  original_name?: string
-  original_title?: string
-  overview: string
-  poster_path: string
-  popularity: number
-  release_date?: string
-  first_air_date?: string
-  genre_ids: number[] | undefined
-  media_type: "movie" | "tv"
-}
+  id: number;
+  backdrop_path: string;
+  title: string;
+  original_language: string;
+  original_name?: string;
+  original_title?: string;
+  overview: string;
+  poster_path: string;
+  popularity: number;
+  release_date?: string;
+  first_air_date?: string;
+  genre_ids: number[] | undefined;
+  media_type: "movie" | "tv";
+};
 
 export type TheMovieDbTrendingResponse = {
-  page: number
-  total_page: number
-  total_results: number
-  results: TheMovieDbResult[]
-}
+  page: number;
+  total_page: number;
+  total_results: number;
+  results: TheMovieDbResult[];
+};
 
-export interface TheMovieDbDetailResponse extends Omit<TheMovieDbResult, 'genre_ids' | 'media_type'> {
-  name: string | undefined
-  genres: { id: number, name: string }[]
-  imdb_id: string
+export interface TheMovieDbDetailResponse
+  extends Omit<TheMovieDbResult, "genre_ids" | "media_type"> {
+  name: string | undefined;
+  genres: { id: number; name: string }[];
+  imdb_id: string;
 }
 
 export interface TheMovieDbShowDetailResponse extends TheMovieDbDetailsType {
   seasons: Array<{
-    air_date: string
-    episode_count: number
-    id: number
-    name: string
-    overview: string
-    poster_path: string
-    season_number: number
-    vote_average: number
-  }>
+    air_date: string;
+    episode_count: number;
+    id: number;
+    name: string;
+    overview: string;
+    poster_path: string;
+    season_number: number;
+    vote_average: number;
+  }>;
 }
 
 export interface TheMovieDbTrendingType {
-  id: number
-  title: string
-  overview: string
-  release_date: string
-  popularity: number
-  is_movie: boolean
+  id: number;
+  title: string;
+  overview: string;
+  release_date: string;
+  popularity: number;
+  is_movie: boolean;
   images: {
     backdrop_paths: {
-      sm: string
-      md: string
-      lg: string
-    },
+      sm: string;
+      md: string;
+      lg: string;
+    };
     poster_paths: {
-      sm: string
-      md: string
-      lg: string
-    }
-  }
-  genres: string[] | undefined
+      sm: string;
+      md: string;
+      lg: string;
+    };
+  };
+  genres: string[] | undefined;
 }
 
 export interface TheMovieDbDetailsType {
-  id: number
-  title: string
-  overview: string
-  release_date: string
-  popularity: number
-  vote_average: number
-  runtime: number | null
-  content_rating: string | null
-  production_companies: string[]
-  production_countries: string[]
+  id: number;
+  title: string;
+  original_title: string;
+  overview: string;
+  release_date: string;
+  popularity: number;
+  vote_average: number;
+  runtime: number | null;
+  content_rating: string | null;
+  production_companies: string[];
+  production_countries: string[];
   cast: Array<{
-    name: string
-    character: string
-    profile_path: string | null
-  }>
-  is_movie: boolean
+    name: string;
+    character: string;
+    profile_path: string | null;
+  }>;
+  is_movie: boolean;
   images: {
     backdrop_paths: {
-      sm: string
-      md: string
-      lg: string
-    },
+      sm: string;
+      md: string;
+      lg: string;
+    };
     poster_paths: {
-      sm: string
-      md: string
-      lg: string
-    }
-  }
-  genres: string[] | undefined
-  imdb_id: string
-  is_tv_show: boolean
-  subtitles: Subtitle[] | undefined
+      sm: string;
+      md: string;
+      lg: string;
+    };
+  };
+  genres: string[] | undefined;
+  imdb_id: string;
+  is_tv_show: boolean;
+  subtitles: Subtitle[] | undefined;
 }
-
