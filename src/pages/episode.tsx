@@ -13,6 +13,7 @@ import TorrentsTable from "@/components/movie/torrents-table";
 import DownloadsTab from "@/components/movie/downloads-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { LuClock, LuStar } from "react-icons/lu";
 
 type EpisodeLoaderData = {
@@ -148,7 +149,15 @@ function EpisodePage() {
           </TabsContent>
 
           <TabsContent value="subtitles" className="mt-4">
-            <SubtitlesGrid subtitles={episodeSubtitles} />
+            {episodeSubtitles === undefined ? (
+              <div className="flex flex-col gap-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full rounded" />
+                ))}
+              </div>
+            ) : (
+              <SubtitlesGrid subtitles={episodeSubtitles} />
+            )}
           </TabsContent>
         </Tabs>
       </div>
