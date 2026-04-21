@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TorrentLab - Player</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#4059ad",
+                        "tertiary-fixed": "#aeecff",
+                        "secondary": "#475d92",
+                        "surface-container-highest": "#e0e2e7",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#001550",
+                        "surface-container-low": "#f2f4f9",
+                        "on-tertiary-container": "#f9fdff",
+                        "outline": "#757683",
+                        "surface-dim": "#d8dadf",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#c5c5d3",
+                        "on-tertiary-fixed": "#001f26",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#001946",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#adc3ff",
+                        "on-surface-variant": "#444651",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "primary": "#3e56aa",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e0e2e7",
+                        "primary-fixed": "#dce1ff",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#181c20",
+                        "surface": "#f7f9fe",
+                        "tertiary-fixed-dim": "#90d0e3",
+                        "on-primary-container": "#fffbff",
+                        "on-primary-fixed-variant": "#264093",
+                        "on-background": "#181c20",
+                        "on-secondary-fixed-variant": "#2e4579",
+                        "inverse-surface": "#2d3135",
+                        "tertiary": "#1c6475",
+                        "inverse-on-surface": "#eff1f6",
+                        "on-tertiary-fixed-variant": "#004e5d",
+                        "tertiary-container": "#3b7d8e",
+                        "secondary-fixed": "#d9e2ff",
+                        "background": "#f7f9fe",
+                        "surface-container-high": "#e6e8ed",
+                        "surface-container": "#eceef3",
+                        "surface-bright": "#f7f9fe",
+                        "primary-container": "#5870c5",
+                        "on-secondary-container": "#394f84",
+                        "inverse-primary": "#b6c4ff",
+                        "secondary-fixed-dim": "#b1c6ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .video-gradient-overlay {
+            background: linear-gradient(0deg, rgba(24, 28, 32, 0.9) 0%, rgba(24, 28, 32, 0.4) 30%, rgba(24, 28, 32, 0) 100%);
+        }
+        .blur-panel {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.7);
+        }
+        #download-status-panel.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-[#f7f9fe]/80 dark:bg-slate-900/80 backdrop-blur-xl fixed top-0 w-full z-50">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-extrabold tracking-tighter font-headline text-[#3e56aa] dark:text-[#5870c5]">TorrentLab</span>
+<nav class="hidden md:flex gap-6 items-center">
+<a class="font-headline font-medium tracking-tight text-sm text-slate-500 dark:text-slate-400 hover:text-[#3e56aa] transition-colors" href="#">Library</a>
+<a class="font-headline font-medium tracking-tight text-sm text-slate-500 dark:text-slate-400 hover:text-[#3e56aa] transition-colors" href="#">Trending</a>
+<a class="font-headline font-medium tracking-tight text-sm text-slate-500 dark:text-slate-400 hover:text-[#3e56aa] transition-colors" href="#">Recent</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/15">
+<span class="material-symbols-outlined text-outline text-lg" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm ml-2 w-48 placeholder-outline/60" placeholder="Search archives..." type="text"/>
+</div>
+<button class="material-symbols-outlined p-2 text-on-surface-variant hover:bg-surface-container-highest transition-all duration-300 rounded-full" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined p-2 text-on-surface-variant hover:bg-surface-container-highest transition-all duration-300 rounded-full" data-icon="account_circle">account_circle</button>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-12 px-4 md:px-8 max-w-screen-2xl mx-auto">
+<!-- Video Player Section -->
+<section class="relative aspect-video w-full rounded-xl overflow-hidden shadow-2xl bg-black">
+<!-- Background Movie Still -->
+<img alt="Cinematic wide shot of a futuristic dark control room" class="absolute inset-0 w-full h-full object-cover opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrww25lsturpT5Slf965VD_BnhR82fUHE6aKnPfPqWsrynMaxiFf0-y2cNdydUFUtP3rMORBRW0nnWo6pdhX_CQK_B4fUsatRY3usxwrJVLhUceSxC4PZ_t_FjNoB3RrJ9CsmfXOG2xKPfOAu9uAo8o0G32YyYQgt5UxZRyyor6ITe1hXMeALw5TbOXhewtP8cgP0bwtj_nfPGMbpx2wuOy3MR7qU0Ez4bWSne4AK-sS_gM6GlyLCgOUulkGuyFY5P85dGQxOHUjY"/>
+<!-- Video Gradient Overlay -->
+<div class="absolute inset-0 video-gradient-overlay flex flex-col justify-end p-6 md:p-10">
+<!-- Player Controls -->
+<div class="flex flex-col gap-6">
+<!-- Progress Bar -->
+<div class="relative w-full h-1.5 bg-white/20 rounded-full cursor-pointer group">
+<div class="absolute top-0 left-0 h-full w-[65%] bg-primary-container rounded-full">
+<div class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg scale-0 group-hover:scale-100 transition-transform"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-6">
+<button class="text-white hover:text-primary-fixed transition-colors active:scale-90 duration-200">
+<span class="material-symbols-outlined text-4xl" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="text-white/80 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-2xl" data-icon="skip_next" style="font-variation-settings: 'FILL' 1;">skip_next</span>
+</button>
+<div class="flex items-center gap-2">
+<button class="text-white/80 hover:text-white">
+<span class="material-symbols-outlined text-2xl" data-icon="volume_up">volume_up</span>
+</button>
+<div class="w-20 h-1 bg-white/20 rounded-full">
+<div class="w-3/4 h-full bg-white rounded-full"></div>
+</div>
+</div>
+<span class="text-white/70 font-label text-sm tabular-nums">01:42:15 / 02:35:00</span>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-white/80 hover:text-white flex items-center gap-2" onclick="document.getElementById('download-status-panel').classList.toggle('hidden')">
+<span class="material-symbols-outlined" data-icon="cloud_download">cloud_download</span>
+<span class="text-xs font-label tracking-widest uppercase">Toggle Status</span>
+</button>
+<button class="text-white/80 hover:text-white flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="closed_caption">closed_caption</span>
+<span class="text-xs font-label tracking-widest uppercase">Subtitles</span>
+</button>
+<button class="text-white/80 hover:text-white">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button class="text-white/80 hover:text-white">
+<span class="material-symbols-outlined" data-icon="fullscreen">fullscreen</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Download Status Panel -->
+<div class="absolute top-6 right-6 w-72 blur-panel p-5 rounded-xl border border-white/30 shadow-xl flex flex-col gap-4" id="download-status-panel">
+<div class="flex items-center justify-between">
+<span class="font-headline font-bold text-primary text-xs tracking-widest uppercase">Live Archive Sync</span>
+<button class="flex h-4 w-4 items-center justify-center rounded-full hover:bg-black/5" onclick="document.getElementById('download-status-panel').classList.add('hidden')">
+<span class="material-symbols-outlined text-sm" data-icon="close">close</span>
+</button>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-baseline">
+<span class="text-on-surface-variant text-xs font-label">Downloading</span>
+<span class="text-on-surface font-bold font-headline text-lg">65%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[65%]"></div>
+</div>
+<div class="grid grid-cols-2 gap-y-4 pt-2">
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-tighter text-outline font-semibold">Speed</span>
+<span class="text-sm font-bold text-on-surface">12.4 MB/s</span>
+</div>
+<div class="flex flex-col items-end text-right">
+<span class="text-[10px] uppercase tracking-tighter text-outline font-semibold">ETA</span>
+<span class="text-sm font-bold text-on-surface">4m 20s</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-tighter text-outline font-semibold">Seeders</span>
+<span class="text-sm font-bold text-on-surface">1,240</span>
+</div>
+<div class="flex flex-col items-end text-right">
+<span class="text-[10px] uppercase tracking-tighter text-outline font-semibold">Peers</span>
+<span class="text-sm font-bold text-on-surface">842</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Back Button -->
+<button class="absolute top-6 left-6 p-3 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full text-white transition-all">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-[#f7f9fe] dark:bg-slate-900 border-t border-transparent shadow-[0_-1px_0_0_rgba(0,0,0,0.05)]">
+<button class="flex flex-col items-center justify-center text-slate-400 px-6 py-2">
+<span class="material-symbols-outlined" data-icon="home_max">home_max</span>
+<span class="font-['Inter'] font-semibold text-[10px] uppercase tracking-widest mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-gradient-to-br from-[#3e56aa] to-[#5870c5] text-white rounded-2xl px-6 py-2">
+<span class="material-symbols-outlined" data-icon="download_for_offline" style="font-variation-settings: 'FILL' 1;">download_for_offline</span>
+<span class="font-['Inter'] font-semibold text-[10px] uppercase tracking-widest mt-1">Downloads</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-400 px-6 py-2">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Inter'] font-semibold text-[10px] uppercase tracking-widest mt-1">Settings</span>
+</button>
+</nav>
+</body></html>

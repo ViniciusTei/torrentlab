@@ -1,0 +1,40 @@
+<h2>Where should the video player open from?</h2>
+<p class="subtitle">Pick how the user gets from a download to watching the video</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Downloads page → Play button</h3>
+      <p>Each completed (and in-progress) item on the Downloads page gets a "▶ Assistir" button. Clicking opens a full-screen player page at <code>/player/:infoHash</code>.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Centralised — one place to manage and watch</li><li>Works naturally for in-progress downloads too</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>User must navigate away from movie detail</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Movie detail page → "Assistir" button</h3>
+      <p>When a movie is downloaded (or downloading), a "▶ Assistir" button appears on its detail page alongside the torrent list. Opens the same player page.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Natural flow: find movie → click watch</li><li>Shows download badge + play in one spot</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Requires knowing which movie page to visit</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Both — Downloads page AND movie detail page</h3>
+      <p>Play button on the Downloads page cards AND on the movie detail page when download exists. Same player destination.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Maximum discoverability</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Slightly more implementation surface</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

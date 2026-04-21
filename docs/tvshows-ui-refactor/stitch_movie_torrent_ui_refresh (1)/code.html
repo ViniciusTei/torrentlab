@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TorrentLab - The Bear</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed": "#aeecff",
+            "surface-container-lowest": "#ffffff",
+            "outline-variant": "#c5c5d3",
+            "background": "#f7f9fe",
+            "primary": "#3e56aa",
+            "secondary-container": "#adc3ff",
+            "primary-fixed-dim": "#b6c4ff",
+            "on-error": "#ffffff",
+            "tertiary": "#1c6475",
+            "on-primary": "#ffffff",
+            "tertiary-fixed-dim": "#90d0e3",
+            "on-tertiary-container": "#f9fdff",
+            "surface-container": "#eceef3",
+            "secondary-fixed-dim": "#b1c6ff",
+            "inverse-on-surface": "#eff1f6",
+            "surface-container-high": "#e6e8ed",
+            "surface-tint": "#4059ad",
+            "on-primary-container": "#fffbff",
+            "primary-container": "#5870c5",
+            "on-secondary-fixed-variant": "#2e4579",
+            "tertiary-container": "#3b7d8e",
+            "on-error-container": "#93000a",
+            "surface-container-low": "#f2f4f9",
+            "on-primary-fixed-variant": "#264093",
+            "inverse-surface": "#2d3135",
+            "surface-container-highest": "#e0e2e7",
+            "on-secondary-fixed": "#001946",
+            "on-secondary-container": "#394f84",
+            "on-primary-fixed": "#001550",
+            "surface-variant": "#e0e2e7",
+            "surface-bright": "#f7f9fe",
+            "on-tertiary-fixed-variant": "#004e5d",
+            "on-surface": "#181c20",
+            "outline": "#757683",
+            "on-secondary": "#ffffff",
+            "secondary-fixed": "#d9e2ff",
+            "on-tertiary-fixed": "#001f26",
+            "on-tertiary": "#ffffff",
+            "inverse-primary": "#b6c4ff",
+            "surface": "#f7f9fe",
+            "error-container": "#ffdad6",
+            "surface-dim": "#d8dadf",
+            "primary-fixed": "#dce1ff",
+            "error": "#ba1a1a",
+            "on-surface-variant": "#444651",
+            "on-background": "#181c20",
+            "secondary": "#475d92"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f7f9fe;
+      color: #181c20;
+    }
+    h1, h2, h3, .brand-font {
+      font-family: 'Manrope', sans-serif;
+    }
+    .glass-effect {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .primary-gradient {
+      background: linear-gradient(135deg, #3e56aa 0%, #5870c5 100%);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<header class="bg-[#f7f9fe]/70 dark:bg-[#181c20]/70 backdrop-blur-md font-['Manrope'] font-medium tracking-tight docked full-width top-0 z-50 fixed w-full">
+<div class="flex justify-between items-center px-8 py-4 w-full max-w-[1920px] mx-auto">
+<div class="text-2xl font-black text-[#3e56aa] dark:text-[#5870c5] tracking-tighter cursor-pointer">TorrentLab</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#3e56aa] transition-all duration-300" href="#">Home</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#3e56aa] transition-all duration-300" href="#">Downloads</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#3e56aa] transition-all duration-300" href="#">Settings</a>
+</nav>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<input class="bg-surface-container-lowest/80 backdrop-blur-[12px] border-none outline-none ring-1 ring-outline/15 rounded-full px-5 py-2 w-64 text-sm focus:ring-primary/50 transition-all" placeholder="Search archive..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2 text-outline">search</span>
+</div>
+<button class="material-symbols-outlined text-slate-500 hover:text-primary transition-transform active:scale-90" data-icon="account_circle">account_circle</button>
+</div>
+</div>
+</header>
+<div class="flex pt-20">
+<!-- SideNavBar -->
+<aside class="bg-[#f2f4f9] dark:bg-[#1e2329] flex flex-col gap-2 p-6 fixed left-0 top-16 h-[calc(100vh-64px)] w-72 hidden lg:flex">
+<div class="mb-6 px-2">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-14 bg-surface-container-highest rounded-lg overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="close-up thumbnail of a TV show poster featuring a dramatic character portrait with high-contrast cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMuW7tYr-2Kj31QkssSKI23DopyhAf4JPaUxFtDUo_RgVOaLrGhnV9zfvVDwls-KNZPwcAQlfPWxP0FK5AUiQpGbnFN2FlxMjOeOVscHIvz03RR895WCp739TpG0yvN4zgEgwxY0DluJBM3KN48g01SF0TkS3wuC12g-Zw35GR6dlRs3dPCL0xzvVLqQOFq8ROwVAjTEzX8jaJeSaQLpKinG9eSF3KTR0EWQq-BsAtIQ26NHQ7-4kL4xE-xikdV_WvMG7Fs-MmhSU"/>
+</div>
+<div>
+<div class="text-sm font-bold text-on-surface">Series Navigator</div>
+<div class="text-xs text-on-surface-variant">Browse Seasons</div>
+</div>
+</div>
+<button class="w-full py-2 px-4 bg-primary text-on-primary rounded-xl text-sm font-bold shadow-sm hover:opacity-90 transition-all">Download All</button>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="bg-[#ffffff] dark:bg-[#f7f9fe]/5 text-[#3e56aa] dark:text-[#5870c5] rounded-xl shadow-sm p-3 flex items-center gap-3 font-['Inter'] text-sm font-medium translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="subscriptions">subscriptions</span>
+          Season 1
+        </a>
+<a class="text-slate-600 dark:text-slate-400 p-3 flex items-center gap-3 font-['Inter'] text-sm font-medium hover:bg-[#e0e2e7] dark:hover:bg-white/5 transition-colors rounded-xl" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="subscriptions">subscriptions</span>
+          Season 2
+        </a>
+<a class="text-slate-600 dark:text-slate-400 p-3 flex items-center gap-3 font-['Inter'] text-sm font-medium hover:bg-[#e0e2e7] dark:hover:bg-white/5 transition-colors rounded-xl" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="subscriptions">subscriptions</span>
+          Season 3
+        </a>
+<a class="text-slate-600 dark:text-slate-400 p-3 flex items-center gap-3 font-['Inter'] text-sm font-medium hover:bg-[#e0e2e7] dark:hover:bg-white/5 transition-colors rounded-xl" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="subscriptions">subscriptions</span>
+          Season 4
+        </a>
+<a class="text-slate-600 dark:text-slate-400 p-3 flex items-center gap-3 font-['Inter'] text-sm font-medium hover:bg-[#e0e2e7] dark:hover:bg-white/5 transition-colors rounded-xl" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="auto_awesome">auto_awesome</span>
+          Special Features
+        </a>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 lg:ml-72 p-8 max-w-7xl mx-auto">
+<!-- Hero Section (Asymmetric) -->
+<section class="flex flex-col md:flex-row gap-12 items-end mb-16">
+<div class="w-full md:w-1/3 shrink-0">
+<div class="relative group">
+<div class="absolute -inset-2 bg-primary/10 blur-2xl rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<img class="relative rounded-2xl shadow-xl w-full aspect-[2/3] object-cover border-4 border-surface-container-lowest" data-alt="cinematic high-quality TV show poster for The Bear featuring a chef in a gritty kitchen with warm amber lighting and flour dust in the air" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAY3APkDZiXT9GQadmjwjVi0F9ijKIGmxkB3hCAlGn6Ai1cW2NnqlNVpiAppy_5l3KqyaHnwKb5gjSSZOjQ-My_q5twAO7MDD1U2ZsbZXJ7IiNlQmi8LaqewZoxp5Y-HX98cr84ckyJwNCFFYbs6sn268PrJvZRmQa9LWM-kchP2dUMB8cwoNphjfD6HRHg7POn2P0R2_qJ9VdiLcCPZEsmnbFNoA-XyRdFXX2GWWSSR1JErhx4U2jU58raYtMGfkZ2sL-QLXdC2-4"/>
+</div>
+</div>
+<div class="flex-1 pb-4">
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="px-3 py-1 bg-surface-container-high rounded-full text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Drama</span>
+<span class="px-3 py-1 bg-surface-container-high rounded-full text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Comedy</span>
+<span class="px-3 py-1 bg-surface-container-high rounded-full text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">8.6 IMDb</span>
+</div>
+<h1 class="text-7xl font-extrabold tracking-tighter text-on-surface mb-6 leading-none">The Bear</h1>
+<p class="text-lg text-on-surface-variant font-body leading-relaxed max-w-2xl mb-8">
+            A young chef from the fine dining world comes home to Chicago to run his family sandwich shop after a heartbreaking death in his family. A world away from what he's used to, Carmy must balance the soul-crushing realities of small business ownership.
+          </p>
+<div class="flex flex-col gap-4">
+<h3 class="text-sm font-bold uppercase tracking-widest text-primary/70">Lead Cast</h3>
+<div class="flex gap-4">
+<div class="flex items-center gap-3 bg-surface-container-lowest p-2 pr-4 rounded-full ring-1 ring-outline/5">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="portrait of Jeremy Allen White with intense expression, studio lighting, neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0y_Rztv38SOZ-nzzFsSaWXB64FCtyFfUzn1l4yajRCBQspUh0x2blurD-3o5MXpJ7ZCyx_Nu5V_nCWG55XRBZUgnPz7mjWdxWpVpP9hpE0dppR0ZWLehRjMs8ZRG0hLHHqShXDzBPMbSPET2nmwXdxWwcQ7m6vqsnrEUvu6M2j3vnoByfdXFVzLkfNnSsI1sBA8_Ewpd7m9hQuVqa7WCEScfFrrQE7HBhfxg3xFlXprAEz8pT95VwNQd0NhXhxqKQxhOqu5Feoi8"/>
+<span class="text-sm font-semibold">Jeremy Allen White</span>
+</div>
+<div class="flex items-center gap-3 bg-surface-container-lowest p-2 pr-4 rounded-full ring-1 ring-outline/5">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="portrait of Ayo Edebiri smiling softly, warm natural lighting, professional headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5WH0LoD6WKsTHnjOx1yviIkMkKHwSlKuGoATx3__HSKIQeFnnN86kXSLwhAYfc30J88HqXH6SdMsqAMG-duGOv324-bkJEaZRNQeRu0R-klXRQn7Dk1dSSSkhGo07Z46bA_Ego93rBsMg4_T70hLwaTtcZyRvkspyihvZZEvmwrqCtMsoKGkw2Q-MrjqaUZ45ZS2YVWHLNuBaNhE-ihCpXHuLFa1DczBLzHCZmqgp0x4_vu4L3tCuaSYeD_ziPejjCdL2pj2GM7M"/>
+<span class="text-sm font-semibold">Ayo Edebiri</span>
+</div>
+<div class="flex items-center gap-3 bg-surface-container-lowest p-2 pr-4 rounded-full ring-1 ring-outline/5">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="portrait of Ebon Moss-Bachrach with a rugged look, cinematic side lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0MKura1bgdg8exUtitwKTbGsqVbsTOSRZp3vHEPkGPknDDjSckrblqDLoNsHrRWnmMlkL0_cC81AhsevaGawCSa1FWR_hWnoTNiVt5KvGNh64rXnQ2p-ITbkVPljqpE4dNJsi_caPP9PUl4alGV9djIr0j-c50i1x0dBuw5HN5mq9Ew4FlpfxrhMPs8zk6QZ5W2kdewXMCxf8RrKKDVVa1iwlaPSplKbN4StwQ7px8GSYQ2r0cNSpq_9oyOoWdt2CI2kqjuxr4zA"/>
+<span class="text-sm font-semibold">Ebon Moss-Bachrach</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Episode List -->
+<section class="mt-12">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="text-3xl font-bold tracking-tight">Season 1 Episodes</h2>
+<p class="text-on-surface-variant text-sm mt-1">8 Episodes available for high-speed download</p>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-6">
+<!-- Episode Item 1 -->
+<div class="group flex flex-col md:flex-row bg-surface-container-low hover:bg-surface-container-lowest transition-all duration-300 rounded-2xl overflow-hidden p-4 md:p-2 items-center gap-6 ring-1 ring-outline/5 hover:shadow-xl hover:shadow-primary/5">
+<div class="w-full md:w-64 h-40 shrink-0 relative overflow-hidden rounded-xl">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="still from The Bear episode 1, showing a chaotic commercial kitchen scene with warm lighting and motion blur" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBqj-DrgPiljRdOAOnKvXbQDTFBlACxISZ4imndS5ntZ_VQvyQtVx-I9qiuFcxPynSwP-trHJB346Y_jt_97b7e5nHDqS5u-7shP7bJeMh5Nxnk-ULCSWv6vsPhuzzHANuu5G7MiP7qwSn_jt5IReUcpMsHohxKOe-iYBYa4jT4mrQ9S1sI7l08kP5vhZ763No_GGfV90Un_6ChqoRawOuG5-Wz6_uLctFLQoxqRJExQm2_acoG6L7vkw5Ze5hV__Gi_AqEV93pqk"/>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"></div>
+<div class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase">EP 01</div>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-xl font-bold group-hover:text-primary transition-colors">System</h3>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest bg-surface-container-high px-2 py-1 rounded">28 min</span>
+</div>
+<p class="text-sm text-on-surface-variant font-body line-clamp-2 mb-4 leading-relaxed">
+                Carmy attempts to retrain the employees of The Original Beef of Chicagoland, but faces resistance.
+              </p>
+<div class="flex flex-wrap items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">speed</span>
+<span class="text-xs font-bold text-on-surface-variant uppercase">4K HDR • 240 seeders</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm">database</span>
+<span class="text-xs font-bold text-on-surface-variant uppercase">1.2 GB</span>
+</div>
+</div>
+</div>
+<div class="w-full md:w-auto flex md:flex-col gap-2 shrink-0 md:pl-4 md:border-l border-outline/10">
+<button class="flex-1 md:w-48 py-3 px-6 primary-gradient text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg" data-icon="download">download</span>
+                Download Best
+              </button>
+<button class="flex-1 md:w-48 py-3 px-6 bg-surface-container-highest text-primary rounded-xl text-sm font-bold hover:bg-primary/10 transition-all">
+                View Details
+              </button>
+</div>
+</div>
+<!-- Episode Item 2 -->
+<div class="group flex flex-col md:flex-row bg-surface-container-low hover:bg-surface-container-lowest transition-all duration-300 rounded-2xl overflow-hidden p-4 md:p-2 items-center gap-6 ring-1 ring-outline/5 hover:shadow-xl hover:shadow-primary/5">
+<div class="w-full md:w-64 h-40 shrink-0 relative overflow-hidden rounded-xl">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="still from TV show episode featuring two characters arguing in a narrow hallway, sharp focus, cinematic grading" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArjTC_bieslhP1cM3g9b9jUZ8JBMCuICXyv_4l2RcfZahQnEtIQPbKu7X6JcVy9pekZBv0gHB_YV13OvA_pD_mPIYJzhdorLlT6c4YpwEs2Di_sjRL4Q6f8KgptvjkbYh5h6B0aPudmo90xSs-F7EfK4sB9yMGxYCXL8UxE2AGbdFXnwwAA99sR0kx7m1oKJCeUwknYlHLfz4I2nqA-TpiNDKcy0T7X2IFylMS7Rc-63Dj_IxBBPJA1RTILUrbx4ewoq4u3I_Ha2c"/>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"></div>
+<div class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase">EP 02</div>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-xl font-bold group-hover:text-primary transition-colors">Hands</h3>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest bg-surface-container-high px-2 py-1 rounded">30 min</span>
+</div>
+<p class="text-sm text-on-surface-variant font-body line-clamp-2 mb-4 leading-relaxed">
+                A surprise health inspection reveals the cracks in the restaurant's foundation. Carmy and Richie clash over the future.
+              </p>
+<div class="flex flex-wrap items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">speed</span>
+<span class="text-xs font-bold text-on-surface-variant uppercase">4K HDR • 185 seeders</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm">database</span>
+<span class="text-xs font-bold text-on-surface-variant uppercase">1.4 GB</span>
+</div>
+</div>
+</div>
+<div class="w-full md:w-auto flex md:flex-col gap-2 shrink-0 md:pl-4 md:border-l border-outline/10">
+<button class="flex-1 md:w-48 py-3 px-6 primary-gradient text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg" data-icon="download">download</span>
+                Download Best
+              </button>
+<button class="flex-1 md:w-48 py-3 px-6 bg-surface-container-highest text-primary rounded-xl text-sm font-bold hover:bg-primary/10 transition-all">
+                View Details
+              </button>
+</div>
+</div>
+<!-- Episode Item 3 -->
+<div class="group flex flex-col md:flex-row bg-surface-container-low hover:bg-surface-container-lowest transition-all duration-300 rounded-2xl overflow-hidden p-4 md:p-2 items-center gap-6 ring-1 ring-outline/5 hover:shadow-xl hover:shadow-primary/5">
+<div class="w-full md:w-64 h-40 shrink-0 relative overflow-hidden rounded-xl">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="close up of a gourmet dish being plated with tweezers in a high-end kitchen, soft focus background, cool blue tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsJj1PBnPkTD5ix-LAIBZZNjXNAerTXDdIgyykMGAeIwijFre8dWbg3FL-EPRrmqDkwo3G8AqSQGnAp0ZR8RV0CVyKnZT3xf1uBgKwPdTFp4cIVkL_7CwnD5C0OWK6PwdN-j9p3xToR0uykyuixdo2bxNn3SvQrHRF9vCKKFyionSI2yNUyRxc8axQGv1smtnSC4mK2_G_Hy8uPimoJXXkNhfHBtUT-rtfgNC20QRvunJXbe2_C2xS44JLghnG1wI0uXenPmK0G_E"/>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"></div>
+<div class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase">EP 03</div>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-xl font-bold group-hover:text-primary transition-colors">Brigade</h3>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest bg-surface-container-high px-2 py-1 rounded">27 min</span>
+</div>
+<p class="text-sm text-on-surface-variant font-body line-clamp-2 mb-4 leading-relaxed">
+                Carmy brings in a new kitchen system that creates chaos as the staff struggles to adapt to the new hierarchy.
+              </p>
+<div class="flex flex-wrap items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">speed</span>
+<span class="text-xs font-bold text-on-surface-variant uppercase">4K HDR • 212 seeders</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm">database</span>
+<span class="text-xs font-bold text-on-surface-variant uppercase">1.1 GB</span>
+</div>
+</div>
+</div>
+<div class="w-full md:w-auto flex md:flex-col gap-2 shrink-0 md:pl-4 md:border-l border-outline/10">
+<button class="flex-1 md:w-48 py-3 px-6 primary-gradient text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg" data-icon="download">download</span>
+                Download Best
+              </button>
+<button class="flex-1 md:w-48 py-3 px-6 bg-surface-container-highest text-primary rounded-xl text-sm font-bold hover:bg-primary/10 transition-all">
+                View Details
+              </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Footer (Bento Style) -->
+<section class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-container-low p-6 rounded-2xl flex flex-col justify-between h-40">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Global Availability</span>
+<div class="text-4xl font-extrabold text-primary">99.8%</div>
+<p class="text-xs text-on-surface-variant">Consistent seed coverage across 14 trackers</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-2xl flex flex-col justify-between h-40">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Peak Speed</span>
+<div class="text-4xl font-extrabold text-primary">1.2 Gbps</div>
+<p class="text-xs text-on-surface-variant">Optimized swarm routing active for this series</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-2xl flex flex-col justify-between h-40">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Archive Rank</span>
+<div class="text-4xl font-extrabold text-primary">#4</div>
+<p class="text-xs text-on-surface-variant">Trending in Drama category this week</p>
+</div>
+</section>
+</main>
+</div>
+<!-- Mobile Bottom Nav -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-lowest/80 backdrop-blur-xl flex justify-around items-center py-3 px-4 z-50">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[10px] font-bold uppercase">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">download</span>
+<span class="text-[10px] font-bold uppercase">Archive</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-bold uppercase">Settings</span>
+</a>
+</nav>
+</body></html>
