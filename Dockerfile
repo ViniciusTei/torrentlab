@@ -1,16 +1,34 @@
-# Stage 1: Build frontend (uses pre-installed node_modules from build context)
-FROM node:24 AS frontend
+# syntax=docker/dockerfile:1
+
+# Stage 1: Backend dependencies — node_modules pre-installed for Node 24/linux-x64.
+# In environments with full internet access (github.com reachable), replace the COPY
+# with the commented-out apt-get + npm ci block to build native modules inside Docker.
+FROM node:24-slim AS server-deps
+WORKDIR /app/server
+# ---- self-contained build (requires github.com access for node-datachannel) ----
+# RUN apt-get update && apt-get install -y python3 make g++ cmake git \
+#     && rm -rf /var/lib/apt/lists/*
+# COPY server/package.json server/package-lock.json ./
+# RUN --mount=type=cache,target=/root/.npm npm ci
+# ---- pre-compiled fallback (server/node_modules built on host with Node 24) -----
+COPY server/node_modules ./node_modules
+
+# Stage 2: Build frontend
+FROM node:24-slim AS frontend-build
 WORKDIR /app
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
 COPY . .
-RUN node_modules/.bin/vite build
+RUN npm run build
 
-# Stage 2: Production runtime (node:24 to match host-compiled native modules)
-FROM node:24-slim
+# Stage 3: Production runtime
+FROM node:24-slim AS production
 WORKDIR /app
 
-COPY server/node_modules ./server/node_modules
+COPY --from=server-deps /app/server/node_modules ./server/node_modules
 COPY server/ ./server/
-COPY --from=frontend /app/dist ./dist
+COPY --from=frontend-build /app/dist ./dist
 
 RUN mkdir -p downloads db metadata
 
