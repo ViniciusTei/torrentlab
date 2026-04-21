@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
 
   jackett:
-    image: lscr.io/linuxserver/jackett:latest
+    image: linuxserver/jackett:latest
     environment:
       - PUID=1000
       - PGID=1000
