@@ -6,7 +6,9 @@
 FROM node:24-slim AS server-deps
 WORKDIR /app/server
 RUN --network=host sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
-    && apt-get update && apt-get install -y python3 make g++ cmake git \
+    && apt-get -o Acquire::https::Verify-Peer=false update \
+    && apt-get -o Acquire::https::Verify-Peer=false install -y --no-install-recommends ca-certificates \
+    && apt-get update && apt-get install -y --no-install-recommends python3 make g++ cmake git \
     && rm -rf /var/lib/apt/lists/*
 COPY server/package.json server/package-lock.json ./
 RUN --network=host --mount=type=cache,target=/root/.npm \
