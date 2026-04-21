@@ -1,17 +1,15 @@
 # syntax=docker/dockerfile:1
 
-# Stage 1: Backend dependencies — node_modules pre-installed for Node 24/linux-x64.
-# In environments with full internet access (github.com reachable), replace the COPY
-# with the commented-out apt-get + npm ci block to build native modules inside Docker.
+# Stage 1: Install and compile backend dependencies
+# node-datachannel (webtorrent dep) fetches libdatachannel source via cmake during build,
+# so cmake and git are required in addition to the standard node-gyp toolchain.
 FROM node:24-slim AS server-deps
 WORKDIR /app/server
-# ---- self-contained build (requires github.com access for node-datachannel) ----
-# RUN apt-get update && apt-get install -y python3 make g++ cmake git \
-#     && rm -rf /var/lib/apt/lists/*
-# COPY server/package.json server/package-lock.json ./
-# RUN --mount=type=cache,target=/root/.npm npm ci
-# ---- pre-compiled fallback (server/node_modules built on host with Node 24) -----
-COPY server/node_modules ./node_modules
+RUN apt-get update && apt-get install -y python3 make g++ cmake git \
+    && rm -rf /var/lib/apt/lists/*
+COPY server/package.json server/package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
 
 # Stage 2: Build frontend
 FROM node:24-slim AS frontend-build
