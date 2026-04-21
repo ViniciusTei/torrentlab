@@ -9,14 +9,14 @@ RUN --network=host sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /et
     && apt-get update && apt-get install -y python3 make g++ cmake git \
     && rm -rf /var/lib/apt/lists/*
 COPY server/package.json server/package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm \
+RUN --network=host --mount=type=cache,target=/root/.npm \
     npm ci
 
 # Stage 2: Build frontend
 FROM node:24-slim AS frontend-build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm \
+RUN --network=host --mount=type=cache,target=/root/.npm \
     npm ci
 COPY . .
 RUN npm run build
