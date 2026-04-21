@@ -5,7 +5,7 @@
 # so cmake and git are required in addition to the standard node-gyp toolchain.
 FROM node:24-slim AS server-deps
 WORKDIR /app/server
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
+RUN --network=host sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
     && apt-get update && apt-get install -y python3 make g++ cmake git \
     && rm -rf /var/lib/apt/lists/*
 COPY server/package.json server/package-lock.json ./
